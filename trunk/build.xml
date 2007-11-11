@@ -1,0 +1,226 @@
+<project name="Decaffeinate" default="jar" basedir=".">
+	<property environment="env" />
+	<property name="jar.name" value="Decaf" />
+
+	<property name="dist.dir" value="." />
+	<property name="main.src.dir" value="source" />
+	<property name="test.src.dir" value="test" />
+	<property name="build.dir" value="build" />
+	<property name="docs.dir" value="docs" />
+	<property name="javadoc.dir" value="${docs.dir}/api" />
+	<property name="testdoc.dir" value="${docs.dir}/test" />
+	<property name="config.dir" value="config" />
+	<property name="main.classes.dir" value="${build.dir}/main/classes" />
+	<property name="lib.dir" value="lib" />
+
+	<property name="log4j.configuration" value="log4j.properties" />
+
+	<path id="class.path">
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="./env/freetts/lib">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="./env/osx/lib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="init">
+		<mkdir dir="${main.classes.dir}" />
+		<mkdir dir="${docs.dir}" />
+	</target>
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${docs.dir}" />
+		<delete file="${dist.dir}/${jar.name}.jar" />
+		<delete file="*.gz" />
+		<delete file="*.zip" />
+		<delete file="properties/preferences.object" />
+		<delete file="objects/options.object" />
+		<delete file="*.log" />
+	</target>
+
+	<target name="dist-compile" depends="init" description="Compile the Java source code">
+		<javac srcdir="${main.src.dir}" destdir="${main.classes.dir}" classpathref="class.path" debug="false" deprecation="true" optimize="true">
+		</javac>
+
+		<copy todir="${main.classes.dir}">
+			<fileset dir="${main.src.dir}" excludes="**/*.java" />
+		</copy>
+	</target>
+
+	<target name="dev-compile" depends="init" description="Compile the Java source code">
+		<javac srcdir="${main.src.dir}" destdir="${main.classes.dir}" classpathref="class.path" debug="true" deprecation="true" optimize="false">
+			<compilerarg value="-Xlint:unchecked" />
+		</javac>
+
+		<copy todir="${main.classes.dir}">
+			<fileset dir="${main.src.dir}" excludes="**/*.java" />
+		</copy>
+	</target>
+
+
+	<target name="javadoc" description="Generates java docs">
+		<mkdir dir="${javadoc.dir}" />
+		<javadoc destdir="${javadoc.dir}" author="true" version="true" use="true" windowtitle="Decaffeinate">
+
+			<packageset dir="${main.src.dir}" defaultexcludes="yes">
+				<include name="**" />
+			</packageset>
+
+			<packageset dir="${test.src.dir}" defaultexcludes="yes">
+				<include name="**" />
+			</packageset>
+			<tag name="todo" scope="all" description="To do:" />
+		</javadoc>
+	</target>
+
+	<target name="jar">
+		<jar jarfile="${dist.dir}/DecafOSX.jar" manifest="env/osx/MANIFEST.MF" basedir="${main.classes.dir}">
+			<include name="**/*.class" />
+			<include name="**/*.properties" />
+			<include name="**/*.xml" />
+		</jar>
+		<jar jarfile="${dist.dir}/Decaf.jar" manifest="env/generic/MANIFEST.MF" basedir="${main.classes.dir}">
+			<include name="**/*.class" />
+			<include name="**/*.properties" />
+			<include name="**/*.xml" />
+		</jar>
+		<jar jarfile="${dist.dir}/DecafSpeech.jar" manifest="env/freetts/MANIFEST.MF" basedir="${main.classes.dir}">
+			<exclude name="**/*" />
+		</jar>
+
+
+	</target>
+
+	<target name="dist" depends="clean,dist-compile,jar" description="Builds distribution file.">
+
+		<zip destfile="DecafGeneric.zip">
+			<zipfileset dir="lib" prefix="Decaf/lib" dirmode="777" filemode="755">
+				<include name="**/*.jar" />
+			</zipfileset>
+			<zipfileset dir="Resources" prefix="Decaf/Resources" dirmode="777" filemode="755">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="properties" prefix="Decaf/properties" dirmode="777" filemode="777">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="env/generic/Resources" prefix="Decaf/Resources" dirmode="777" filemode="755">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="env/generic/properties" prefix="Decaf/properties" dirmode="777" filemode="777">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="." prefix="Decaf" dirmode="777" filemode="755">
+				<include name="Decaf.jar" />
+			</zipfileset>
+			<zipfileset dir="." prefix="Decaf" dirmode="777" filemode="444">
+				<include name="gpl-3.0.txt" />
+			</zipfileset>
+		</zip>
+
+		<zip destfile="DecafWin.zip">
+			<zipfileset dir="lib" prefix="Decaf/lib" dirmode="777" filemode="755">
+				<include name="**/*.jar" />
+			</zipfileset>
+			<zipfileset dir="Resources" prefix="Decaf/Resources" dirmode="777" filemode="755">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="properties" prefix="Decaf/properties" dirmode="777" filemode="777">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="env/windows/Resources" prefix="Decaf/Resources" dirmode="777" filemode="755">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="env/windows/properties" prefix="Decaf/properties" dirmode="777" filemode="777">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="." prefix="Decaf" dirmode="777" filemode="755">
+				<include name="Decaf.jar" />
+			</zipfileset>
+			<zipfileset dir="." prefix="Decaf" dirmode="777" filemode="444">
+				<include name="gpl-3.0.txt" />
+			</zipfileset>
+		</zip>
+
+		<zip destfile="DecafOSX.zip">
+			<zipfileset dir="Resources" prefix="Decaf/Resources" dirmode="777" filemode="755">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="properties" prefix="Decaf/properties" dirmode="777" filemode="755">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="env/osx/Resources" prefix="Decaf/Resources" dirmode="777" filemode="777">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="env/osx/properties" prefix="Decaf/properties" dirmode="777" filemode="777">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="." prefix="Decaf"  dirmode="777" filemode="444">
+				<include name="gpl-3.0.txt" />
+			</zipfileset>
+			<zipfileset dir="Decaf.app" prefix="Decaf/Decaf.app" dirmode="777" filemode="755">
+				<include name="**/*" />
+			</zipfileset>
+		</zip>
+		<zip destfile="DecafSpeech.zip">
+			<zipfileset dir="env/freetts/Resources" prefix="Decaf/Resources" dirmode="777" filemode="755">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="env/freetts/properties" prefix="Decaf/properties" dirmode="777" filemode="777">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="env/freetts/lib" prefix="Decaf/lib" dirmode="777" filemode="755">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="." prefix="Decaf" dirmode="777" filemode="555">
+				<include name="DecafSpeech.jar" />
+			</zipfileset>
+		</zip>
+		<zip destfile="DecafSource.zip">
+			<zipfileset dir="lib" prefix="Decaf/lib" dirmode="777" filemode="777">
+				<include name="**/*.jar" />
+			</zipfileset>
+			<zipfileset dir="source" prefix="Decaf/source" dirmode="777" filemode="777">
+				<include name="**/*.java" />
+				<include name="**/*.properties" />
+			</zipfileset>
+			<zipfileset dir="Resources" prefix="Decaf/Resources" dirmode="777" filemode="777">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="properties" prefix="Decaf/properties" dirmode="777" filemode="777">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset dir="env" prefix="Decaf/envs" dirmode="777" filemode="777">
+				<include name="**/*" />
+				<exclude name="freetts/lib/*" />
+			</zipfileset>
+			<zipfileset dir="." prefix="Decaf" dirmode="777" filemode="777">
+				<include name="gpl-3.0.txt" />
+				<include name="build.xml" />
+			</zipfileset>
+		</zip>
+	</target>
+
+	<target name="runosx" depends="dev-compile" description="Executes Decaffeinate">
+		<path id="run.class.path">
+			<fileset dir="./env/osx/lib">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.dir}">
+				<include name="**/*.jar" />
+			</fileset>
+			<pathelement location="${main.classes.dir}" />
+		</path>
+
+		<java classname="decaf.Decaf" classpathref="run.class.path" fork="true">
+			<jvmarg value="-Ddecaf.gui.util.PropertiesManager.propertiesDirs=env/osx/properties" />
+			<jvmarg value="-Ddecaf.gui.ics.timeseal=env/osx/Resources/timeseal.MacOSX-PPC" />
+			<jvmarg value="-Dapple.laf.useScreenMenuBar=true" />
+		</java>
+	</target>
+
+</project>
