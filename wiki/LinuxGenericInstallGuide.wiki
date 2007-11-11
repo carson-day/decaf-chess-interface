@@ -1,0 +1,15 @@
+#labels Phase-Deploy
+=LINUX/GENERIC Installation Instructions=
+==Requires java/jre 5 or better==
+
+Download [http://carsonday.googlepages.com/DecafGeneric.tar.gz DecafGeneric.tar.gz]
+
+Unzip/tar it in a new directory.
+
+Download speech pack if you want Speech enabled [http://carsonday.googlepages.com/DecafSpeech.tar.gz DecafSpeech.tar.gz] and copy it to to the new directory created above.</li>
+
+gunzip and untar in the new directory created above.
+
+If you have an athlon processor edit properties/timeseal.properties and uncomment the athlon line and comment out the x86 line.
+
+To run with speech double click on DecafSpeech.jar, to run without click on Decaf.jar.
