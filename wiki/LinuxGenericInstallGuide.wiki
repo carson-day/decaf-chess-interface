@@ -6,7 +6,7 @@ Download [http://carsonday.googlepages.com/DecafGeneric.tar.gz DecafGeneric.tar.
 
 Unzip/tar it in a new directory.
 
-Download speech pack if you want Speech enabled [http://carsonday.googlepages.com/DecafSpeech.tar.gz DecafSpeech.tar.gz] and copy it to to the new directory created above.</li>
+Download speech pack if you want Speech enabled [http://carsonday.googlepages.com/DecafSpeech.tar.gz DecafSpeech.tar.gz] and copy it to to the new directory created above.
 
 gunzip and untar in the new directory created above.
 
