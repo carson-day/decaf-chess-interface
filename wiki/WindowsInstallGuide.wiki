@@ -1,4 +1,4 @@
-#labels Phase-Deploy
+#labels Phase-Deploy,Featured
 =WINDOWS Installation Instructions=
 ==Requires java/jre 5 or better==
 
