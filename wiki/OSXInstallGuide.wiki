@@ -1,4 +1,4 @@
-#labels Phase-Deploy
+#labels Phase-Deploy,Featured
 =APPLE OSX Installation Instructions=
 ==(Now with OSX native speech!)==
 =Requires OSX java5 upgrade=
