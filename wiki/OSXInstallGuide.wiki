@@ -1,9 +1,9 @@
-#labels Phase-Deploy,Featured
+#labels Featured,Phase-Deploy
 =APPLE OSX Installation Instructions=
 ==(Now with OSX native speech!)==
 =Requires OSX java5 upgrade=
 
-Download [http://carsonday.googlepages.com/DecafOSX.tar.gz DecafOSX.tar.gz]
+Download DecafOSX.zip
 
 Unstuff it and move the directory whereever you want. 
 
