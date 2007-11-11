@@ -2,14 +2,9 @@
 =WINDOWS Installation Instructions=
 ==Requires java/jre 5 or better==
 
-Download and install the latest version of java from suns website (if you already have it installed you need 1.5 or later) 
-
-Download [http://decaf-chess-interface.googlecode.com/files/Decaf.rar Decaf.rar] and copy it to a new directory.
-
-Download speech pack if you want Speech enabled[http://carsonday.googlepages.com/DecafSpeech.tar.gz DecafSpeech.tar.gz] and copy it to to the new directory created above.
-
-Uncompress the files above into a directory. (Uncompress Decaf.rar first followed by DecafSpeech.tar.gz)
-
-To run with speech double click on DecafSpeech.jar
-
-To run without speech double click on Decaf.jar
+  # Download and install the latest version of java from suns website (if you already have java 5 or better you can skip this step) 
+  # Download DecafWin.zip.
+  # Download speech pack if you want Speech enabled DecafSpeech.zip
+  # Extract the files above where you want them.(they both contain a Decaf base directory) 
+  # To run without speech double click on Decaf.jar
+  # To run with speech double click on DecafSpeech.jar
