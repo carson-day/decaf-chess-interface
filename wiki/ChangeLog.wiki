@@ -1,0 +1,22 @@
+#labels Featured,Phase-Requirements
+=Change Log=
+
+*Whats new/fixed in Beta3.4: (11-11-2007)
+#Added in safeguards to check recycled frames to make sure they are stable before reusing them.
+#Fixed bug that was not cleaning up a frame properly after it was recycled.
+#Fixed some more bugs dealing with event handling.
+#Added more synchonization for thread safety.
+#Fixed bug where status bar wasnt being cleared in the second game.
+#Moved log4j.properties into properties so it can be configured to debug if needed (default is error).</li>
+#Compiled release optimized without debug for efficency.
+
+
+*Whats new/fixed in Beta3.3: (11-10-2007)
+#Cleaned up some event subscribers/listeners that were not being removed when a frame was recycled.
+#Fixed a bug where scroll lock was being turned on if it was off and a snap to layout was being issued. (Maras)
+#Further reducted the default chat speed buttons so they all show up on lower resolutions. (mrundersun) 
+#Added back not letting you close a window you are playing. 
+#Fixed invalid move sound playing every move when you play more than 1 games. 
+#Turned off validation for atomic,wild/fr,suicide,losers. (You can edit Decaf.properties and add any other  game type you want to turn off). (mrundersun)
+#Added a left/right holdings mode to view holdings in zh and bug.
+#Fixed some failfast list bugs.
