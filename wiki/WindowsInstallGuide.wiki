@@ -3,8 +3,8 @@
 ==Requires java/jre 5 or better==
 
   # Download and install the latest version of java from suns website (if you already have java 5 or better you can skip this step) 
-  # Download _DecafWin.zip_
-  # Download speech pack if you want Speech enabled _DecafSpeech.zip_
+  # Download DecafWin.zip
+  # Download speech pack if you want Speech enabled DecafSpeech.zip
   # Extract the files above where you want them.(they both contain a Decaf base directory) 
-  # To run without speech double click on _Decaf.jar_
-  # To run with speech double click on _DecafSpeech.jar_
+  # To run without speech double click on Decaf.jar
+  # To run with speech double click on DecafSpeech.jar
