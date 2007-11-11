@@ -1,0 +1,12 @@
+#labels Phase-Deploy
+=APPLE OSX Installation Instructions=
+==(Now with OSX native speech!)==
+=Requires OSX java5 upgrade=
+
+Download [http://carsonday.googlepages.com/DecafOSX.tar.gz DecafOSX.tar.gz]
+
+Unstuff it and move the directory whereever you want. 
+
+Double click on Decaf.app to execute.
+
+The voice you have set in System Preferences is the one that is used.
