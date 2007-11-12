@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: decaf.Decaf
+Class-Path: ./lib/log4j-1.2.9.jar 
+
