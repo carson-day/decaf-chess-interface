@@ -1,5 +1,11 @@
 #labels Featured,Phase-Requirements
 =Change Log=
+  * Whats new/fixed in Beta3.5: (11-12-2007)
+    # Fixed invalid move sound playing after you play 3 games and the double spoken countdown,
+    # Added auto login
+    # follow /B works now
+    # Redid game start events
+    # Fixed bug games not observing sometimes
 
   * Whats new/fixed in Beta3.4: (11-11-2007)
     # Added in safeguards to check recycled frames to make sure they are stable before reusing them.
