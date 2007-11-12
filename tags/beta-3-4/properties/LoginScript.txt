@@ -1,0 +1,3 @@
+#Decaf login script. Start a line with # to make a comment.
+set bugopen off
+set open off
