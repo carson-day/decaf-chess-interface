@@ -8,3 +8,9 @@
   # Extract the files above where you want them.(they both contain a Decaf base directory) 
   # To run without speech double click on Decaf.jar
   # To run with speech double click on DecafSpeech.jar
+
+
+   Generic comes with two timeseals for linux.
+   Resources/timeseal_x86 ang Resources/timeseal_athlon.
+   The timeseal can be configured in properties/Timeseal.properties
+   The default is x_86. You can change this properties file to point to the version you need for linux or other os.
