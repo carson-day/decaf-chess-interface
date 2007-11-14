@@ -1,5 +1,16 @@
 #labels Featured,Phase-Requirements
+
 =Change Log=
+
+  * Whats new/fixed in Beta3.6: (11-14-2007)
+    # Changed sounds to be not as frightening
+    # Added colored lag
+    # Added sending text to console if other window has focus (Ludens)
+    # Added osx showing main menu in any window.
+    # Fixed lag not getting reset each game.
+    # Changed default set to WCN.
+
+
   * Whats new/fixed in Beta3.5: (11-12-2007)
     # Fixed invalid move sound playing after you play 3 games and the double spoken countdown,
     # Added auto login
