@@ -8,18 +8,18 @@ red=255 blue=255 green=0. Decaf does also; however, you can also make
 the background of the images transparent.
 
 Naming Convention
-SET.NAME.WPAWN.SUFFIX
-SET.NAME.BPAWN.SUFFIX
-SET.NAME.WKNIGHT.SUFFIX
-SET.NAME.BKNIGHT.SUFFIX
-SET.NAME.WBISHOP.SUFFIX
-SET.NAME.BBISHOP.SUFFIX
-SET.NAME.WQUEEN.SUFFIX
-SET.NAME.BQUEEN.SUFFIX
-SET.NAME.WROOK.SUFFIX
-SET.NAME.BROOK.SUFFIX
-SET.NAME.WKING.SUFFIX
-SET.NAME.BKING.SUFFIX
+  * SET.NAME.WPAWN.SUFFIX
+  * SET.NAME.BPAWN.SUFFIX
+  * SET.NAME.WKNIGHT.SUFFIX
+  * SET.NAME.BKNIGHT.SUFFIX
+  * SET.NAME.WBISHOP.SUFFIX
+  * SET.NAME.BBISHOP.SUFFIX
+  * SET.NAME.WQUEEN.SUFFIX
+  * SET.NAME.BQUEEN.SUFFIX
+  * SET.NAME.WROOK.SUFFIX
+  * SET.NAME.BROOK.SUFFIX
+  * SET.NAME.WKING.SUFFIX
+  * SET.NAME.BKING.SUFFIX
 
 To add a set simply follow the naming convention above replacing name with your unique name and copy the images in the ./Decaf/Resources directory. They dont have to be BMP but it is preferred since images seem to be processed quicker as BMP in java. 
 
@@ -29,8 +29,8 @@ If you come up with a new chess set and would like to contribute it please post 
 Two images need to be provided to do square backgrounds. Decaf breaks each image into 64 squares and copys the clips the images into squares.
 
 Naming Convention
-SQUARE.NAME.LIGHT.SUFFIX
-SQUARE.NAME.DARK.SUFFIX
+  * SQUARE.NAME.LIGHT.SUFFIX
+  * SQUARE.NAME.DARK.SUFFIX
 
 To add square backgrounds simply follow the naming convention above replacing name with your unique name and copy the images to ./Decaf/Resources. They dont have to be BMP but it is preferred since images seem to be processed quicker as BMP in java.
 
