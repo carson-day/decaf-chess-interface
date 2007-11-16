@@ -10,7 +10,8 @@
     # Made game window titles more verbose.
     # Changed Prefrences dialog to fit on smaller resolutions.
     # Changed default window sizes to fit on smaller resolutions.
-
+    # Changed partner suggestions to use short algebraic instead of long algebraic.
+    # Changed partner suggestions to n@ instead of Knight At.
 
   * Whats new/fixed in Beta3.6: (11-14-2007)
     # Changed sounds to be not as frightening
