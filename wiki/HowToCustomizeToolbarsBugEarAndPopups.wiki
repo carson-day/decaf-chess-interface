@@ -1,0 +1,30 @@
+==How to customize toolbars and popups and BugEar==
+
+In the Decaf/properties directory are several properties files controlling toolbars and popups.
+
+==Toolbars==
+AfterPlayingGameToolbar.properties
+PlayingGameToolbar.properties
+PlayingBugToolbar.properties
+ExamineGameToolbar.properties
+ChatToolbar.properties
+
+Each properties file should have comments at the top of the file with instructions.
+Typically you number each button you want starting with 1, and you can use seperators.
+Make sure your entires are sequential.
+
+==BugEar==
+BugBottons.properties
+
+You can customize the buttons that show up on bugear and what is sent to your partner. Instructions should appear at the top of the file.
+Make sure your entries are sequential
+
+==PersonPopup==
+PersonPopup.properties
+
+You can customize what is displayed when you click on a persons name in the console.
+Instructions should appear at the top of the file.
+Make sure your entries are sequential.
+
+
+
