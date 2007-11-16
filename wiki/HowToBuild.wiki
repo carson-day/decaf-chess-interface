@@ -1,0 +1,42 @@
+#labels Featured,Phase-Implementation,Phase-Design
+=How To Build Decaf=
+
+1) Download apache ant.
+2) Download speech pack.
+3) Download source zip.
+
+Copy all of the files in speech pack/lib into env/freetts/lib from the source zip.
+
+ant dist (Builds decaf and all of the zip files)
+
+ant runosx  (Builds and runs decaf on osx, add your own task for your environment.)
+
+ant clean (Cleans up the build directory and properties/preferences.object)
+
+
+==Why cant it find Decaf.app?==
+If you want to build an app for osx keep reading, otherwise just comment out the offending  include in the build.xml file.
+
+In OSX to build the application as an OSX app you need XCode installed. 
+
+First do an ant dist
+
+In finder click on your harddrive.
+Run Developer/Applications/Java Tools/Jar Bundler.app
+
+===Build Information:===
+Main class: decaf.Decaf
+Java version: 1.5+
+
+===Classpath And Files:===
+Add DecafOSX.jar,lib/*.jar,env/osx/lib/*.jar
+
+===Properties:===
+in VM Options add -Dapple.laf.useScreenMenuBar=true
+Bundle Name: Name of bundle
+Short Version: Decaf
+
+Save the app as Decaf.app in the directory you are using for source.
+
+Run ant dist again (to zip it up into DecafOSX.zip).
+
