@@ -1,0 +1,7 @@
+#labels Featured,Phase-Deploy
+Right now you have to wipe the old version completely and unzip the new one.
+You can not save preferences between versions.
+
+Unzip the Decaf Version.
+If you want speech and are not OSX
+   Unzip Decaf Speech Pack over the unzipped decaf mentioned above 
