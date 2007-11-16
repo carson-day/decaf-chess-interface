@@ -21,7 +21,7 @@ Naming Convention
   * SET.NAME.WKING.SUFFIX
   * SET.NAME.BKING.SUFFIX
 
-To add a set simply follow the naming convention above replacing name with your unique name and copy the images in the ./Decaf/Resources directory. They dont have to be BMP but it is preferred since images seem to be processed quicker as BMP in java. After restarting Decaf the new backgrounds should appear in Configure->Preferences.
+To add a set simply follow the naming convention above replacing NAME with your unique name and copy the images to ./Decaf/Resources directory. They dont have to be BMP but it is preferred since images seem to be processed quicker as BMP in java. After restarting Decaf the new backgrounds should appear in Configure->Preferences.
 
 If you come up with a new chess set and would like to contribute it please post in in group discussions or you can email it to me.
 
@@ -32,6 +32,6 @@ Naming Convention
   * SQUARE.NAME.LIGHT.SUFFIX
   * SQUARE.NAME.DARK.SUFFIX
 
-To add square backgrounds simply follow the naming convention above replacing name with your unique name and copy the images to ./Decaf/Resources. They dont have to be BMP but it is preferred since images seem to be processed quicker as BMP in java. After restarting Decaf the new backgrounds should appear in Configure->Preferences.
+To add square backgrounds simply follow the naming convention above replacing NAME with your unique name and copy the images to ./Decaf/Resources. They dont have to be BMP but it is preferred since images seem to be processed quicker as BMP in java. After restarting Decaf the new backgrounds should appear in Configure->Preferences.
 
 If you come up with a new square background and would like to contribute it please post in in group discussions or you can email it to me.
