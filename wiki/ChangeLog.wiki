@@ -1,6 +1,16 @@
 #labels Featured,Phase-Requirements
-
 =Change Log=
+
+  * Whats new/fixed in Beta3.7: (11-16-2007)
+    # Fixed a bunch of linux issues.
+    # Added in coordinates (you can disable in preferences)
+    # Fixed chat panel shaking when typing text.
+    # Fixed toolbar not updating after finishing a game.
+    # Added Resources Profile under File Menu to aid in detecting memory leaks.
+    # Made game window titles more verbose.
+    # Changed Prefrences dialog to fit on smaller resolutions.
+    # Changed default window sizes to fit on smaller resolutions.
+
 
   * Whats new/fixed in Beta3.6: (11-14-2007)
     # Changed sounds to be not as frightening
