@@ -1,0 +1,15 @@
+#labels Featured,Phase-Implementation
+==OSX Screen Shots==
+
+Bughouse games with various settings:
+http://carsonday.googlepages.com/bug.png
+http://carsonday.googlepages.com/bug2.png
+
+The chat window with the default skin.
+http://carsonday.googlepages.com/chat.png 
+
+A zh game being observed with left/right holdings panels.
+http://carsonday.googlepages.com/zh.png
+
+A blitz game being observed.
+http://carsonday.googlepages.com/blitz.png
