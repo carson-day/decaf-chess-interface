@@ -1,3 +1,4 @@
+#labels Featured,Phase-Implementation,Phase-Deploy
 ==How to customize toolbars and popups and BugEar==
 
 In the Decaf/properties directory are several properties files controlling toolbars and popups.
@@ -25,6 +26,4 @@ PersonPopup.properties
 You can customize what is displayed when you click on a persons name in the console.
 Instructions should appear at the top of the file.
 Make sure your entries are sequential.
-
-
 
