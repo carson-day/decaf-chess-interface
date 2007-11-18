@@ -1,13 +1,12 @@
 #labels Featured,Phase-Requirements
-9=Change Log=
+=Change Log=
   * Whats new/fixed in Beta3.8: (11-18-2007)
     # Added tabbed chat.
     # Added hover over someones name to see past tells to you.
     # Added copy/paste menus.
     # Fixed games not displaying inc properly in window title
     # Hopefully fixed unamed guests not being able to play games in windows/linux
-    # Hopefully fixed bug boards rotating after a game is starting if you had rotated 
-      a previous bughouse game.
+    # Hopefully fixed bug boards rotating after a game is starting if you had rotated a previous bughouse game.
     # Redid preferences dialog, added general and tabbed chat tabs.
     # Added look and feel setting in general preferences.
 
