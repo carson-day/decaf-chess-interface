@@ -1,6 +1,16 @@
 #labels Featured,Phase-Requirements
 =Change Log=
-  * Whats new/fixed in Beta3.8: (11-18-2007)
+  * Whats new/fixed in Beta4.0: (11-20-2007)
+    # Fixed games popping up in ex mode.
+    # Fixed the applicating going into an unstable state if a game popups up in ex mode when it shouldnt.
+    # Added 2 new square backgrounds, replaced marble with marble1.
+    # Slightly redid input text pane added some indention.
+    # Fixed unamed guest/guest not being able to obs games in win/linux.
+    # Fixed bug where game wouldnt stop if a move was received during the end event.
+    # Added kib/says/ptell captions
+    # Rewrote message parsing code.
+
+  * Whats new/fixed in Beta3.9: (11-18-2007)
     # Added tabbed chat.
     # Added hover over someones name to see past tells to you.
     # Added copy/paste menus.
