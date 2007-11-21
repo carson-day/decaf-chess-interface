@@ -1,5 +1,11 @@
 #labels Featured,Phase-Requirements
 =Change Log=
+  * Whats new/fixed in v.91 (11-21-2007)
+    # Set logging back to ERROR it was accidentally on DEBUG in .90
+    # Added an option to set when 10th of a second are shown in the Chess tab.
+    # Changed default clock fonts to be a bit 16 point instead of 15 point.
+    # Fixed a bug where sounds would not play after the app was running for a while
+
   * Whats new/fixed in v.90 (11-20-2007)
     # Fixed all kinds of windows/linux message parsing issues that resulted in strange behavior and crashes.
     # Fixed bug where preferences menu would pop up several times.
