@@ -15,7 +15,9 @@ Typically you number each button you want starting with 1, and you can use seper
 Make sure your entires are sequential.
 
 ===Example: Adding a resign button:===
-Edit PlayingGameToolbar.properties
+Lets add a seperator before draw and a resign button after draw.
+
+PlayingGameToolbar.properties (before)
 {{{
 #Reserved Buttons $CLOSE as a command will close the game window.
 #                 $FLIP as a command will flip the board.
@@ -31,10 +33,8 @@ Edit PlayingGameToolbar.properties
 3.command=draw
 }}}
 
-Add a 4.text=Resign
-      4.command=Resign
 
-PlayingGameToolbar.properties after the change:
+PlayingGameToolbar.properties (after):
 {{{
 #Reserved Buttons $CLOSE as a command will close the game window.
 #                 $FLIP as a command will flip the board.
@@ -46,10 +46,11 @@ PlayingGameToolbar.properties after the change:
 1.command=$CLEAR_PREMOVE
 2.text=All Observers
 2.command=allobs $GAME_ID
-3.text=Draw
-3.command=draw
-4.text=Resign
-4.command=resign
+3.isSeperator=true
+4.text=Draw
+4.command=draw
+5.text=Resign
+5.command=resign
 }}}
 
 
