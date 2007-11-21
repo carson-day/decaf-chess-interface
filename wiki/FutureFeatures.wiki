@@ -7,3 +7,6 @@ Feel free to add comments with additional features.
   # Move list support when observing games/bug games.
   # Crafty analysis when observing games.
   # Not making pieces smaller in windows/linux when dragged.
+  # Plugin support.
+  # ICC support.
+  # Ability to connect to multiple servers (fics + icc) at the same time.
