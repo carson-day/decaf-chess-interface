@@ -1,6 +1,9 @@
 #labels Featured,Phase-Requirements
 =Change Log=
-  * Whats new/fixed in Beta4.0: (11-20-2007)
+  * Whats new/fixed in v.90 (11-20-2007)
+    # Fixed all kinds of windows/linux message parsing issues that resulted in strange behavior and crashes.
+    # Fixed bug where preferences menu would pop up several times.
+    # Fixed bug where if you reconnect under a different name you couldnt play.
     # Fixed games popping up in ex mode.
     # Fixed the application going into an unstable state if a game popups up in ex mode when it shouldnt.
     # Added 2 new square backgrounds, replaced marble with marble1.
