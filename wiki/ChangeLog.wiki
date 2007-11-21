@@ -1,6 +1,7 @@
 #labels Featured,Phase-Requirements
 =Change Log=
   * Whats new/fixed in v.91 (11-21-2007)
+    # Added a way to launch a command via command line to play a sound. See the Install Guide for generic/linux for more details.
     # Fixed a bug where the game end message was not being shown.
     # Set logging back to ERROR it was accidentally on DEBUG in .90
     # Added an option to set when 10th of a second are shown in the Chess tab.
