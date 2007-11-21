@@ -1,7 +1,5 @@
 #labels Featured,Phase-Deploy
-=APPLE OSX Installation Instructions=
-==(Now with OSX native speech!)==
-=Requires OSX java5 upgrade=
+=APPLE OSX Installation Instructions (Requires 10.4 or later with java5 update)=
 
 Download DecafOSX.zip
 
