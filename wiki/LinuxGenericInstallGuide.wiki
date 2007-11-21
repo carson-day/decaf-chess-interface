@@ -10,7 +10,14 @@
   # To run with speech double click on DecafSpeech.jar
 
 
+===Timeseal Configuration===
    Generic comes with two timeseals for linux.
    Resources/timeseal_x86 and Resources/timeseal_athlon.
    The timeseal can be configured in properties/Timeseal.properties
    The default is x_86. You can change this properties file to point to the version you need for linux or other os.
+
+
+===Sound configuration===
+If you are having problems playing or mixing sounds there is a property you can set that will invoke a program command line to play sounds. In Decaf/properties/os.properties add the line sound.externaprocess=SOUND_PROCESS. Where SOUND_PROCESS is the name of the process to launch.
+
+   Krell wanted to use aoss to mix sounds and sets his (os.propertiss) sound.externaprocess=aoss playsound
