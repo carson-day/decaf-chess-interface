@@ -20,4 +20,8 @@
 ===Sound configuration===
 If you are having problems playing or mixing sounds there is a property you can set that will invoke a program via command line to play sounds. In Decaf/properties/os.properties add the line sound.externaprocess=SOUND_PROCESS. Where SOUND_PROCESS is the name of the process to launch.
 
-   Krell wanted to use aoss to mix sounds and sets his (os.propertiss) sound.externaprocess=aoss playsound
+   Krell wanted to use aoss to mix sounds and add the following line to his os.properties.
+
+{{{
+sound.externaprocess=playsound
+}}}
