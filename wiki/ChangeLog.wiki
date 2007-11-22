@@ -1,5 +1,14 @@
 #labels Featured,Phase-Requirements
 =Change Log=
+  * Whats new/fixed in v.92 (11-21-2007)
+    # Added runwindows rungeneric to build.xml.
+    # Fixed some threading bugs.
+    # Added right click on http:// option to launch in default browser.
+    # Added preference to control if observed games are moved to front or not.
+    # Fixed bug where lag your lag was not being updated.
+    # 10ths are now shown from the server they werent previously.
+    # Fixed bug where games couldnt be unobserved.
+
   * Whats new/fixed in v.91 (11-21-2007)
     # Added a way to launch a command via command line to play a sound. See the Install Guide for generic/linux for more details.
     # Fixed a bug where the game end message was not being shown.
