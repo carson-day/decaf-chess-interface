@@ -9,7 +9,11 @@ Copy all of the files in speech pack/lib into env/freetts/lib from the source zi
 
 ant dist (Builds decaf and all of the zip files)
 
-ant runosx  (Builds and runs decaf on osx, add your own task for your environment.)
+ant runosx  (Builds and runs decaf on osx.)
+
+ant runwin  (Builds and runs decaf in generic mode (see build.xml for enabling speech))
+
+ant rungeneric  (Builds and runs decaf on osx (see build.xml for enabling speech and changing timeseals)
 
 ant clean (Cleans up the build directory and properties/preferences.object)
 
@@ -39,4 +43,3 @@ Short Version: Decaf
 Save the app as Decaf.app in the directory you are using for source.
 
 Run ant dist again (to zip it up into DecafOSX.zip).
-
