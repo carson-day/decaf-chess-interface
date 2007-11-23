@@ -1,20 +1,19 @@
 #labels Featured,Phase-Implementation
 =OSX Screenshots=
 
-http://carsonday.googlepages.com/bug2.png
+http://carsonday.googlepages.com/bug.png
 
 A lightning game being observed with colored squares and thin black square border:
 http://carsonday.googlepages.com/blitz.png
 
 Bughouse game with marble square backgrounds:
-http://carsonday.googlepages.com/bug.png
+http://carsonday.googlepages.com/bug2.png
 
 A lightning game being observed with Usual set and lowered bevel square borders:
 http://carsonday.googlepages.com/blitz3.png
 
 A lightning game being observed with crazy settings:
 http://carsonday.googlepages.com/blitz2.png
-
 
 The chat window with the channel tabs (position is configurable):
 http://carsonday.googlepages.com/chat.png
