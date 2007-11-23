@@ -6,6 +6,9 @@ http://carsonday.googlepages.com/bug.png
 A lightning game being observed with colored squares and thin black square border:
 http://carsonday.googlepages.com/blitz.png
 
+Showing off all the preferences that are configurable:
+http://carsonday.googlepages.com/preferences.png
+
 Bughouse game with marble square backgrounds:
 http://carsonday.googlepages.com/bug2.png
 
