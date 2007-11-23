@@ -1,6 +1,12 @@
 #labels Featured,Phase-Implementation
 =OSX Screenshots=
 
+A blitz game being observed with another set and lowered bevel square borders:
+http://carsonday.googlepages.com/blitz3.png
+
+A blitz game being observed with crazy settings:
+http://carsonday.googlepages.com/blitz2.png
+
 Bughouse games with various settings:
 http://carsonday.googlepages.com/bug.png
 http://carsonday.googlepages.com/bug2.png
@@ -13,3 +19,6 @@ http://carsonday.googlepages.com/zh.png
 
 A blitz game being observed:
 http://carsonday.googlepages.com/blitz.png
+
+
+
