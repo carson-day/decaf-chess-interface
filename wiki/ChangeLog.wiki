@@ -1,6 +1,6 @@
 #labels Featured,Phase-Requirements
 =Change Log=
-  * Whats new/fixed in v.92 (11-21-2007)
+  * Whats new/fixed in v.92 (11-22-2007)
     # Added runwindows rungeneric to build.xml.
     # Fixed extraneous events published to the EventService
     # Added right click on http:// option to launch in default browser.
