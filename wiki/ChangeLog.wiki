@@ -1,5 +1,10 @@
 #labels Featured,Phase-Requirements
 =Change Log=
+  * Whats new/fixed in v.93 (11-23-2007)
+    # Fixed bug where playing a game while observing sent style 12 messages to console. Now if you play a game you unfollow and unobserve all games.
+    # Fixed multiple preferences showing up if you used different window menus in OSX.
+    # Fixed bug where preferences was not mvoed to front if it was already visible and selected.
+
   * Whats new/fixed in v.92 (11-22-2007)
     # Added runwindows rungeneric to build.xml.
     # Fixed extraneous events published to the EventService
