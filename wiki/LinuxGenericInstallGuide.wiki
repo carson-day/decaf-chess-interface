@@ -6,7 +6,7 @@
   # Download DecafGeneric.zip
   # Download speech pack if you want Speech enabled DecafSpeech.zip
   # Extract the files above where you want them.(they both contain a Decaf base directory) 
-  # To run without speech double click on Decaf.jar or from the command line 'java -jar Decaf.jar.
+  # To run without speech double click on Decaf.jar or from the command line 'java -jar Decaf.jar'.
   # To run with speech double click on DecafSpeech.jar or from the command line 'java -jar DecafSpeech.jar'.
 
 
