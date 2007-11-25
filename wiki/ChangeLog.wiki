@@ -1,5 +1,19 @@
 #labels Featured,Phase-Requirements
 =Change Log=
+  * Whats new/fixed in v.10 (11-25-2007)
+    # Fixed promotion bug, when you click on knight it was making a bishop
+    # Added invisible move drag and drop mode in the chess tab
+    # Fixed bug where shout text was not being adjusted to what was selected in preferences
+    # Added function keys and a mappings file: KeyMappings.properties. f9 now works like thief
+    # Fixed bug where a piece was labeled as transparent sometimes at the end of a game.
+    # Fixed sought parsing bug
+    # Fixed chess clock not ticking accurately. Set time to 0 and stopped decrementing when time runs out.
+    # Added about dialog.
+    # Ludens added a windows installer! (Thanks ludens!!).
+    # Removed speech.properties and added auto detection for speech.
+    # Fixed a bug where multiple line urls were not being parsed correctly.
+    # Moved threads over to Timers.
+
   * Whats new/fixed in v.93 (11-23-2007)
     # Fixed bug where playing a game while observing sent style 12 messages to console. Now if you play a game you unfollow and unobserve all games.
     # Fixed multiple preferences showing up if you used different window menus in OSX.
