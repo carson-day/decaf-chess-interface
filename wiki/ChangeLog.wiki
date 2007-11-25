@@ -4,7 +4,7 @@
     # Fixed promotion bug, when you click on knight it was making a bishop
     # Added invisible move drag and drop mode in the chess tab
     # Fixed bug where shout text was not being adjusted to what was selected in preferences
-    # Added function keys and a mappings file: KeyMappings.properties. f9 now works like thief
+    # Added function keys and a mappings file, KeyMappings.properties. f9 now works like thief by setting tell x where x was the last person who told you, f3 is accept f4 is decline f6 is abort f7 is rematch.
     # Fixed bug where a piece was labeled as transparent sometimes at the end of a game.
     # Fixed sought parsing bug
     # Fixed chess clock not ticking accurately. Set time to 0 and stopped decrementing when time runs out.
