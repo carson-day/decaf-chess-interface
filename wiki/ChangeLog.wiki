@@ -1,6 +1,6 @@
 #labels Featured,Phase-Requirements
 =Change Log=
-  * Whats new/fixed in v.10 (11-25-2007)
+  * Whats new/fixed in v1.0 (11-25-2007)
     # Fixed promotion bug, when you click on knight it was making a bishop
     # Added invisible move drag and drop mode in the chess tab
     # Fixed bug where shout text was not being adjusted to what was selected in preferences
