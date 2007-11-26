@@ -1,6 +1,7 @@
 #labels Featured,Phase-Requirements
 =Change Log=
   * Whats new/fixed in v1.0 (11-25-2007)
+    # Added ability to connect without timeseal.
     # Fixed lag not being calculated correctly if you are playing.
     # Fixed ptells not showing up in captions
     # Fixed promotion bug, when you click on knight it was making a bishop
