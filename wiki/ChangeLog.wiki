@@ -1,6 +1,6 @@
 #labels Featured,Phase-Requirements
 =Change Log=
-  * Whats new/fixed in v1.0 (11-27-2007)
+  * Whats new/fixed in v.94 (11-27-2007)
     # Added right click Temportary channel tabs/Direct tell tabs. You can use / to send a message that does not pertain to the tab in a tab.
     # Fixed alert sound not being played.
     # Fixed clocks not stopping sometimes.
