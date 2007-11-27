@@ -1,6 +1,14 @@
 #labels Featured,Phase-Requirements
 =Change Log=
   * Whats new/fixed in v1.0 (11-25-2007)
+    # Added right click Temportary channel tabs/Direct tell tabs. You can use / to send a message that
+does not pertain to the tab in a tab.
+    # Fixed alert sound not being played.
+    # Fixed clocks not stopping sometimes.
+    # Fixed board not snapping exactly into place.
+    # Changed windows/linux default font/lnf/window positions to be more appealing.
+    # Fixed bug where you couldnt premove right click drop on an existing piece.
+    # Fixed bug where your possible drops were not properly displayed when you right clicked.
     # Added ability to connect without timeseal.
     # Fixed lag not being calculated correctly if you are playing.
     # Fixed ptells not showing up in captions
