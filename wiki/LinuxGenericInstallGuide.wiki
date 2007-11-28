@@ -1,6 +1,6 @@
 #labels Phase-Deploy,Featured
 =Linux/Generic Installation Instructions=
-==Requires java/jre 5 or better==
+==Decaf requires java/jre 5 or better==
 
   * If you have no Java or a Java version < 1.5 installed, download and install the latest version of java from Sun's website (http://www.java.com)
   * Download the zipped Decaf ([http://decaf-chess-interface.googlecode.com/files/DecafGeneric.95.zip here])
