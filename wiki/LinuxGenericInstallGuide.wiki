@@ -2,7 +2,7 @@
 =Linux/Generic Installation Instructions=
 ==Requires java/jre 5 or better==
 
-  * If you have no Java or a Java version < 1.5 installed, download and install the latest version of java from suns website (http://www.java.com)
+  * If you have no Java or a Java version < 1.5 installed, download and install the latest version of java from Sun's website (http://www.java.com)
   * Download the zipped Decaf ([http://decaf-chess-interface.googlecode.com/files/DecafGeneric.95.zip here])
   * Download speech pack if you want Speech enabled ([http://decaf-chess-interface.googlecode.com/files/DecafSpeech.zip here])
   * Extract these zip files to where you want them. (they both contain a Decaf base directory and have to be installed into the same directory for Decaf Speech to work) 
