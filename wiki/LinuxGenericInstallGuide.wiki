@@ -7,7 +7,7 @@
   * Download speech pack if you want Speech enabled ([http://decaf-chess-interface.googlecode.com/files/DecafSpeech.zip here])
   * Extract these zip files to where you want them. (they both contain a Decaf base directory and have to be installed into the same directory for Decaf Speech to work) 
   * To run without speech double click on Decaf.jar or from the command line 'java -jar Decaf.jar'
-  * To run with speech double click on DecafSpeech.jar or from the command line 'java -jar DecafSpeech.jar'
+  * To run with speech double click on Decaf Speech.jar or from the command line 'java -jar Decaf Speech.jar'
 
 ===Timeseal Configuration===
    Generic comes with two timeseals for linux: Resources/timeseal_x86 and Resources/timeseal_athlon.
