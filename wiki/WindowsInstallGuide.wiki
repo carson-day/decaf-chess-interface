@@ -2,12 +2,12 @@
 =WINDOWS Installation Instructions=
 ==Decaf requires java/jre 1.5 or better==
 
-  # If you have no Java or a Java version < 1.5 installed, download and install the latest version of java from suns website (http://www.java.com)
-  # Download  the Decaf for Windows Installer and follow the installation instructions. Decaf needs write access to some files, installing it in your "My Documents" folder is a good choice (default setting).
+  * If you have no Java or a Java version < 1.5 installed, download and install the latest version of java from suns website (http://www.java.com)
+  * Download  the Decaf for Windows Installer and follow the installation instructions. Decaf needs write access to some files, installing it in your "My Documents" folder is a good choice (default setting).
 
 *Alternatively, if the installer does not work for you:*
-  # Download DecafWin.zip
-  # Download speech pack if you want Speech enabled (DecafSpeech.zip)
-  # Extract these zip files to where you want them. (they both contain a Decaf base directory and have to be installed into the same directory for Decaf Speech to work) 
-  # To run without speech double click on Decaf.jar
-  # To run with speech double click on DecafSpeech.jar
+  * Download DecafWin.zip ([http://code.google.com/p/decaf-chess-interface/downloads/list?can=3&q=&colspec=Filename+Summary+Uploaded+Size+DownloadCount Download here])
+  * Download speech pack if you want Speech enabled (DecafSpeech.zip)
+  * Extract these zip files to where you want them. (they both contain a Decaf base directory and have to be installed into the same directory for Decaf Speech to work) 
+  * To run without speech double click on Decaf.jar
+  * To run with speech double click on DecafSpeech.jar
