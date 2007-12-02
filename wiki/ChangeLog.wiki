@@ -1,5 +1,10 @@
 #labels Featured,Phase-Requirements
 =Change Log=
+ * Whats new/fixed in v.96 (12-2-2007)
+    # Added cursor caching to fix some issues in windows.
+    # Added an applet version.
+    # Changed layouts to be more intuitive.
+
   * Whats new/fixed in v.94 (11-27-2007)
     # Added right click Temportary channel tabs/Direct tell tabs. You can use \ to send a message that does not pertain to the tab in a tab.
     # Fixed alert sound not being played.
