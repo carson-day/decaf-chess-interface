@@ -1,5 +1,22 @@
 #labels Featured,Phase-Requirements
 =Change Log=
+ * Whats new/fixed in v.97 (12-10-2007)
+    # Removed cursor caching.
+    # Add chess set image caching and chess board square image caching.
+    # Added different sound implementations, windows gets javax sound, generic gets applet sound,osx gets applet sound.
+    # Added a move list. Currently it does not support bughouse, ex mode, or adjusting holdings in zh.
+    # Fixed clock not stopping/starting bugs.
+    # Changed drag and drop implementation, switched over to java DND. This should fix the drag and drop bugs.
+    # Added sound for tell/ptell/challenge that plays only if speech is disabled or disabled for the particular function needed (tell,ptell,notification,etc).
+    # Refactored package names to be more intuitive.
+    # Added a new invisible move cursor for OSX. The crosshairs were previously being used.
+    # Changed obsMove sound to a clicking sound. The sound would not play well on speakers that didnt have midrange/base.
+    # Added checkboxes for open,sl,bugopen instead of buttons. The buttons were misleading.
+    # Added a preference to control x when calculating chess piece size: square - x = chess piece size. This allows for smaller pieces and easier drag n drop if desired.
+    # Added a preferences for move list location.
+    # Refactored some thread changes made earlier to attempt to utilize less threads in osx.
+    # Added some performance enhancing code when changing chess pieces on a chess board for efficency.
+
  * Whats new/fixed in v.96 (12-2-2007)
     # Added cursor caching to fix some issues in windows.
     # Added an applet version.
