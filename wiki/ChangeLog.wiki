@@ -16,6 +16,7 @@
     # Added a preferences for move list location.
     # Refactored some thread changes made earlier to attempt to utilize less threads in osx.
     # Added some performance enhancing code when changing chess pieces on a chess board for efficency.
+    # Fixed a promote capture bug where the move would fail if it was a capture.
 
  * Whats new/fixed in v.96 (12-2-2007)
     # Added cursor caching to fix some issues in windows.
