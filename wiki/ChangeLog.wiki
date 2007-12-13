@@ -1,6 +1,6 @@
 #labels Featured,Phase-Requirements
 =Change Log=
- * Whats new/fixed in v.97 (12-10-2007)
+ * Whats new/fixed in v1.0 (12-10-2007)
     # Removed cursor caching.
     # Add chess set image caching and chess board square image caching.
     # Added different sound implementations, windows gets javax sound, generic gets applet sound,osx gets applet sound.
@@ -17,6 +17,10 @@
     # Refactored some thread changes made earlier to attempt to utilize less threads in osx.
     # Added some performance enhancing code when changing chess pieces on a chess board for efficency.
     # Fixed a promote capture bug where the move would fail if it was a capture.
+    # Fixed bug where keyboard input was not being forwarded if playing a game.
+    # Added forward/backward buttons to the move list.
+    # Fixed some zh algebraic parsing problems with move list.
+    
 
  * Whats new/fixed in v.96 (12-2-2007)
     # Added cursor caching to fix some issues in windows.
