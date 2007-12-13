@@ -20,6 +20,7 @@
     # Fixed bug where keyboard input was not being forwarded if playing a game.
     # Added forward/backward buttons to the move list.
     # Fixed some zh algebraic parsing problems with move list.
+    # Added a preferences for controlling if an unfollow is issued when starting a game you are playing.
     
 
  * Whats new/fixed in v.96 (12-2-2007)
