@@ -6,7 +6,7 @@
   * Download  the Decaf for Windows Installer and follow the installation instructions. Decaf needs write access to some files, installing it in your "My Documents" folder is a good choice (default setting).
 
 *Alternatively, if the installer does not work for you:*
-  * Download the zipped Decaf for Windows ([http://decaf-chess-interface.googlecode.com/files/DecafWin.95.zip here])
+  * Download the zipped Decaf for Windows ([http://decaf-chess-interface.googlecode.com/files/DecafWin.1.0.zip here])
   * Download speech pack if you want Speech enabled ([http://decaf-chess-interface.googlecode.com/files/DecafSpeech.zip here])
   * Extract these zip files to where you want them. (they both contain a Decaf base directory and have to be installed into the same directory for Decaf Speech to work) 
   * To run without speech double click on Decaf.jar
