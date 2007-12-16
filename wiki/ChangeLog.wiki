@@ -8,6 +8,7 @@
     # Added logging support in general tab.Console logging/channel logging/individual tell logging are all supported.
     # Changed default window layouts to fill the screen.
     # Refactored code/added s few missing copyright statements.
+    # preferences.obj, logs, and in widnows only proeprties are now located in ${user.home}/.Decaf (in windows this is c:/Documents And Settings/USER/.Decaf).
  
 
  * Whats new/fixed in v1.0 (12-10-2007)
