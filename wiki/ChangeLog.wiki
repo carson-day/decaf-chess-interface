@@ -1,5 +1,15 @@
 #labels Featured,Phase-Requirements
 =Change Log=
+ * Whats new/fixed in v1.1 (12-16-2007)
+    # Added bughouse move lists.
+    # Added right click drop pieces/clear for bsetup in examine mode
+    # Added the ability to switch interface into ex mode when a user is made examiner of an obs game.
+    # Added Fill Screen option in the window menu.
+    # Added logging support in general tab.Console logging/channel logging/individual tell logging are all supported.
+    # Changed default window layouts to fill the screen.
+    # Refactored code/added s few missing copyright statements.
+ 
+
  * Whats new/fixed in v1.0 (12-10-2007)
     # Removed cursor caching.
     # Add chess set image caching and chess board square image caching.
