@@ -3,7 +3,8 @@
 ==Decaf requires java/jre 1.5 or better==
 
   * If you have no Java or a Java version < 1.5 installed, download and install the latest version of java from Sun's website (http://www.java.com)
-  * Download  the Decaf for Windows Installer and follow the installation instructions. Decaf needs write access to some files, installing it in your "My Documents" folder is a good choice (default setting).
+  * Download  the Decaf for Windows Installer and follow the installation instructions. 
+  * New since version 1.01: Older versions installed everything in "My Documents". NEW default installation path is "Program Files\Decaf" for program files and "Documents and Settings\<username>\.decaf" for logs and configuration files.
 
 *Alternatively, if the installer does not work for you:*
   * Download the zipped Decaf for Windows ([http://decaf-chess-interface.googlecode.com/files/DecafWin.1.01.zip here])
