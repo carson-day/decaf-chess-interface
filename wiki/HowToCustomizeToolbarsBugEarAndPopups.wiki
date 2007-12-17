@@ -3,6 +3,8 @@
 
 In the Decaf/properties directory are several properties files controlling toolbars and popups.
 
+In windows check in c:/Documents And Settings/USER/.Decaf/properties
+
 ==Toolbars==
 AfterPlayingGameToolbar.properties
 PlayingGameToolbar.properties
