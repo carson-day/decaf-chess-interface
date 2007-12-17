@@ -1,6 +1,9 @@
 #labels Featured,Phase-Implementation
 =OSX Screenshots=
 
+A bug game being observed with movelists.
+http://carsonday.googlepages.com/bugmovelists.png
+
 http://carsonday.googlepages.com/bug.png
 
 A lightning game being observed with colored squares and thin black square border:
@@ -22,7 +25,7 @@ A lightning game being observed with crazy settings:
 http://carsonday.googlepages.com/blitz2.png
 
 The chat window with the channel tabs (position is configurable):
-http://carsonday.googlepages.com/chat.png
+http://carsonday.googlepages.com/console.png
 
 A zh game being observed with left/right holdings panels:
 http://carsonday.googlepages.com/zh.png
