@@ -10,7 +10,10 @@
     # Refactored code/added s few missing copyright statements.
     # preferences.obj, logs, and in widnows only proeprties are now located in ${user.home}/.Decaf (in windows this is c:/Documents And Settings/USER/.Decaf).
     # Added a way to set all of the fonts to a specific font in chat text tab. 
- 
+    # Added a remove tab button.
+    # Added * * around tabs with tells the user hasnt seen.
+    # Fixed bug where the background text on the dialog that pops up when you select a font is changed if the background color is changed.
+    # Changed default clock colors.
 
  * Whats new/fixed in v1.0 (12-10-2007)
     # Removed cursor caching.
