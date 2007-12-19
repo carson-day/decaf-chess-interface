@@ -1,6 +1,17 @@
 #labels Featured,Phase-Requirements
 =Change Log=
- * Whats new/fixed in v1.1 (12-16-2007)
+
+ * Whats new/fixed in v1.02 (12-16-2007)
+    # Added code to reuse the current frame if it is available instead of creating a new one.
+    # Added smart move.
+    # Added click move drag and drop mode.
+    # Changed premove drop in bughouose to wait until you have the piece in hand before the premoe is issued, even if it is your turn.
+    # Fixed a bughouse bug where the screen would flash to an old position at the start of a game.
+    # Fixed a bug where rarely a style 12 messages would be sent to the server console if the message containing the style 12 was greater than 600 characters (changed this to 900).
+    # Fixed the bug where a box would be displayed in invisible move mode on macs and some windows insalls.
+
+
+ * Whats new/fixed in v1.01 (12-16-2007)
     # Added bughouse move lists.
     # Added right click drop pieces/clear for bsetup in examine mode
     # Added the ability to switch interface into ex mode when a user is made examiner of an obs game.
