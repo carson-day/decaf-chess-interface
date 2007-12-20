@@ -1,6 +1,17 @@
 #labels Featured,Phase-Requirements
 =Change Log=
 
+ * Whats new/fixed in v1.03 (12-20-2007)
+    # Added storing games in pgn, enable it in the Preferences/General tab. (many have suggested this).
+    # Fixed lag showing up reversed. (mastertan)
+    # Added result to the end of the move list. (Ludens)
+    # Added time up on for bug by default,configurable for other. (Ludens)
+    # Fixed some initial bug layout problems. If you were playing bugear was behind your board. (sgs)
+    # Added drop rook in bsetup mode. It was missing. (Tekken)
+    # Fixed comming spelling error in bugear. (mastertan)
+    # Fixed pawn spelling error in betsetup mode. (Tekken)
+    # Made move list optional if you are playing bug. Default is off. (Ludens)
+
  * Whats new/fixed in v1.02 (12-19-2007)
     # Added code to reuse the current frame if it is available instead of creating a new one.
     # Added smart move.
