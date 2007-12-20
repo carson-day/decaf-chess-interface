@@ -1,46 +1,35 @@
-#Instructions to install a desktop icon
+= Creating a Unix startup script and a KDE desktop icon for Decaf =
+The following assumes the Decaf archive was unzipped in your home directory.  If this is not the case, you can either move the Decaf root directory to your home directory - or change the path in the following instructions to that at which Decaf is located.  Keep in mind that if the Decaf root directory is not in your home directory, some of the following steps may need to be done by root.
 
-= Introduction =
+*A Decaf Startup Script for Unix/Linux:*
 
-The following assumes that the Decaf archive was unzipped in your home
-directory.  If this is not the case, you can either move the Decaf root
-directory from where it is to your home directory - or change the path
-in the following instructions to that at which Decaf is located.  Keep
-in mind that if the Decaf root directory is not in your home directory,
-some of the following steps may need to be done by root.
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
-
-Note: the next step creates a startup script for Decaf with speech.
-If speech is not desired, replace "DecafSpeech.jar" with "Decaf.jar".
+*Note:* If speech is not desired, replace _DecafSpeech.jar_ with _Decaf.jar_.
 
 Using a text editor or word processor, create the following script:
 
+{{{
 #!/bin/bash
 # Decaf startup-sript
 cd ~/Decaf
 java -jar DecafSpeech.jar &
 exit 0
+}}}
+Save the script as _~/Decaf/Decaf_.
 
-Save the script as ~/Decaf/Decaf.
+Open a shell and issue the following command:
 
-The following steps create a desktop icon to run Decaf in a KDE desktop
-environment.
+`chmod +x ~/Decaf/Decaf`
 
- 1. Right-click on an empty spot on the desktop and select
-    "Create New->Link to Application...". A window with several tabs appears.
- 2. Click on the icon image in the upper left corner (under the "General" tab).
-    The "Select Icon" window opens.
- 3. Select "Other icons".
- 4. Click "Browse" and browse to "~/Decaf/Resources/".
- 5. Type "DECAF.BMP" in the "Location:" field.
- 6. Click "Open".
- 7. In the General tab, replace the text "Link to Application" with "Decaf"
- 8. Open the "Application" tab.
- 9. In the "Command" field, enter: "sh ~/Decaf/Decaf".
-10. Click "OK".
+*Creating the Decaf Icon:*
 
+  # Right-click on an empty spot on the desktop and select *Create New->Link to Application...*. A window with several tabs appears.
+  # Click on the icon image in the upper left corner (under the *General* tab). The *Select Icon* window opens.
+  # Select *Other icons*.
+  # Click *Browse* and browse to _~/Decaf/Resources/_.
+  # Type _DECAF.BMP_ in the *Location:* field.
+  # Click *Open*.
+  # In the *General* tab, replace the text _Link to Application_ with _Decaf_.
+  # Open the *Application* tab.
+  # In the *Command* field, enter: _sh ~/Decaf/Decaf_.
+  # Click *OK*.
 You should now have a Decaf icon on your desktop - click it to start Decaf.
