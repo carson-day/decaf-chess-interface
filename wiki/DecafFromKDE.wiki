@@ -4,7 +4,7 @@ The following assumes the Decaf archive was unzipped in your home directory.  If
 
 *A Decaf Startup Script for Unix/Linux:*
 
-*Note:* If speech is not desired, replace _DecafSpeech.jar_ with _Decaf.jar_.
+*Note:* If speech is not desired, replace "DecafSpeech.jar" with "Decaf.jar".
 
 Using a text editor or word processor, create the following script:
 
@@ -15,7 +15,7 @@ cd ~/Decaf
 java -jar DecafSpeech.jar &
 exit 0
 }}}
-Save the script as _~/Decaf/Decaf_.
+Save the script as "~/Decaf/Decaf".
 
 Open a shell and issue the following command:
 
@@ -26,11 +26,11 @@ Open a shell and issue the following command:
   # Right-click on an empty spot on the desktop and select *Create New->Link to Application...*. A window with several tabs appears.
   # Click on the icon image in the upper left corner (under the *General* tab). The *Select Icon* window opens.
   # Select *Other icons*.
-  # Click *Browse* and browse to _~/Decaf/Resources/_.
+  # Click *Browse* and browse to "~/Decaf/Resources/".
   # Type _DECAF.BMP_ in the *Location:* field.
   # Click *Open*.
-  # In the *General* tab, replace the text _Link to Application_ with _Decaf_.
+  # In the *General* tab, replace the text "Link to Application" with "Decaf".
   # Open the *Application* tab.
-  # In the *Command* field, enter: _sh ~/Decaf/Decaf_.
+  # In the *Command* field, enter: "sh ~/Decaf/Decaf".
   # Click *OK*.
-You should now have a Decaf icon on your desktop - click it to start Decaf.
+*You should now have a Decaf icon on your desktop - click it to start Decaf.*
