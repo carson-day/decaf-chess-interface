@@ -27,7 +27,7 @@ Open a shell and issue the following command:
   # Click on the icon image in the upper left corner (under the *General* tab). The *Select Icon* window opens.
   # Select *Other icons*.
   # Click *Browse* and browse to "~/Decaf/Resources/".
-  # Type _DECAF.BMP_ in the *Location:* field.
+  # Type "DECAF.BMP" in the *Location:* field.
   # Click *Open*.
   # In the *General* tab, replace the text "Link to Application" with "Decaf".
   # Open the *Application* tab.
