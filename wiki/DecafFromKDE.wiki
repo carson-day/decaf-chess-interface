@@ -1,4 +1,4 @@
-#labels Phase-Deploy
+#labels Phase-Deploy,Featured
 = Creating a Unix startup script and a KDE desktop icon for Decaf =
 The following assumes the Decaf archive was unzipped in your home directory.  If this is not the case, you can either move the Decaf root directory to your home directory - or change the path in the following instructions to that at which Decaf is located.  Keep in mind that if the Decaf root directory is not in your home directory, some of the following steps may need to be done by root.
 
