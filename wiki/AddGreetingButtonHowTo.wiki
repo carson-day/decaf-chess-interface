@@ -1,17 +1,18 @@
 #labels Phase-Requirements
 Creating a greeting button 
+= Add a button that greets opponents with their handle =
+First we need to make an alias.
 
-= Add a button to greet opponents using their handle =
-
-First, we need to make an alias.  In the FICS console, enter:
+In the FICS console, enter:
 
 `alias greet say Hi $o!`
 
 _[$o is a FICS variable that resolves to your present/last opponent's handle.]_
 
-Now open _Decaf/properties/PlayingGameToolbar.properties_ in a text editor or word processor.
+Next, open _Decaf/properties/PlayingGameToolbar.properties_ in a text editor or word processor.
 
 You will see pairs of numbered text lines. The lines making-up a pair share the same number.
+
 The pairs themselves are numbered sequentially and each pair creates a button on the chessboard toolbar.
 
 The last two lines of the file (in Version 1.3, at least) are:
@@ -21,12 +22,13 @@ The last two lines of the file (in Version 1.3, at least) are:
 }}}
 which renders the *Draw* button on the chessboard toolbar.
 
-Add these two lines of text to create a *Greet* button:
+Add these two lines to create a *Greet* button:
 {{{
 7.text=Greet
 7.command=greet
 }}}
-Save the file. Restart Decaf if it is open so the changes will take effect.
+Save the file. If Decaf is open, restart it so the changes will take effect.
 
-The new  button will appear on the chessboard's toolbar when your next game begins.
+The new  button appears on the chessboard toolbar when your next game begins.
+
 Just click *Greet* to send a personalized greeting to your opponent.
