@@ -1,11 +1,11 @@
 #labels Phase-Requirements,Featured
-FFCreating a greeting button 
+Creating a greeting button 
 = Add a button that greets opponents with their handle =
 First we need to make an alias.
 
 In the FICS console, enter:
 
-`alias greet say Hi $o!`
+`alias greet say Hello $o!`
 
 ($o is a FICS variable that is replaced by your latest opponent's handle)
 
