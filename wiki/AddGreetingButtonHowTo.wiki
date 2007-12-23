@@ -7,7 +7,7 @@ In the FICS console, enter:
 
 `alias greet say Hi $o!`
 
-_[$o is a FICS variable that resolves to your present/last opponent's handle.]_
+($o is a FICS variable that is replaced by your latest opponent's handle)
 
 Next, open _Decaf/properties/PlayingGameToolbar.properties_ in a text editor or word processor.
 
