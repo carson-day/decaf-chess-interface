@@ -1,5 +1,5 @@
-#labels Phase-Requirements
-Creating a greeting button 
+#labels Phase-Requirements,Featured
+FFCreating a greeting button 
 = Add a button that greets opponents with their handle =
 First we need to make an alias.
 
