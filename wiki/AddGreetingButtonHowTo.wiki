@@ -1,4 +1,4 @@
-#labels Phase-Requirements,Featured
+#labels Deprecated
 Creating greeting and salute buttons 
 = Add a button to greet opponents by handle =
 First we need to make an alias.
