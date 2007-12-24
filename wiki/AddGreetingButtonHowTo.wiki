@@ -32,9 +32,7 @@ Save the file. If Decaf is open, restart it so the changes will take effect.
 When the chessboard opens for a new game, just click on the *Greet*
 button to send a personalized greeting to your opponent.
 
-== How about a button to thank opponents at games' end? ==
-
-*It's just as easy:*
+== A button to thank opponents by handle at games' end is just as easy: ==
 
 Make an alias, such as:
 
