@@ -1,4 +1,4 @@
-#labels Phase-Requirements
+#labels Phase-Requirements,Featured
 Creating personalized greeting and salutation buttons 
 = Add a button to greet opponents by handle =
 First we need to make an alias.
