@@ -1,5 +1,5 @@
 #labels Phase-Requirements,Featured
-Creating a greeting button 
+Creating greeting and salute buttons 
 = Add a button to greet opponents by handle =
 First we need to make an alias.
 
@@ -29,6 +29,28 @@ Now add this pair of lines to create a *Greet* button:
 }}}
 Save the file. If Decaf is open, restart it so the changes will take effect.
 
-The new  button appears on the chessboard toolbar when your next game begins.
+When the chessboard opens for a new game, just click on the *Greet*
+button to send a personalized greeting to your opponent.
 
-Just click *Greet* to send a personalized greeting to your opponent.
+== How about a button to thank opponents at games' end? ==
+
+*It's just as easy:*
+
+Make an alias, such as:
+
+`alias salute say Thank you for the game, $o!`
+
+*Important:* the button configuration must to added to a different file,
+namely:
+
+_Decaf/properties/AfterPlayingGameToolbar.properties_
+
+Open it in your editor and add the following:
+{{{
+4.text=Salute
+4.command=salute
+}}}
+At games end the chessboard toolbar buttons are replaced by end-of-game buttons.
+*Note:* sometimes you must refresh the window for this to happen.
+
+Just click *Salute* to send a personalized message to your opponent.
