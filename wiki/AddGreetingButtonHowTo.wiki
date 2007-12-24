@@ -15,14 +15,14 @@ You will see pairs of numbered text lines. The lines making-up a pair share the 
 
 The pairs themselves are numbered sequentially and each pair creates a button on the chessboard toolbar.
 
-The last two lines of the file (in Version 1.3, at least) are:
+The last pair in the file (in Version 1.3, at least) are:
 {{{
 6.text=Draw
 6.command=draw
 }}}
 which renders the *Draw* button on the chessboard toolbar.
 
-Add these two lines to create a *Greet* button:
+Now add this pair of lines to create a *Greet* button:
 {{{
 7.text=Greet
 7.command=greet
