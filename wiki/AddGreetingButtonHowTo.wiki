@@ -1,6 +1,6 @@
 #labels Phase-Requirements,Featured
 Creating a greeting button 
-= Add a button that greets opponents with their handle =
+= Add a button to greet opponents by handle =
 First we need to make an alias.
 
 In the FICS console, enter:
@@ -9,7 +9,7 @@ In the FICS console, enter:
 
 ($o is a FICS variable that is replaced by your latest opponent's handle)
 
-Next, open _Decaf/properties/PlayingGameToolbar.properties_ in a text editor or word processor.
+Next, open _"Decaf/properties/PlayingGameToolbar.properties"_ in a text editor or word processor.
 
 You will see pairs of numbered text lines. The lines making-up a pair share the same number.
 
