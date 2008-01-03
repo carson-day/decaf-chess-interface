@@ -1,5 +1,5 @@
 #labels Featured,Phase-Requirements
-=Change Log=
+ =Change Log=
 
  * Whats new/fixed in v1.1 (1-2-2008)
    # kozyr added a nice seek graph
@@ -15,6 +15,7 @@
    # Added a Right 3x2 option for a holdings panel mode.
    # Fixed some resize bugs and layout problems with the different holdings panel modes.
    # Changed the wording of the checkbox preferences to be easier to understand.
+   # Added options to show/hide move list by default for bug/chess observing and playing.
 
  * Whats new/fixed in v1.03 (12-20-2007)
     # Added storing games in pgn, enable it in the Preferences/General tab. (many have suggested this).
