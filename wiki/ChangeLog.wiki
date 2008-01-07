@@ -16,6 +16,10 @@
    # Fixed some resize bugs and layout problems with the different holdings panel modes.
    # Changed the wording of the checkbox preferences to be easier to understand.
    # Added options to show/hide move list by default for bug/chess observing and playing.
+   # Added Winboard and right oriented options in the ChessGui tab.
+   # Made up time text configurable.
+   # Changed the way telling to a channel/person tab works. Now the text is automatically prepended to the input panel. You can hit escape to erase it and type a normal fics command (like you would enter on the console).
+   # Added game result to pgn
 
  * Whats new/fixed in v1.03 (12-20-2007)
     # Added storing games in pgn, enable it in the Preferences/General tab. (many have suggested this).
