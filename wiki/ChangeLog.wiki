@@ -23,6 +23,16 @@
    # Added a diagonal line square selection mode.
    # Added a granite, and some paper background images.
    # Added a way to support cropping of a background image, or reusing it for all squares.
+   # Fixed a bug in OS X Jaguar where when a game started or a keystroke was forward to the input field in the console all text was selected and the next keystroke would delete everything.
+   # Fixed a bug where captions would not always show up on the right side in a game.
+   # Fixed a bug where temp tab keystrokes were not being forwarded to the input field.
+   # Added preferences for removing bug open,seek graph, and bug seek from the console toolbar.
+   # Fixed a bug where images were being generated with -1 width.
+   # Added a bug seek frame to easily match available bug teams.
+   # cached seek graph position/dimensions.
+   # Fixed a bug where sought was not being parsed properly in some cases from the server for the seek graph resulting in games not opening.
+   # Fixed premove drop in bughouse.
+    
 
  * Whats new/fixed in v1.03 (12-20-2007)
     # Added storing games in pgn, enable it in the Preferences/General tab. (many have suggested this).
