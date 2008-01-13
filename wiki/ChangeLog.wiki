@@ -28,10 +28,11 @@
    # Fixed a bug where temp tab keystrokes were not being forwarded to the input field.
    # Added preferences for removing bug open,seek graph, and bug seek from the console toolbar.
    # Fixed a bug where images were being generated with -1 width.
-   # Added a bug seek frame to easily match available bug teams.
+   # Added a bug seek frame to easily match available bug teams and partners.
    # cached seek graph position/dimensions.
    # Fixed a bug where sought was not being parsed properly in some cases from the server for the seek graph resulting in games not opening.
    # Fixed premove drop in bughouse.
+   # Hopefully fixed and DND bug that would not let you move a piece in rare circumstances, the only way to fix it was to reboot.
     
 
  * Whats new/fixed in v1.03 (12-20-2007)
