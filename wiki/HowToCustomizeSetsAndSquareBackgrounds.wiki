@@ -26,11 +26,13 @@ To add a set simply follow the naming convention above replacing NAME with your 
 If you come up with a new chess set and would like to contribute it please post in in group discussions or you can email it to me.
 
 ==Chess Square Backgrounds==
-Two images need to be provided to do square backgrounds. Decaf clips each image into 64 squares.
+Two images need to be provided to do square backgrounds. If you append use SQUARE.CROP.NAME instead of SQUARE.NAME Decaf clips each image into 64 squares, otherwise it uses the entire image scaled to the size of the square.
 
 Naming Convention
-  * SQUARE.NAME.LIGHT.SUFFIX
-  * SQUARE.NAME.DARK.SUFFIX
+  * SQUARE.NAME.LIGHT.BMP
+  * SQUARE.CROP.NAME.LIGHT.BMP
+  * SQUARE.NAME.DARK.BMP
+  * SQUARE.CROP.NAME.DARK.BMP
 
 To add square backgrounds simply follow the naming convention above replacing NAME with your unique name and copy the images to ./Decaf/Resources. They dont have to be BMP but it is preferred since images seem to be processed quicker as BMP in java. After restarting Decaf the new backgrounds should appear in Configure->Preferences.
 
