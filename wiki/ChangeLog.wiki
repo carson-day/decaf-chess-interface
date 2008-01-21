@@ -33,6 +33,11 @@
    # Fixed a bug where sought was not being parsed properly in some cases from the server for the seek graph resulting in games not opening.
    # Fixed premove drop in bughouse.
    # Hopefully fixed and DND bug that would not let you move a piece in rare circumstances, the only way to fix it was to reboot.
+   # Added announce check speech option.
+   # Added Games In Progress tab to Bug Seek.
+   # Added a match winner button to observed games (bug and regular).
+   # Added sub menu support to PersonPopup.properties (see file for more details).
+   # Added RightClickPopup.properties for a dry right click popup.
     
 
  * Whats new/fixed in v1.03 (12-20-2007)
