@@ -63,8 +63,10 @@ You can customize the buttons that show up on bugear and what is sent to your pa
 Make sure your entries are sequential
 
 ==PersonPopup==
-PersonPopup.properties
+PersonPopup.properties RightClickPopup.properties
 
-You can customize what is displayed when you click on a persons name in the console.
+You can customize what is displayed when you click on a persons name in the console or do a dry click. Popups support submenus and are quite similar to the toolbars mentioned above. Each file has commented instructions at the top on how to configure it.
+
 Instructions should appear at the top of the file.
+
 Make sure your entries are sequential.
