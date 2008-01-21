@@ -40,6 +40,7 @@
    # Added RightClickPopup.properties for a dry right click popup.
    # Fixed some layout issues in Thief layout (for some holdings locations the move list is now on the bottom).
    # Fixed some layout issues in Right Oriented layout.
+   # Commands are no longer eaten, you can type sought,moves 34, etc and see the output.
     
 
  * Whats new/fixed in v1.03 (12-20-2007)
