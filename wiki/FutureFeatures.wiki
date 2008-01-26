@@ -4,7 +4,6 @@
 Feel free to add comments with additional features.
 
   # Simul bug support.
-  # Move list support when observing games/bug games.
   # Crafty analysis when observing games.
   # Not making pieces smaller in windows/linux when dragged.
   # Plugin support.
