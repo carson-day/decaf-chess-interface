@@ -1,0 +1,9 @@
+#Decaf login script. Start a line with # to make a comment.
+#Please dont remove open or bugopen just set them to the value you want. 
+#If you remove them the checkbox states on the console toolbar will possibly 
+#be out of sync.
+set seek off
+set open on
+set bugopen off
+set autoflag on
+set noescape on
