@@ -1,6 +1,15 @@
 #labels Featured,Phase-Requirements
  =Change Log=
 
+ * Whats new/fixed in v1.1.1 (2-10-2008)
+   # Fixed wrong square selected when black castles.
+   # Enhanced click click move to support clicking on your piece then another piece of yours and starting a new move.
+      Also fixed selection problems with click click move.
+   # Selected both squares on a premove.
+   # Fixed keystrokes not being forwarded to console in various cases from the chess area window.
+   # Made the default clock sizes a bit bigger.
+   # Changed smart move to not use drop moves as candidates when randomly picking a move.
+
  * Whats new/fixed in v1.1 (1-2-2008)
    # kozyr added a nice seek graph
    # Redid the way the move list was laid out. It is now part of the layout instead of being in a split pane. Its orientation changes depending on where you have the holdings panel setup. You can also show and hide the move list form a button in the boards toolbar.
