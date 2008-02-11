@@ -2,13 +2,13 @@
  =Change Log=
 
  * Whats new/fixed in v1.1.1 (2-10-2008)
-   # Fixed wrong square selected when black castles.
-   # Enhanced click click move to support clicking on your piece then another piece of yours and starting a new move.
-      Also fixed selection problems with click click move.
+   # Fixed wrong square selected when black castles. (cant remember but someone)
+   # Enhanced click click move to support clicking on your piece then another piece of yours and starting a new move. (mhill)
+   # Also fixed selection problems with click click move mode.
    # Selected both squares on a premove.
-   # Fixed keystrokes not being forwarded to console in various cases from the chess area window.
+   # Fixed keystrokes not being forwarded to console in various cases from the chess area window.(PCM)
    # Made the default clock sizes a bit bigger.
-   # Changed smart move to not use drop moves as candidates when randomly picking a move.
+   # Changed smart move to not use drop moves as candidates when randomly picking a move.(mastertan)
 
  * Whats new/fixed in v1.1 (1-2-2008)
    # kozyr added a nice seek graph
