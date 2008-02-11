@@ -140,11 +140,11 @@ public class BoardPreferences implements Cloneable, Serializable {
 	private String layoutClassName = "decaf.gui.widgets.chessarealayout.ThiefChessAreaLayout";
 
 	private TextProperties clockActiveTextProperties = new TextProperties(
-			new Font(GUIUtil.getDefaultFont(), Font.BOLD, 16), Color.red,
+			new Font(GUIUtil.getDefaultFont(), Font.BOLD, 24), Color.red,
 			Color.black);
 
 	private TextProperties clockInactiveTextProperties = new TextProperties(
-			new Font(GUIUtil.getDefaultFont(), Font.BOLD, 16), new Color(128,
+			new Font(GUIUtil.getDefaultFont(), Font.BOLD, 24), new Color(128,
 					128, 128), Color.black);
 
 	private TextProperties controlLabelTextProperties = new TextProperties(

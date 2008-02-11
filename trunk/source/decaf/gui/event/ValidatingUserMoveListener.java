@@ -154,6 +154,7 @@ public class ValidatingUserMoveListener implements UserMoveInputListener {
 				.getBoardPreferences().getDragAndDropMode() == BoardPreferences.CLICK_CLICK_DRAG_AND_DROP;
 		boolean wasSuccessful = false;
 
+		//Smart move.
 		if (controller.getPreferences().getBoardPreferences()
 				.isSmartMoveEnabled()
 				&& controller.isUsersMove()) {
@@ -163,8 +164,9 @@ public class ValidatingUserMoveListener implements UserMoveInputListener {
 			List<Move> movesWithDestinationSquare = new LinkedList<Move>();
 
 			for (int i = 0; i < legalMoves.length; i++) {
+				//Dont add drop moves.
 				if (CoordinatesUtil.equals(coordinates, legalMoves[i]
-						.getEndCoordinates())) {
+						.getEndCoordinates()) && !legalMoves[i].isDropMove()) {
 					movesWithDestinationSquare.add(legalMoves[i]);
 				}
 			}
@@ -193,6 +195,7 @@ public class ValidatingUserMoveListener implements UserMoveInputListener {
 		// Handle click click DND
 		if (!wasSuccessful && isClickClickDND) {
 			if (clickClickMoveStartSquare == null) {
+				controller.getChessArea().getBoard().unselectAllSquares();				
 				clickClickMoveStartSquare = square;
 				clickClickMoveStartSquare.select();
 			} else {
@@ -200,11 +203,21 @@ public class ValidatingUserMoveListener implements UserMoveInputListener {
 					clickClickMoveStartSquare.unselect();
 					controller.playIllegalMoveSound();
 				} else {
-					clickClickMoveStartSquare.unselect();
-					makeMove(clickClickMoveStartSquare.getCoordinates(), square
-							.getCoordinates(), clickClickMoveStartSquare
-							.getDropPiece(), clickClickMoveStartSquare
-							.isDropSquare());
+					if ((PieceUtil.isWhitePiece(clickClickMoveStartSquare.getChessPiece()) && PieceUtil.isWhitePiece(square.getChessPiece())) ||
+					    (PieceUtil.isBlackPiece(clickClickMoveStartSquare.getChessPiece()) && PieceUtil.isBlackPiece(square.getChessPiece())))
+					{
+						controller.getChessArea().getBoard().unselectAllSquares();	
+						clickClickMoveStartSquare = square;
+						clickClickMoveStartSquare.select();
+					}
+					else
+					{						
+						controller.getChessArea().getBoard().unselectAllSquares();
+						makeMove(clickClickMoveStartSquare.getCoordinates(), square
+								.getCoordinates(), clickClickMoveStartSquare
+								.getDropPiece(), clickClickMoveStartSquare
+								.isDropSquare());
+					}
 				}
 			}
 		}

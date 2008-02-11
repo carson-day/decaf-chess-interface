@@ -1088,6 +1088,7 @@ public class GUIManager implements Preferenceable {
 							&& !chessAreaControllers.get(i).isBughouse()) {
 						inactiveController = chessAreaControllers.get(i);
 						chessAreaControllers.remove(i);
+						break;
 					}
 				}
 
@@ -1371,7 +1372,14 @@ public class GUIManager implements Preferenceable {
 
 			if (controller.isPlaying()) {
 				snapLayoutToController(controller);
-				controller.getFrame().requestFocus();
+				if (controller.getCommandToolbar() != null)
+				{
+					controller.getCommandToolbar().requestFocus();
+				}
+				else
+				{
+				    controller.getFrame().requestFocus();
+				}
 
 				if (controller.isBughouse()
 						&& preferences.getBughousePreferences()
@@ -1510,6 +1518,22 @@ public class GUIManager implements Preferenceable {
 		}
 
 		controller.getFrame().setVisible(true);
+	}
+	
+	private void requestToolbarFocus(final ChessAreaControllerBase controller)
+	{
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				if (controller.getCommandToolbar() != null) {
+					controller.getCommandToolbar().requestToolbarFocus();
+				} else {
+					controller.getChessArea().getBoard().get(0, 0)
+							.setRequestFocusEnabled(true);
+					controller.getChessArea().getBoard().get(0, 0)
+							.requestFocus();
+				}
+			}
+		});		
 	}
 
 	private void temporarilyIgnoreGame(final int gameId) {
@@ -1986,19 +2010,7 @@ public class GUIManager implements Preferenceable {
 
 		public void windowOpened(WindowEvent arg0) {
 			LOGGER.debug("Inside window opening");
-
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					if (controller.getCommandToolbar() != null) {
-						controller.getCommandToolbar().requestComboBoxFocus();
-					} else {
-						controller.getChessArea().getBoard().get(0, 0)
-								.setRequestFocusEnabled(true);
-						controller.getChessArea().getBoard().get(0, 0)
-								.requestFocus();
-					}
-				}
-			});
+			requestToolbarFocus(controller);
 		}
 
 		private ChessAreaControllerBase controller;

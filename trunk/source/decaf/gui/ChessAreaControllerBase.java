@@ -1444,6 +1444,7 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 			}
 
 			unselectAllSquares();
+			selectSquare(startCoordinates);
 			selectSquare(endCoordinates);
 
 		} else {
@@ -1466,6 +1467,7 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 			}
 
 			unselectAllSquares();
+			selectSquare(startCoordinates);
 			selectSquare(endCoordinates);
 		} else {
 			// LOGGER.warn("Null premove was encountered");
@@ -1528,7 +1530,7 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 			if (isWhitesMove) {
 				return Coordinates.G1;
 			} else {
-				return Coordinates.G1;
+				return Coordinates.G8;
 			}
 		} else if (move.equalsIgnoreCase("o-o-o")) {
 			if (isWhitesMove) {
