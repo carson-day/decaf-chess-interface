@@ -272,6 +272,11 @@ public class SeekGraph extends JComponent implements MouseMotionListener {
 	}
 
 	private void addSeek(Seek seek, boolean fullRepaint) {
+		
+		if (seek.isComputer() && !showComputer) return;
+		
+		if (!seek.isRated() && !showUnrated) return; 
+		
 		Point loc = new Point(seek.getX(), seek.getY());
 		List<Seek> existing = seeks.get(loc);
 		if (existing == null) {
