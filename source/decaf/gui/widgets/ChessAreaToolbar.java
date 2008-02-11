@@ -19,12 +19,15 @@
  */
 package decaf.gui.widgets;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FocusTraversalPolicy;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -73,6 +76,71 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 	private ChessAreaToolbar thisToolbar = this;
 
 	private Container currentContentPane;
+	
+	private boolean isShowingMoveListButton;
+	private boolean isShowingPieceSelectionCombo;
+	
+	private List<Component> components = new LinkedList<Component>();
+	
+	private class ToolbarFocusTraversalPolicy extends FocusTraversalPolicy
+	{
+
+		@Override
+		public Component getComponentAfter(Container arg0, Component arg1) {
+			for (int i = 0; i < components.size(); i++)
+			{
+				if (components.get(i) == arg1)
+				{
+					if (i == components.size() - 1)
+					{
+						return components.get(0);
+					}
+					else
+					{
+						return components.get(i + 1);
+					}
+				}
+			}
+			return components.get(0);
+		}
+
+		@Override
+		public Component getComponentBefore(Container arg0, Component arg1) {
+			for (int i = 0; i < components.size(); i++)
+			{
+				if (components.get(i) == arg1)
+				{
+					if (i == 0)
+					{
+						return components.get(components.size() - 1);
+					}
+					else
+					{
+						return components.get(i - 1);
+					}
+				}
+			}
+			return components.get(0);		}
+
+		@Override
+		public Component getDefaultComponent(Container arg0) {
+			// TODO Auto-generated method stub
+			return components.get(0);
+		}
+
+		@Override
+		public Component getFirstComponent(Container arg0) {
+			// TODO Auto-generated method stub
+			return components.get(0);
+		}
+
+		@Override
+		public Component getLastComponent(Container arg0) {
+			// TODO Auto-generated method stub
+			return components.get(components.size() - 1);
+		}
+		
+	}
 
 	// DONT USE ME I CRASH WHEN YOU CHANGE THE MOVE LIST SPLIT PLANE
 	private JButton fullScreenButton = new JButton(new AbstractAction(
@@ -154,12 +222,12 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 	public ChessAreaToolbar(final Preferences preferences,
 			ChessAreaControllerBase controller) {
 		super("Speed Button Toolbar", JToolBar.HORIZONTAL);
+		setFocusTraversalPolicy(new ToolbarFocusTraversalPolicy());
 		this.controller = controller;
 		long startTime = System.currentTimeMillis();
 		setFloatable(false);
-		setPreferences(preferences);
-		add(moveListButton);
-		addSeparator(new Dimension(3, 1));
+		isShowingMoveListButton = true;
+		isShowingPieceSelectionCombo = controller.isPlaying() && controller.isActive();
 
 		String propFile = null;
 
@@ -167,6 +235,7 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 			propFile = "AfterPlayingGameToolbar";
 		} else if (controller.isExamining()) {
 			propFile = "ExamineGameToolbar";
+			isShowingMoveListButton = false;
 		} else if (controller.isPlaying() && !controller.isBughouse()) {
 			propFile = "PlayingGameToolbar";
 		} else if (controller.isPlaying() && controller.isBughouse()) {
@@ -176,6 +245,14 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 		} else {
 			propFile = "ObsBugToolbar";
 		}
+		
+		if (isShowingMoveListButton)
+		{
+			setPreferences(preferences);
+			add(moveListButton);
+			addSeparator(new Dimension(3, 1));
+			components.add(moveListButton);
+		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Initializing toolbar with properties: " + propFile);
@@ -183,9 +260,14 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 
 		buttons = ToolbarUtil.addGameToolbarButtonsFromProperties(propFile,
 				this, 12, 3, controller);
+		
+		for (int i = 0; i < buttons.size(); i++)
+		{
+			components.add(buttons.get(i));
+		}
 		setClearPremoveEnabled(false);
 
-		if (controller.isPlaying() && controller.isActive()) {
+		if (isShowingPieceSelectionCombo) {
 			autoPromotionCombo.addItemListener(new ItemListener() {
 
 				public void itemStateChanged(ItemEvent arg0) {
@@ -223,6 +305,7 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 			addSeparator(new Dimension(12, 1));
 			add(new JLabel("Promote:"));
 			add(autoPromotionCombo);
+			components.add(autoPromotionCombo);
 			autoPromotionCombo.setMaximumSize(new Dimension(100, 300));
 		}
 
@@ -254,9 +337,28 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 		thisToolbar.validate();
 	}
 
-	public void requestComboBoxFocus() {
+	public void requestToolbarFocus() {
 		setRequestFocusEnabled(true);
-		autoPromotionCombo.requestFocus();
+		if (isShowingMoveListButton)
+		{
+			System.err.println("requesting focus on move list button");
+			moveListButton.requestFocus();
+		}
+		else if (isShowingPieceSelectionCombo)
+		{
+			System.err.println("requesting focus on promotion combo");			
+		   autoPromotionCombo.requestFocus();
+		}
+		else if (buttons != null && buttons.size() > 0)
+		{
+			System.err.println("requesting focus on first button");			
+			buttons.get(0).requestFocus();
+		}
+		else
+		{
+			System.err.println("generic request focus");			
+			requestFocus();
+		}
 	}
 
 	public void setClearPremoveEnabled(boolean isClearPremoveEnabled) {

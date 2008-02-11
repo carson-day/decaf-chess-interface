@@ -54,8 +54,6 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 
 	private Position position;
 
-	private List<ChessBoardSquare> selectedSquares = new LinkedList<ChessBoardSquare>();
-
 	private int squareSide;
 	
 	private int coordinatesHeight;
@@ -327,7 +325,6 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 	public void selectSquare(int[] coordinates) {
 		if (CoordinatesUtil.isInBounds(coordinates)) {
 			ChessBoardSquare square = squares[coordinates[0]][coordinates[1]];
-			selectedSquares.add(square);
 			square.select();
 		} else {
 		}
@@ -336,25 +333,18 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 	public void unselectSquare(int[] coordinates) {
 		if (CoordinatesUtil.isInBounds(coordinates)) {
 			ChessBoardSquare square = squares[coordinates[0]][coordinates[1]];
-
-			for (int i = 0; i < selectedSquares.size(); i++) {
-				if (selectedSquares.get(i) == square) {
-					selectedSquares.remove(i);
-					i--;
-				}
-			}
-			square.unselect();
+   		    square.unselect();
 		} else {
 		}
 
 	}
 
 	public void unselectAllSquares() {
-		for (int i = 0; i < selectedSquares.size(); i++) {
-			ChessBoardSquare square = (ChessBoardSquare) selectedSquares.get(i);
-			square.unselect();
+		for (int i = 7; i > -1; i--) {
+			for (int j = 7; j > -1; j--) {
+				squares[i][j].unselect();
+			}
 		}
-		selectedSquares.clear();
 	}
 	
 	
