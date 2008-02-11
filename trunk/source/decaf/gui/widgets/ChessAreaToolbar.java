@@ -82,6 +82,10 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 	
 	private List<Component> components = new LinkedList<Component>();
 	
+	/**
+	 * This is used to fix all the crazy focus traveral issues with toolbar.
+	 * I think the seperators mess up the default one.
+	 */
 	private class ToolbarFocusTraversalPolicy extends FocusTraversalPolicy
 	{
 
@@ -341,22 +345,18 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 		setRequestFocusEnabled(true);
 		if (isShowingMoveListButton)
 		{
-			System.err.println("requesting focus on move list button");
 			moveListButton.requestFocus();
 		}
 		else if (isShowingPieceSelectionCombo)
-		{
-			System.err.println("requesting focus on promotion combo");			
+		{			
 		   autoPromotionCombo.requestFocus();
 		}
 		else if (buttons != null && buttons.size() > 0)
-		{
-			System.err.println("requesting focus on first button");			
+		{			
 			buttons.get(0).requestFocus();
 		}
 		else
-		{
-			System.err.println("generic request focus");			
+		{			
 			requestFocus();
 		}
 	}
