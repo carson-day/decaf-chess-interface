@@ -930,7 +930,7 @@ public class ChatPanel extends JPanel implements ActionListener,
 
 		public void inform(WhisperEvent whisperevent) {
 
-			if (!!isExtendedCensor(whisperevent.getWhisperer())) {
+			if (!isExtendedCensor(whisperevent.getWhisperer())) {
 				getMainTab().appendText(
 						whisperevent.getText(),
 						getSimpleAttributes(getPreferences()
@@ -1324,6 +1324,7 @@ public class ChatPanel extends JPanel implements ActionListener,
 		result = result.replaceAll("\\;\\)", " wink ");
 		result = result.replaceAll("\\:b", "  sticks tung out ");
 		result = result.replaceAll("\\:\\(", " frown ");
+		result = result.replaceAll("\\:\\D", " laugh");		
 
 		result = result.replaceAll("\\+p", "\\+ Pawn");
 		result = result.replaceAll("\\+P", "\\+ Pawn");
