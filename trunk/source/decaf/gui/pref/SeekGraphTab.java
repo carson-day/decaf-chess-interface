@@ -164,7 +164,8 @@ class ScalePanel extends JPanel implements ActionListener, IntegerChecker, ListS
 		scaleTable = new JTable(scaleTableModel);
 		
 		JScrollPane tableScrollPane = new JScrollPane(scaleTable);
-		scaleTable.setFillsViewportHeight(true);
+		// 1.6 ONLY! Eclipse sucks...
+		// scaleTable.setFillsViewportHeight(true); 
 		scaleTable.getSelectionModel().addListSelectionListener(this);
 		
 		insertBefore = new JButton("Insert Before");
