@@ -73,16 +73,16 @@
 	</target>
 
 	<target name="dist-compile" depends="init" description="Compile the Java source code">
-		<javac srcdir="${main.src.dir}" destdir="${main.classes.dir}" classpathref="class.path" debug="false" deprecation="true" optimize="true">
+		<javac target="1.5" srcdir="${main.src.dir}" destdir="${main.classes.dir}" classpathref="class.path" debug="false" deprecation="true" optimize="true">
 		</javac>
-
+ 
 		<copy todir="${main.classes.dir}">
 			<fileset dir="${main.src.dir}" excludes="**/*.java" />
-		</copy>
+		</copy> 
 	</target>
 
 	<target name="dev-compile" depends="init" description="Compile the Java source code">
-		<javac srcdir="${main.src.dir}" destdir="${main.classes.dir}" classpathref="class.path" debug="true" deprecation="true" optimize="false">
+		<javac target="1.5" srcdir="${main.src.dir}" destdir="${main.classes.dir}" classpathref="class.path" debug="true" deprecation="true" optimize="false">
 			<compilerarg value="-Xlint:unchecked" />
 		</javac>
 
