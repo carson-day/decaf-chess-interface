@@ -1,15 +1,13 @@
 #labels Featured,Phase-Implementation,Phase-Design
 =How To Build Decaf=
 
-*1) Download apache ant.*
+*1) Download and install apache ant.*
 
-*2) Download a subversion client. You can click the source tab for more information.*
+*2) Download and install a subversion client. You can click the source tab for more information.*
 
 *3) Download code*
 
 *trunk* in subversion is used for beta development. It is the current state of code development and might be unstable. The preferred way of obtaining source is to grab the latest release in tags. You can follow the directions on the Source tab using tags/release-LABEL instead of trunk.
-
-After checkingout out the code from subversion
 
 *4) Run an ant task to build.*
 
