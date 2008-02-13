@@ -9,6 +9,8 @@
    # Fixed keystrokes not being forwarded to console in various cases from the chess area window.(PCM)
    # Made the default clock sizes a bit bigger.
    # Changed smart move to not use drop moves as candidates when randomly picking a move.(mastertan)
+   # Fixed whisper (PCM)
+   # Added some more seek graph configuration options. (Kozyr)
 
  * Whats new/fixed in v1.1 (1-2-2008)
    # kozyr added a nice seek graph
