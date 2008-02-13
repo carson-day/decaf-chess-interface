@@ -11,6 +11,7 @@
    # Changed smart move to not use drop moves as candidates when randomly picking a move.(mastertan)
    # Fixed whisper (PCM)
    # Added some more seek graph configuration options. (Kozyr)
+   # Changed windows timeseal to the timeseal.exe in thief. The one that I was using had issues on some peoples pcs.
 
  * Whats new/fixed in v1.1 (1-2-2008)
    # kozyr added a nice seek graph
