@@ -52,7 +52,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -169,6 +168,8 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 	private int selectAnimationStage = 0;
 
 	private ChessBoardSquare thisSquare = this;
+	
+	private int preMoveIndex = -1;
 
 	public ChessBoardSquare(Preferences preferences, String boardID,
 			boolean isWhiteSquare, int rank, int file) {
@@ -377,11 +378,20 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 			}
 		}
 	}
+	
+	public void preSelect(int index) {
+		if (!isSelected) {
+			isSelected = true;
+			preMoveIndex = index;
+			repaint();
+		}
+	}
 
 	public void unselect() {
 		if (isSelected) {
 			isSelected = false;
 			selectAnimationStage = -1;
+			preMoveIndex = -1;
 			repaint();
 		}
 	}
@@ -414,22 +424,20 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 			super.paintComponent(graphics);
 		}
 
+		Graphics2D graphics2D = (Graphics2D) graphics;
+		graphics2D.setColor(preferences.getBoardPreferences()
+				.getMoveHighlightColor());
+		
 		if (isSelected
 				&& getPreferences().getBoardPreferences()
 						.getSquareSelectionMode() == BoardPreferences.FILL_BACKGROUND_SQUARE_SELECTION_MODE) {
-			Graphics2D graphics2D = (Graphics2D) graphics;
 
-			graphics2D.setColor(preferences.getBoardPreferences()
-					.getMoveHighlightColor());
+
 			graphics2D.fillRect(0, 0, getWidth(), getHeight());
 
 		} else if (isSelected
 				&& getPreferences().getBoardPreferences()
 						.getSquareSelectionMode() == BoardPreferences.DIAGONAL_LINE_BACKGROUND_SQUARE_SELECTION_MODE) {
-			Graphics2D graphics2D = (Graphics2D) graphics;
-
-			graphics2D.setColor(preferences.getBoardPreferences()
-					.getMoveHighlightColor());
 
 			graphics2D.drawLine(getWidth() / 3, 0, 0, getHeight() / 3);
 			graphics2D.drawLine(2 * getWidth() / 3, 0, 0, 2 * getHeight() / 3);
@@ -440,13 +448,14 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 					2 * getHeight() / 3);
 		} else if (isSelected && selectAnimationStage <= 3
 				&& selectAnimationStage > -1) {
-			Graphics2D graphics2D = (Graphics2D) graphics;
 
-			graphics2D.setColor(preferences.getBoardPreferences()
-					.getMoveHighlightColor());
 			Rectangle shape = new Rectangle(getWidth(), getHeight());
 			graphics2D.setStroke(SELECT_ANIMATION_STROKE[selectAnimationStage]);
 			graphics2D.draw(shape);
+		}
+		
+		if (preMoveIndex > -1) {
+			drawPremoveIndex(graphics2D, preMoveIndex);
 		}
 
 		// Draw the piece last.
@@ -461,6 +470,15 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 			graphics.drawImage(image, pieceSizeDelta / 2, pieceSizeDelta / 2,
 					image.getWidth(), image.getHeight(), null);
 		}
+	}
+	
+	protected void drawPremoveIndex(Graphics2D g2d, int index) {
+		
+		String value = String.valueOf(index);
+		int height = getHeight();
+		int width = getWidth();
+		
+		g2d.drawString(value, width - 5, 10);
 	}
 
 	protected void onDragStart() {

@@ -329,6 +329,14 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 		} else {
 		}
 	}
+	
+	public void preSelectSquare(int[] coordinates, int index) {
+		if (CoordinatesUtil.isInBounds(coordinates)) {
+			ChessBoardSquare square = squares[coordinates[0]][coordinates[1]];
+			square.preSelect(index);
+		} else {
+		}
+	}
 
 	public void unselectSquare(int[] coordinates) {
 		if (CoordinatesUtil.isInBounds(coordinates)) {
