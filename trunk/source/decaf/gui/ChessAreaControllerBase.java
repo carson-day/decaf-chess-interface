@@ -172,6 +172,10 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 	private ChessAreaControllerBase thisController = this;
 
 	private int gameEndState;
+	
+	private int [] lastOppponentMoveStart;
+	
+	private int [] lastOpponentMoveEnd;
 
 	public int getGameEndState() {
 		return gameEndState;
@@ -459,7 +463,12 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 					&& !getChessArea().getMoveList().isRealtimeUpdate()
 					&& (isObserving() || isExamining())) {
 			} else {
-				unselectAllSquares();
+				// System.err.println("Premove list: " + queuedPremoves);
+				if (isPlaying() && isPremoveSet()) {
+					unselectLastCoordinates();
+				} else {
+					unselectAllSquares();
+				}
 				getChessArea().setWhiteTime(whiteTime);
 				getChessArea().setBlackTime(blackTime);
 				getChessArea().setPosition(position, areClocksTicking);
@@ -511,6 +520,11 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 					}
 					if (endCoordinates != null) {
 						selectSquare(endCoordinates);
+					}
+					if (isPremoveSet()) {
+						rememberLastCoordinates(startCoordinates, endCoordinates);
+					} else {
+						rememberLastCoordinates(null, null);
 					}
 				}
 			}
@@ -569,6 +583,20 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 			if (!wasPremoveMade) {
 				lastMoveWasPremove = false;
 			}
+		}
+	}
+	
+	private void rememberLastCoordinates(int [] startCoordinates, int [] endCoordinates) {
+		lastOppponentMoveStart = startCoordinates;
+		lastOpponentMoveEnd = endCoordinates;
+	}
+	
+	private void unselectLastCoordinates() {
+		if (lastOppponentMoveStart != null) {
+			unselectSquare(lastOppponentMoveStart);
+		} 
+		if (lastOpponentMoveEnd != null) {
+			unselectSquare(lastOpponentMoveEnd);
 		}
 	}
 
@@ -1466,9 +1494,12 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 				getCommandToolbar().setClearPremoveEnabled(true);
 			}
 
-			unselectAllSquares();
-			selectSquare(startCoordinates);
-			selectSquare(endCoordinates);
+			if (queuedPremoves.size() == 1) {
+				unselectAllSquares();
+				selectSquare(startCoordinates);
+			} 
+			
+			preSelectSquare(endCoordinates, queuedPremoves.size());	
 		} else {
 			// LOGGER.warn("Null premove was encountered");
 		}
@@ -1490,6 +1521,14 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 
 	private final void selectSquare(int[] coordinates) {
 		getChessArea().getBoard().selectSquare(coordinates);
+	}
+	
+	private final void unselectSquare(int[] coordinates) {
+		getChessArea().getBoard().unselectSquare(coordinates);
+	}
+	
+	private final void preSelectSquare(int[] coordinates, int index) {
+		getChessArea().getBoard().preSelectSquare(coordinates, index);
 	}
 
 	private final void unselectAllSquares() {
