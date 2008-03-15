@@ -52,6 +52,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
@@ -150,7 +151,7 @@ public class ChatPanel extends JPanel implements ActionListener,
 
 	private Subscriber subscriber;
 
-	private JTabbedPane tabbedPane = new JTabbedPane();
+	private JTabbedPane tabbedPane = null;
 
 	private JButton removeTabButton = new JButton(new AbstractAction(
 			"Remove Tab") {
@@ -191,9 +192,13 @@ public class ChatPanel extends JPanel implements ActionListener,
 
 	private KeyMapper keyMapper = new KeyMapper();
 
+	private JSplitPane tabSplitPane;
+
 	private SeekFrame lastSeekFrame;
 
 	private JFrame lastBugSeekFrame;
+
+	private JCheckBox prependTellText = new JCheckBox("Prepend Tell Text");
 
 	private HashMap<String, LinkedList<String>> previousTells = new HashMap<String, LinkedList<String>>();
 
@@ -336,26 +341,12 @@ public class ChatPanel extends JPanel implements ActionListener,
 			}
 		});
 		isTabbingDisabled = preferences.getChatPreferences().isDisableTabs();
-
-		if (!isTabbingDisabled) {
-			tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
-			tabbedPane.add(new ChatTab(this), "Console");
-			tabbedPane.addChangeListener(new ChangeListener() {
-				public void stateChanged(ChangeEvent e) {
-					if (getCurrentTab().isMainTab()) {
-						removeTabButton.setEnabled(false);
-					} else {
-						removeTabButton.setEnabled(true);
-					}
-					getCurrentTab().activate();
-					prependInputText();
-				}
-			});
-		} else {
-			mainTab = new ChatTab(this);
-		}
+		mainTab = new ChatTab(this);
 
 		removeTabButton.setEnabled(false);
+		removeTabButton.setVisible(false);
+		prependTellText.setEnabled(false);
+		prependTellText.setVisible(false);
 
 		pingLabel = new PingLabel(preferences);
 
@@ -405,7 +396,7 @@ public class ChatPanel extends JPanel implements ActionListener,
 
 		setLayout(new BorderLayout());
 		add(toolbar, BorderLayout.NORTH);
-		add(isTabbingDisabled ? mainTab : tabbedPane, BorderLayout.CENTER);
+		add(mainTab, BorderLayout.CENTER);
 		add(inputPanel, BorderLayout.SOUTH);
 
 		setPreferences(preferences);
@@ -415,8 +406,64 @@ public class ChatPanel extends JPanel implements ActionListener,
 		setBugOpen(false);
 	}
 
+	public void setupMainConsoleMode() {
+		remove(tabSplitPane);
+		add(mainTab, BorderLayout.CENTER);
+		tabSplitPane.removeAll();
+		tabbedPane.removeAll();
+		revalidate();
+		removeTabButton.setVisible(false);
+		removeTabButton.setEnabled(false);
+		prependTellText.setVisible(false);
+		prependTellText.setEnabled(false);
+		tabSplitPane.removeAll();
+		tabSplitPane = null;
+		tabbedPane = null;
+	}
+
+	public void setupSplitPaneMode() {
+
+		if (!isTabbingDisabled) {
+			tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
+
+			tabbedPane.setTabPlacement(preferences.getChatPreferences()
+					.getTabOrientation());
+
+			tabbedPane.addChangeListener(new ChangeListener() {
+				public void stateChanged(ChangeEvent e) {
+					if (getCurrentTab() != null)
+					{
+						getCurrentTab().activate();
+						prependInputText();
+					}
+
+				}
+			});
+
+			tabSplitPane = new JSplitPane();
+			tabSplitPane.setDividerLocation((getHeight() - 100) / 2);
+			tabSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+			tabSplitPane.setTopComponent(mainTab);
+			tabSplitPane.setBottomComponent(tabbedPane);
+
+			removeTabButton.setVisible(true);
+			removeTabButton.setEnabled(true);
+			prependTellText.setEnabled(true);
+			prependTellText.setVisible(true);
+
+			remove(mainTab);
+			add(tabSplitPane, BorderLayout.CENTER);
+			revalidate();
+			
+			if (isAutoScrolling())
+			{
+				mainTab.setScrollBarToMax();
+			}
+		}
+	}
+
 	public ChatTab getCurrentTab() {
-		if (isTabbingDisabled) {
+		if (isTabbingDisabled || tabbedPane == null) {
 			return mainTab;
 		} else {
 			return (ChatTab) tabbedPane.getSelectedComponent();
@@ -424,15 +471,11 @@ public class ChatPanel extends JPanel implements ActionListener,
 	}
 
 	public ChatTab getMainTab() {
-		if (isTabbingDisabled) {
-			return mainTab;
-		} else {
-			return (ChatTab) tabbedPane.getComponentAt(0);
-		}
+		return mainTab;
 	}
 
 	public ChatTab getTabAt(int index) {
-		if (isTabbingDisabled) {
+		if (isTabbingDisabled || tabbedPane == null) {
 			return mainTab;
 		} else {
 			return (ChatTab) tabbedPane.getComponentAt(index);
@@ -440,7 +483,7 @@ public class ChatPanel extends JPanel implements ActionListener,
 	}
 
 	public ChatTab getConversationTab(String person) {
-		if (isTabbingDisabled) {
+		if (isTabbingDisabled || tabbedPane == null) {
 			return null;
 		} else if (person != null) {
 			ChatTab result = null;
@@ -461,7 +504,7 @@ public class ChatPanel extends JPanel implements ActionListener,
 	}
 
 	public ChatTab getChatTab(int index) {
-		if (isTabbingDisabled) {
+		if (isTabbingDisabled || tabbedPane == null) {
 			return mainTab;
 		} else {
 			return (ChatTab) tabbedPane.getComponentAt(index);
@@ -471,17 +514,19 @@ public class ChatPanel extends JPanel implements ActionListener,
 	public boolean isActive(ChatTab tab) {
 		if (isTabbingDisabled) {
 			return tab == mainTab;
+		} else if (tab == mainTab) {
+			return true;
 		} else {
 			return (ChatTab) tabbedPane.getSelectedComponent() == tab;
 		}
 	}
 
 	public ChatTab getChannelTab(int channel) {
-		if (isTabbingDisabled) {
+		if (isTabbingDisabled || tabbedPane == null) {
 			return null;
 		} else {
 			ChatTab result = null;
-			for (int i = 1; result == null
+			for (int i = 0; result == null
 					&& i < tabbedPane.getComponentCount(); i++) {
 				ChatTab current = getChatTab(i);
 
@@ -498,7 +543,8 @@ public class ChatPanel extends JPanel implements ActionListener,
 	}
 
 	private void prependInputText() {
-		if (getPreferences().getChatPreferences().isPreprendTellToTabs()) {
+		if (getPreferences().getChatPreferences().isPreprendTellToTabs()
+				&& prependTellText.isSelected()) {
 			ChatTab currentTab = getCurrentTab();
 			if (currentTab.getChannel() != -1) {
 				inputField.setText("tell " + currentTab.getChannel() + " ");
@@ -540,9 +586,16 @@ public class ChatPanel extends JPanel implements ActionListener,
 		constraints.weightx = 0;
 		constraints.weighty = 1.0;
 		constraints.fill = GridBagConstraints.BOTH;
-		inputPanel.add(removeTabButton, constraints);
+		inputPanel.add(prependTellText, constraints);
 
 		constraints.gridx = 3;
+		constraints.gridy = 0;
+		constraints.weightx = 0;
+		constraints.weighty = 1.0;
+		constraints.fill = GridBagConstraints.BOTH;
+		inputPanel.add(removeTabButton, constraints);
+
+		constraints.gridx = 4;
 		constraints.gridy = 0;
 		constraints.weightx = 0.0;
 		constraints.weighty = 1.0;
@@ -565,8 +618,10 @@ public class ChatPanel extends JPanel implements ActionListener,
 			pingLabel.setPreferences(preferences);
 			textPrefsToAttributesCache.clear();
 
-			tabbedPane.setTabPlacement(preferences.getChatPreferences()
-					.getTabOrientation());
+			if (tabbedPane != null) {
+				tabbedPane.setTabPlacement(preferences.getChatPreferences()
+						.getTabOrientation());
+			}
 
 			for (Integer integer : preferences.getChatPreferences()
 					.getChannelTabs()) {
@@ -574,7 +629,7 @@ public class ChatPanel extends JPanel implements ActionListener,
 					addChannelTab(integer);
 				}
 			}
-			
+
 			if (lastSeekFrame != null) {
 				lastSeekFrame.setPreferences(preferences);
 			}
@@ -582,14 +637,16 @@ public class ChatPanel extends JPanel implements ActionListener,
 	}
 
 	public void removeTab(ChatTab tab) {
-		if (!tab.isMainTab()) {
-			synchronized (this) {
-				for (int i = 0; i < tabbedPane.getTabCount(); i++) {
-					if (getTabAt(i) == tab) {
-						tabbedPane.removeTabAt(i);
-					}
+		synchronized (this) {
+			for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+				if (getTabAt(i) == tab) {
+					tabbedPane.removeTabAt(i);
 				}
 			}
+		}
+
+		if (tabbedPane.getComponentCount() == 0) {
+			setupMainConsoleMode();
 		}
 	}
 
@@ -622,8 +679,13 @@ public class ChatPanel extends JPanel implements ActionListener,
 	}
 
 	public void addTab(ChatTab tab) {
+
+		if (tabbedPane == null) {
+			setupSplitPaneMode();
+		}
+
 		int index = -1;
-		for (int i = 1; index == -1 && i < tabbedPane.getTabCount(); i++) {
+		for (int i = 0; index == -1 && i < tabbedPane.getTabCount(); i++) {
 			if (getTabAt(i).isGreaterThan(tab)) {
 				index = i;
 			}
@@ -637,6 +699,7 @@ public class ChatPanel extends JPanel implements ActionListener,
 				: tab.getTopic(), index);
 
 		GUIManager.getInstance().addKeyForwarder(tab);
+
 	}
 
 	public void setMessagesPending(ChatTab tab) {
@@ -1111,60 +1174,55 @@ public class ChatPanel extends JPanel implements ActionListener,
 
 		public void inform(SoughtEvent soughtEvent) {
 			if (!soughtEvent.isHideFromUser()) {
-				getMainTab()
-						.appendText(
-								soughtEvent.getText(),
-								getSimpleAttributes(getPreferences()
-										.getChatPreferences()
-										.getDefaultTextProperties()));
+				getMainTab().appendText(
+						soughtEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
 
 			}
 		}
 
 		public void inform(BugWhoPEvent bugWhoPEvent) {
 			if (!bugWhoPEvent.isHideFromUser()) {
-				getMainTab()
-						.appendText(
-								bugWhoPEvent.getText(),
-								getSimpleAttributes(getPreferences()
-										.getChatPreferences()
-										.getDefaultTextProperties()));
+				getMainTab().appendText(
+						bugWhoPEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
 
 			}
 		}
 
 		public void inform(BugWhoUEvent bugWhoIEvent) {
 			if (!bugWhoIEvent.isHideFromUser()) {
-				getMainTab()
-						.appendText(
-								bugWhoIEvent.getText(),
-								getSimpleAttributes(getPreferences()
-										.getChatPreferences()
-										.getDefaultTextProperties()));
+				getMainTab().appendText(
+						bugWhoIEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
 
 			}
 		}
 
 		public void inform(BugWhoGEvent bugWhoGEvent) {
 			if (!bugWhoGEvent.isHideFromUser()) {
-				getMainTab()
-						.appendText(
-								bugWhoGEvent.getText(),
-								getSimpleAttributes(getPreferences()
-										.getChatPreferences()
-										.getDefaultTextProperties()));
+				getMainTab().appendText(
+						bugWhoGEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
 
 			}
 		}
-		
+
 		public void inform(MoveListEvent moveListEvent) {
 			if (!moveListEvent.isHideFromUser()) {
-				getMainTab()
-						.appendText(
-								moveListEvent.getText(),
-								getSimpleAttributes(getPreferences()
-										.getChatPreferences()
-										.getDefaultTextProperties()));
+				getMainTab().appendText(
+						moveListEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
 
 			}
 		}
@@ -1324,7 +1382,7 @@ public class ChatPanel extends JPanel implements ActionListener,
 		result = result.replaceAll("\\;\\)", " wink ");
 		result = result.replaceAll("\\:b", "  sticks tung out ");
 		result = result.replaceAll("\\:\\(", " frown ");
-		result = result.replaceAll("\\:\\D", " laugh");		
+		result = result.replaceAll("\\:\\D", " laugh");
 
 		result = result.replaceAll("\\+p", "\\+ Pawn");
 		result = result.replaceAll("\\+P", "\\+ Pawn");
