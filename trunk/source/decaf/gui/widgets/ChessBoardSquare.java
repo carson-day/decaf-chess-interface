@@ -631,7 +631,6 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 	private static class MyDragSourceMotionListener implements DragSourceMotionListener {
 
 		public void dragMouseMoved(DragSourceDragEvent arg0) {
-			LOGGER.error(arg0.getX() + " " + arg0.getY());
 			
 			if (squareDragStartedIn != null &&
 				squareDragStartedIn .getPreferences().getBoardPreferences().isSelectingHoverOverSquares() &&
