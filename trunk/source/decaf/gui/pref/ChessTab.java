@@ -114,6 +114,8 @@ public class ChessTab extends PreferencesTab {
 	private JCheckBox isShowingPieceJail = new JCheckBox("");
 	
 	private JCheckBox isShowingMyMovesAsSelected = new JCheckBox("");
+	
+	private JCheckBox isSelectingSquareOnHover = new JCheckBox("");
 
 	private JComboBox premoveType = new JComboBox(PREMOVE_TYPE.getItems());
 
@@ -165,6 +167,10 @@ public class ChessTab extends PreferencesTab {
 				isShowingPieceJail));
 		checkboxPanel.add(new LabeledComponent("Mark My Moves",
 				isShowingMyMovesAsSelected));
+		checkboxPanel.add(new LabeledComponent("Select Squares When Hovering",
+				isSelectingSquareOnHover));
+		
+		
 		
 		add(checkboxPanel);
 		add(new LabeledComponent("Show Tenths Of A Second", showTenthsAt));
@@ -200,6 +206,7 @@ public class ChessTab extends PreferencesTab {
 		isShowingMoveListOnObsGame.setSelected(preferences
 				.getBoardPreferences().isShowingMoveListOnObsGames());
 		isShowingMyMovesAsSelected.setSelected(preferences.getBoardPreferences().isShowingMyMovesAsSelected());
+		isSelectingSquareOnHover.setSelected(preferences.getBoardPreferences().isSelectingHoverOverSquares());
 		
 		showTenthsAt.setSelectedIndex(SHOW_TENTHS
 				.getIndexWithValue(preferences.getBoardPreferences()
@@ -243,6 +250,7 @@ public class ChessTab extends PreferencesTab {
 		preferences.getBoardPreferences().setShowingMoveListOnObsGames(
 				isShowingMoveListOnObsGame.isSelected());
 		preferences.getBoardPreferences().setShowingMyMovesAsSelected(isShowingMyMovesAsSelected.isSelected());
+		preferences.getBoardPreferences().setSelectingHoverOverSquares(isSelectingSquareOnHover.isSelected());
 
 		preferences
 				.getBoardPreferences()

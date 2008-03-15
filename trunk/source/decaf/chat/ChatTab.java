@@ -436,7 +436,6 @@ public class ChatTab extends JPanel implements ClipboardOwner {
 
 	private void handleTextPaneClick(Point point, int documentPosition) {
 		// A mess and needs to be refactored.
-		LOGGER.error("Document position=" + documentPosition);
 		try {
 			final String selectedText = textPane.getSelectedText();
 

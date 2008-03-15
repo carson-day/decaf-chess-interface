@@ -191,6 +191,8 @@ public class BoardPreferences implements Cloneable, Serializable {
 	private boolean isShowingPieceJail = false;
 	
 	private boolean isShowingMyMovesAsSelected = false;
+	
+	private boolean isSelectingHoverOverSquares = true;
 
 	private SquareImageBackground squareImageBackground = new SquareImageBackground(
 			"Paper");
@@ -612,5 +614,11 @@ public class BoardPreferences implements Cloneable, Serializable {
 		this.isShowingMyMovesAsSelected = isShowingMyMovesAsSelected;
 	}
 
+	public boolean isSelectingHoverOverSquares() {
+		return isSelectingHoverOverSquares;
+	}
 
+	public void setSelectingHoverOverSquares(boolean isSelectingHoverOverSquares) {
+		this.isSelectingHoverOverSquares = isSelectingHoverOverSquares;
+	}
 }

@@ -21,6 +21,7 @@ package decaf.gui.widgets;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -43,6 +44,7 @@ import java.awt.dnd.DragSourceDragEvent;
 import java.awt.dnd.DragSourceDropEvent;
 import java.awt.dnd.DragSourceEvent;
 import java.awt.dnd.DragSourceListener;
+import java.awt.dnd.DragSourceMotionListener;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDropEvent;
@@ -103,8 +105,18 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 	private static Cursor INVIS_MOVE_CURSOR = null;
 
 	private static Image TRANSPARENT_IMAGE = null;
+	
+	private static MyDragSourceMotionListener dragSourceMotionListener = new MyDragSourceMotionListener();
+	
+	private static ChessBoardSquare squareDragStartedIn;
+	
+	private static ChessBoardSquare lastHoverSquare;
 
 	static {
+		
+		DragSource.getDefaultDragSource().addDragSourceMotionListener(dragSourceMotionListener);
+		
+		
 		// Cache the INVIS_MOVE_CURSOR for speed
 		try {
 			LOGGER.debug("Creating invis move cursor image");
@@ -168,9 +180,9 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 	private int selectAnimationStage = 0;
 
 	private ChessBoardSquare thisSquare = this;
-	
-	private int preMoveIndex = -1;
 
+	private int preMoveIndex = -1;
+	
 	public ChessBoardSquare(Preferences preferences, String boardID,
 			boolean isWhiteSquare, int rank, int file) {
 		isMoveable = false;
@@ -191,6 +203,7 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 		setOpaque(true);
 		this.rank = rank;
 		this.file = file;
+		
 	}
 
 	public ChessBoardSquare(Preferences preferences, String boardID,
@@ -378,7 +391,7 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 			}
 		}
 	}
-	
+
 	public void preSelect(int index) {
 		if (!isSelected) {
 			isSelected = true;
@@ -427,11 +440,10 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 		Graphics2D graphics2D = (Graphics2D) graphics;
 		graphics2D.setColor(preferences.getBoardPreferences()
 				.getMoveHighlightColor());
-		
+
 		if (isSelected
 				&& getPreferences().getBoardPreferences()
 						.getSquareSelectionMode() == BoardPreferences.FILL_BACKGROUND_SQUARE_SELECTION_MODE) {
-
 
 			graphics2D.fillRect(0, 0, getWidth(), getHeight());
 
@@ -453,7 +465,7 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 			graphics2D.setStroke(SELECT_ANIMATION_STROKE[selectAnimationStage]);
 			graphics2D.draw(shape);
 		}
-		
+
 		if (preMoveIndex > -1) {
 			drawPremoveIndex(graphics2D, preMoveIndex);
 		}
@@ -471,13 +483,13 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 					image.getWidth(), image.getHeight(), null);
 		}
 	}
-	
+
 	protected void drawPremoveIndex(Graphics2D g2d, int index) {
-		
+
 		String value = String.valueOf(index);
 		int height = getHeight();
 		int width = getWidth();
-		
+
 		g2d.drawString(value, width - 5, 10);
 	}
 
@@ -616,6 +628,38 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 		}
 	}
 
+	private static class MyDragSourceMotionListener implements DragSourceMotionListener {
+
+		public void dragMouseMoved(DragSourceDragEvent arg0) {
+			LOGGER.error(arg0.getX() + " " + arg0.getY());
+			
+			if (squareDragStartedIn != null &&
+				squareDragStartedIn .getPreferences().getBoardPreferences().isSelectingHoverOverSquares() &&
+				squareDragStartedIn.getParent() instanceof ChessBoard &&  
+				squareDragStartedIn.getPreferences().getBoardPreferences().getDragAndDropMode() != BoardPreferences.INVISIBLE_MOVE)
+			{
+				ChessBoard board = (ChessBoard) squareDragStartedIn.getParent();
+				Point point = new Point(arg0.getX(),arg0.getY());
+				SwingUtilities.convertPointFromScreen(point,board);
+				Component component = board.getComponentAt(point);
+
+				if (lastHoverSquare != null && component != lastHoverSquare)
+				{
+					lastHoverSquare.unselect();
+				}
+				if (component instanceof ChessBoardSquare)
+				{
+					if (!((ChessBoardSquare) component).isDropSquare())
+					{
+					   lastHoverSquare = (ChessBoardSquare) component;
+					   lastHoverSquare.select();
+					}
+				}
+			}
+			
+		}
+		
+	}
 	public class MyDragSourceListener implements DragSourceListener {
 
 		ChessAreaFrame chessAreaFrame;
@@ -733,6 +777,12 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 					chessAreaFrame.setCursor(cursor);
 				}
 
+				if (getPreferences().getBoardPreferences()
+						.isSelectingHoverOverSquares()) {
+					LOGGER.error("Entering drag enter" + getFile() + getRank()); 
+					select();
+				}
+
 			} catch (Exception e) {
 				LOGGER.error("Unexpected exception:", e);
 			}
@@ -744,6 +794,12 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 				// LOGGER.debug("Entered dragExit " + " " + arg0);
 				if (cursor != null) {
 					chessAreaFrame.setCursor(cursor);
+				}
+
+				if (getPreferences().getBoardPreferences()
+						.isSelectingHoverOverSquares()) {
+					LOGGER.error("Entering drag exit" + getFile() + getRank());					
+					unselect();
 				}
 			} catch (Exception e) {
 				LOGGER.error("Unexpected exception:", e);
@@ -791,6 +847,7 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 											dragStartSquare.getChessPiece(),
 											getWidth() - pieceDelta,
 											getHeight() - pieceDelta);
+							squareDragStartedIn = thisSquare;
 							DragSource.getDefaultDragSource().startDrag(
 									arg0,
 									null,
@@ -815,6 +872,7 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 							// dragStartSquare.getChessPiece(),
 							// getWidth() - pieceDelta,
 							// getHeight() - pieceDelta);
+							squareDragStartedIn = thisSquare;
 
 							DragSource.getDefaultDragSource().startDrag(
 									arg0,
@@ -830,6 +888,7 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 						onDragStart();
 					} else {
 						// invisible move mode
+						squareDragStartedIn = thisSquare;						
 						DragSource.getDefaultDragSource().startDrag(arg0,
 								INVIS_MOVE_CURSOR, TRANSPARENT_IMAGE,
 								new Point((getWidth()) / 2, (getHeight()) / 2),
