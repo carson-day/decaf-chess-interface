@@ -448,9 +448,21 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 			// A check to ignore refreshes/illegal moves
 			MoveListModelMove lastMove = getChessArea().getMoveList()
 					.getLastMove();
-			if (lastMove == null
-					|| (!lastMove.equals("none") && !lastMove
-							.getAlgebraicDescription().equals(move))) {
+			
+			boolean lastMoveWhite = getChessArea().getMoveList().isLastMoveWhite();
+//			System.err.println("=================================");
+//			System.err.println("lastMove: " + (lastMove == null ? null : lastMove.getAlgebraicDescription()));
+//			System.err.println("currentMove: " + move);
+//			System.err.println("lastMoveWhite: " + lastMoveWhite);
+//			System.err.println("Position last move white: " + position.isWhitesMove());
+//			System.err.println("=================================");
+			
+			if (	lastMove == null 
+					|| 
+					(!lastMove.equals("none") 
+					&& 
+					!(lastMove.getAlgebraicDescription().equals(move) && 
+					  (lastMoveWhite != position.isWhitesMove())))) {
 				getChessArea().getMoveList().appendMove(move, timeTaken,
 						position);
 			}

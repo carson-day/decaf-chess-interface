@@ -24,6 +24,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -487,10 +488,13 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 	protected void drawPremoveIndex(Graphics2D g2d, int index) {
 
 		String value = String.valueOf(index);
-		int height = getHeight();
+		Font current = g2d.getFont();
+		Font bold = current.deriveFont(Font.BOLD);
+		g2d.setFont(bold);
 		int width = getWidth();
 
-		g2d.drawString(value, width - 5, 10);
+		g2d.drawString(value, width - 10, 10);
+		g2d.setFont(current);
 	}
 
 	protected void onDragStart() {
