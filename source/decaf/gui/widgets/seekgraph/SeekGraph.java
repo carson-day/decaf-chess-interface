@@ -65,11 +65,9 @@ public class SeekGraph extends JComponent implements MouseMotionListener {
 
 	private static final int SEEK_SIZE = 10;
 
-	private static final float MAX_SECONDS = 1200.00f;
+	private final Map<Point, List<Seek>> seeks;
 
-	private Map<Point, List<Seek>> seeks;
-
-	private Map<Point, Point> screen;
+	private final Map<Point, Point> screen;
 
 	private JPopupMenu menu;
 
@@ -77,13 +75,13 @@ public class SeekGraph extends JComponent implements MouseMotionListener {
 
 	private int inset;
 
-	private Color MANY = Color.green;
+	private Color manyColor = Color.green;
 
-	private Color RATED = Color.red;
+	private Color ratedColor = Color.red;
 
-	private Color UNRATED = Color.cyan;
+	private Color unratedColor = Color.cyan;
 
-	private Color COMPUTER = Color.gray;
+	private Color computerColor = Color.gray;
 
 	private BufferedImage legendImage;
 
@@ -104,7 +102,7 @@ public class SeekGraph extends JComponent implements MouseMotionListener {
 
 	private int vfactor = 8;
 
-	private List<AcceptSeekListener> acceptListeners;
+	private final List<AcceptSeekListener> acceptListeners;
 	
 	private boolean showComputer = true;
 	private boolean showUnrated = true;
@@ -165,19 +163,19 @@ public class SeekGraph extends JComponent implements MouseMotionListener {
 	}
 	
 	public void setComputerColor(Color c) {
-		COMPUTER = c;
+		computerColor = c;
 	}
 	
 	public void setRatedColor(Color c) {
-		RATED = c;
+		ratedColor = c;
 	}
 	
 	public void setUnratedColor(Color c) {
-		UNRATED= c;
+		unratedColor= c;
 	}
 	
 	public void setManyColor(Color c) {
-		MANY = c;
+		manyColor = c;
 	}
 	
 	public void redoLegend() {
@@ -420,10 +418,10 @@ public class SeekGraph extends JComponent implements MouseMotionListener {
 		int y = inset / 4;
 
 		if (legendImage == null) {
-			BufferedImage computer = createSingleLegend("Computer", COMPUTER);
-			BufferedImage rated = createSingleLegend("Rated", RATED);
-			BufferedImage unrated = createSingleLegend("Unrated", UNRATED);
-			BufferedImage many = createSingleLegend("Many", MANY);
+			BufferedImage computer = createSingleLegend("Computer", computerColor);
+			BufferedImage rated = createSingleLegend("Rated", ratedColor);
+			BufferedImage unrated = createSingleLegend("Unrated", unratedColor);
+			BufferedImage many = createSingleLegend("Many", manyColor);
 
 			legendImage = new BufferedImage(computer.getWidth()
 					+ rated.getWidth() + unrated.getWidth() + many.getWidth(),
@@ -504,18 +502,18 @@ public class SeekGraph extends JComponent implements MouseMotionListener {
 	}
 
 	private void paintSeeks(Graphics2D g2, Point p, List<Seek> here) {
-		Color color = UNRATED;
+		Color color = unratedColor;
 
 		if (here.size() == 1) {
 			Seek s = here.get(0);
 			if (s.isComputer()) {
 				if (!showComputer) return;
-				color = COMPUTER;
+				color = computerColor;
 			} else if (s.isRated()) {
-				color = RATED;
+				color = ratedColor;
 			} else if (!s.isRated() && !showUnrated) return;
 		} else {
-			color = MANY;
+			color = manyColor;
 		}
 
 		g2.setColor(color);

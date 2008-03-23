@@ -1102,8 +1102,20 @@ public class GUIManager implements Preferenceable {
 				decorateChessAreaController(result);
 				result.getFrame().setLocation(
 						getPreferences().getRememberChessLocation());
-				result.getFrame().setSize(
-						getPreferences().getRememberChessDimension());
+				Dimension size = getPreferences().getRememberChessDimension();
+				if (size.width < 2) {
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Too narrow, setting width to 640");
+					}
+					size.width = 640;
+				}
+				if (size.height < 2) {
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Too small, setting height to 480");
+					}
+					size.height = 480;
+				}
+				result.getFrame().setSize(size);
 				return result;
 			} else {
 				ChessAreaController recycledController = recycledControllerQueue

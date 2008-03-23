@@ -339,6 +339,11 @@ public class MoveList extends JPanel implements Preferenceable {
 			return null;
 		}
 	}
+	
+	public boolean isLastMoveWhite() {
+		int moveListSize = moveListModel.getSize();
+		return (moveListSize % 2 != 0);
+	}
 
 	public void setGameEnd(String result) {
 		appendMove(result, 0, null);
