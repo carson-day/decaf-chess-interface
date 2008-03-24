@@ -60,6 +60,10 @@ public class StorePGN {
 
 		File file = new File(GAMES_DIR, fileName);
 
+		writeOutPGN(controller, file, date);
+	}
+
+	public static void writeOutPGN(ChessAreaControllerBase controller,  File file, Date date) {
 		PrintWriter printWriter = null;
 		try {
 			printWriter = new PrintWriter(new FileWriter(file, true));
@@ -106,9 +110,8 @@ public class StorePGN {
 			printWriter.flush();
 			printWriter.close();
 		}
-
 	}
-
+	
 	public static String gameEndStateToResult(int gameEndState) {
 		switch (gameEndState) {
 		case ChessAreaControllerBase.BLACK_WON: {

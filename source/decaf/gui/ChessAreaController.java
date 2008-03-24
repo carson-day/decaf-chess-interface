@@ -22,7 +22,12 @@ package decaf.gui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.WindowListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.util.Date;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
 import org.apache.log4j.Logger;
@@ -31,18 +36,20 @@ import decaf.event.EventService;
 import decaf.gui.widgets.ChessArea;
 import decaf.gui.widgets.ChessAreaToolbar;
 import decaf.gui.widgets.Disposable;
+import decaf.gui.widgets.movelist.MoveList;
 import decaf.messaging.inboundevent.game.GameStartEvent;
 import decaf.messaging.inboundevent.game.MoveEvent;
 import decaf.messaging.inboundevent.inform.MoveListEvent;
 import decaf.messaging.outboundevent.OutboundEvent;
 import decaf.resources.ResourceManagerFactory;
+import decaf.util.StorePGN;
 
 /**
  * Delegates commands to an underlying chess area based on events received from
  * EventService and offers methods as well. This class is thread safe.
  */
 public class ChessAreaController extends ChessAreaControllerBase implements
-		Disposable {
+		Disposable, PropertyChangeListener {
 	private static final Logger LOGGER = Logger
 			.getLogger(ChessAreaController.class);
 
@@ -248,6 +255,7 @@ public class ChessAreaController extends ChessAreaControllerBase implements
 			getChessArea().getMoveList().setRealtimeUpdateEnabled(!isPlaying());
 			getChessArea().getMoveList().addMoveListListener(
 					new ChessAreaMoveListListener());
+			getChessArea().getMoveList().setUpPgnListener(this);
 
 			getChessArea().setWhiteTime(moveEvent.getWhiteRemainingTime());
 			getChessArea().setBlackTime(moveEvent.getBlackRemainingTime());
@@ -307,7 +315,26 @@ public class ChessAreaController extends ChessAreaControllerBase implements
 	}
 
 	public void dispose() {
-		super.dispose();
+		if (getChessArea() != null && getChessArea().getMoveList() != null) {
+			getChessArea().getMoveList().removePropertyChangeListener(MoveList.SAVE_TO_PGN, this);
+		}
+		super.dispose(); 
 	}
+
+	public void propertyChange(PropertyChangeEvent evt) {
+		String property = evt.getPropertyName();
+		if (MoveList.SAVE_TO_PGN.equals(property)) {
+			Date date = new Date();
+			final JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showSaveDialog(getChessArea());
+
+	        if (returnVal == JFileChooser.APPROVE_OPTION) {
+	            File file = fc.getSelectedFile();
+	            StorePGN.writeOutPGN(this, file, date);
+	        }
+		}
+	}
+	
+	
 
 }

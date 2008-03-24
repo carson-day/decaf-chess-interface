@@ -21,9 +21,11 @@ package decaf.gui.widgets.movelist;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,6 +50,7 @@ import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
 
+import decaf.gui.ChessAreaController;
 import decaf.gui.pref.Preferenceable;
 import decaf.gui.pref.Preferences;
 import decaf.moveengine.Position;
@@ -57,6 +60,8 @@ import decaf.util.TableUtil.TableRowHeader;
 
 public class MoveList extends JPanel implements Preferenceable {
 	private static final Logger LOGGER = Logger.getLogger(MoveList.class);
+
+	public static final String SAVE_TO_PGN = "Save To PGN";
 
 	private MoveListModel moveListModel;
 
@@ -75,6 +80,8 @@ public class MoveList extends JPanel implements Preferenceable {
 	private JButton nextButton;
 
 	private JButton lastButton;
+	
+	private JButton saveToPGN;
 
 	private Preferences preferences;
 
@@ -200,11 +207,22 @@ public class MoveList extends JPanel implements Preferenceable {
 				gotoLast();
 			}
 		}));
+		
+		saveToPGN = new JButton(new AbstractAction("Save as PGN") {
+			public void actionPerformed(ActionEvent e) {
+				saveMoveListAsPgn();
+			}
+		});
+		saveToPGN.setEnabled(false);
+		
+		JPanel bottomPanel = new JPanel(new GridLayout(2, 1));
+		bottomPanel.add(isRealtimeUpdate);
+		bottomPanel.add(saveToPGN);
 
 		setLayout(new BorderLayout());
 		add(buttonPanel, BorderLayout.NORTH);
 		add(scrollPane, BorderLayout.CENTER);
-		add(isRealtimeUpdate, BorderLayout.SOUTH);
+		add(bottomPanel, BorderLayout.SOUTH);
 
 		setBorder(new EmptyBorder(new Insets(2, 2, 2, 2)));
 	}
@@ -347,6 +365,7 @@ public class MoveList extends JPanel implements Preferenceable {
 
 	public void setGameEnd(String result) {
 		appendMove(result, 0, null);
+		saveToPGN.setEnabled(true);
 	}
 
 	public void setMoveList(MoveListModel newMoveList) {
@@ -468,6 +487,10 @@ public class MoveList extends JPanel implements Preferenceable {
 
 		}
 	}
+	
+	private void saveMoveListAsPgn() {
+		firePropertyChange(MoveList.SAVE_TO_PGN, false, true);
+	}
 
 	private void clearTableModel() {
 		while (tableModel.getRowCount() > 0) {
@@ -520,5 +543,11 @@ public class MoveList extends JPanel implements Preferenceable {
 		}
 		return new int[] { row, column };
 
+	}
+
+	public void setUpPgnListener(PropertyChangeListener listener) {
+		saveToPGN.setEnabled(false);
+		removePropertyChangeListener(SAVE_TO_PGN, listener);
+		addPropertyChangeListener(SAVE_TO_PGN, listener);
 	}
 }
