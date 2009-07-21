@@ -21,21 +21,12 @@ package decaf.gui.widgets;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 public class SquareImageBackgroundCache {
 
-	private static final int MAX_DIMENSIONS_MANAGED = 5;
-
-	private Map<SquareImageCacheKey, BufferedImage> keyToImageMap = new HashMap<SquareImageCacheKey, BufferedImage>();
-
-	private SquareImageBackground lastSquareImageBackground;
-
-	private LinkedList<Dimension> dimensionsManaged = new LinkedList<Dimension>();
+	private Map<SquareImageCacheKey, BufferedImage> keyToImageMap = new WeakHashMap<SquareImageCacheKey, BufferedImage>();
 
 	private class SquareImageCacheKey {
 		private int file;
@@ -48,8 +39,12 @@ public class SquareImageBackgroundCache {
 
 		public boolean equals(Object object) {
 			SquareImageCacheKey compare = (SquareImageCacheKey) object;
-			return file == compare.file && rank == compare.rank
-					&& dimension.equals(compare.dimension);
+			if (compare == null) {
+				return false;
+			} else {
+				return file == compare.file && rank == compare.rank
+						&& dimension.equals(compare.dimension);
+			}
 		}
 
 		public int hashCode() {
@@ -61,47 +56,14 @@ public class SquareImageBackgroundCache {
 		}
 	}
 
-	private synchronized void purgeDimension(Dimension dimension) {
-		List<SquareImageCacheKey> list = new ArrayList<SquareImageCacheKey>(
-				keyToImageMap.keySet());
-		for (int i = 0; i < list.size(); i++) {
-			SquareImageCacheKey key = (SquareImageCacheKey) list.get(i);
-			if (key.dimension.equals(dimension)) {
-				keyToImageMap.remove(key);
-			}
-		}
-	}
-
-	private synchronized void purgeOldDimensions() {
-		if (dimensionsManaged.size() > MAX_DIMENSIONS_MANAGED) {
-			// dump the first one in the list.
-			purgeDimension(dimensionsManaged.getFirst());
-			dimensionsManaged.removeFirst();
-		}
-	}
-
-	public void clear() {
-		synchronized (this) {
-			keyToImageMap.clear();
-			dimensionsManaged.clear();
-		}
-	}
-
 	public BufferedImage getSquareBackgroundImage(
 			SquareImageBackground squareImageBackground, int width, int height,
 			int rank, int file) {
 
-		if (width <= 0 || height <= 0)
-		{
-			width=1;
-			height=1;
+		if (width <= 0 || height <= 0) {
+			width = 1;
+			height = 1;
 		}
-		
-		if (!squareImageBackground.equals(lastSquareImageBackground)) {
-			clear();
-		}
-
-		lastSquareImageBackground = squareImageBackground;
 
 		SquareImageCacheKey key = new SquareImageCacheKey();
 		key.dimension = new Dimension(width, height);
@@ -109,21 +71,15 @@ public class SquareImageBackgroundCache {
 		key.file = file;
 
 		BufferedImage result = null;
-		synchronized (this) {
-			result = keyToImageMap.get(key);
-		}
+
+		result = keyToImageMap.get(key);
 
 		if (result == null) {
 			result = squareImageBackground.getScaledImage(rank, file, width,
 					height);
 
-			if (!dimensionsManaged.contains(key.dimension)) {
-				dimensionsManaged.addLast(key.dimension);
-			}
 			keyToImageMap.put(key, result);
 		}
-
-		purgeOldDimensions();
 
 		return result;
 	}

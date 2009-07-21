@@ -257,6 +257,9 @@ public class ChessArea extends JPanel implements Preferenceable, Disposable {
 			if (layout != null) {
 				layout.dispose();
 			}
+			if (moveList != null) {
+				moveList.dispose();
+			}
 			removeAll();
 
 			moveList.removeAllMoveListListeners();
@@ -355,15 +358,13 @@ public class ChessArea extends JPanel implements Preferenceable, Disposable {
 			board.unselectAllSquares();
 			board.setWhiteOnTop(isWhiteOnTop);
 
-			if (getWhiteHoldings() != null)
-			{
-				//clear out the holdings if they previously contained pieces.
+			if (getWhiteHoldings() != null) {
+				// clear out the holdings if they previously contained pieces.
 				getWhiteHoldings().setFromPieceArray(new int[0]);
 				getBlackHoldings().setFromPieceArray(new int[0]);
 			}
 
 			setupLayout();
-
 
 			// if game is droppable white pieces show up in white drop panel if
 			// its not its the black piece jail.

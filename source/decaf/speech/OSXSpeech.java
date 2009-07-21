@@ -20,6 +20,7 @@
 package decaf.speech;
 
 import com.apple.cocoa.application.NSSpeechSynthesizer;
+import com.apple.cocoa.foundation.NSSystem;
 
 import decaf.gui.pref.SpeechPreferences;
 
@@ -42,7 +43,8 @@ public class OSXSpeech implements DecafSpeech {
 	}
 
 	public void speak(String text) {
-		if (synthesizer != null && speechPreferences.isSpeechEnabled()) {
+		if (synthesizer != null && speechPreferences.isSpeechEnabled()
+				&& !NSSpeechSynthesizer.isAnyApplicationSpeaking()) {
 			synthesizer.startSpeakingString(text);
 		}
 	}

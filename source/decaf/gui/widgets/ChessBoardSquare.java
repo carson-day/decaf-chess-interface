@@ -256,8 +256,11 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 	}
 
 	public void dispose() {
+		removeAll();
 		boardId = null;
 		preferences = null;
+		thisSquare = null;
+        userMoveInputListener = null;	
 	}
 
 	public String getBoardId() {

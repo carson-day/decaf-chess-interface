@@ -96,7 +96,9 @@ import decaf.messaging.inboundevent.inform.BugWhoPEvent;
 import decaf.messaging.inboundevent.inform.BugWhoUEvent;
 import decaf.messaging.inboundevent.inform.ChallengeEvent;
 import decaf.messaging.inboundevent.inform.ClosedEvent;
+import decaf.messaging.inboundevent.inform.FollowingEvent;
 import decaf.messaging.inboundevent.inform.MoveListEvent;
+import decaf.messaging.inboundevent.inform.NotFollowingEvent;
 import decaf.messaging.inboundevent.inform.NotificationEvent;
 import decaf.messaging.inboundevent.inform.OpenEvent;
 import decaf.messaging.inboundevent.inform.PartnershipCreatedEvent;
@@ -901,6 +903,10 @@ public class ChatPanel extends JPanel implements ActionListener,
 					new Subscription(BugWhoGEvent.class, this, this));
 			EventService.getInstance().subscribe(
 					new Subscription(MoveListEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(FollowingEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(NotFollowingEvent.class, this, this));
 
 		}
 
@@ -1227,6 +1233,28 @@ public class ChatPanel extends JPanel implements ActionListener,
 			}
 		}
 
+		
+		public void inform(NotFollowingEvent notFollowingEvent) {
+			if (!notFollowingEvent.isHideFromUser()) {
+				getMainTab().appendText(
+						notFollowingEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
+
+			}
+		}
+
+		public void inform(FollowingEvent followingEvent) {
+			if (!followingEvent.isHideFromUser()) {
+				getMainTab().appendText(
+						followingEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
+
+			}
+		}
 	}
 
 	private class BugOpenActionListener implements ActionListener {

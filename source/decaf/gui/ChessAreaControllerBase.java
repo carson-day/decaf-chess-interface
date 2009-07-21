@@ -172,10 +172,10 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 	private ChessAreaControllerBase thisController = this;
 
 	private int gameEndState;
-	
-	private int [] lastOppponentMoveStart;
-	
-	private int [] lastOpponentMoveEnd;
+
+	private int[] lastOppponentMoveStart;
+
+	private int[] lastOpponentMoveEnd;
 
 	public int getGameEndState() {
 		return gameEndState;
@@ -252,7 +252,7 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 	}
 
 	public static String getDescription(GameStartEvent event) {
-		String result = "";
+		String result = "(" + event.getGameId() + ") ";
 		String it = event.getG1Param("it");
 		String r = event.getG1Param("r");
 
@@ -278,6 +278,7 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 				unsubscribe();
 				if (frame != null) {
 					frame.setVisible(false);
+					frame.removeAll();
 					frame.dispose();
 					frame = null;
 				}
@@ -448,21 +449,22 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 			// A check to ignore refreshes/illegal moves
 			MoveListModelMove lastMove = getChessArea().getMoveList()
 					.getLastMove();
-			
-			boolean lastMoveWhite = getChessArea().getMoveList().isLastMoveWhite();
-//			System.err.println("=================================");
-//			System.err.println("lastMove: " + (lastMove == null ? null : lastMove.getAlgebraicDescription()));
-//			System.err.println("currentMove: " + move);
-//			System.err.println("lastMoveWhite: " + lastMoveWhite);
-//			System.err.println("Position last move white: " + position.isWhitesMove());
-//			System.err.println("=================================");
-			
-			if (	lastMove == null 
-					|| 
-					(!lastMove.equals("none") 
-					&& 
-					!(lastMove.getAlgebraicDescription().equals(move) && 
-					  (lastMoveWhite != position.isWhitesMove())))) {
+
+			boolean lastMoveWhite = getChessArea().getMoveList()
+					.isLastMoveWhite();
+			// System.err.println("=================================");
+			// System.err.println("lastMove: " + (lastMove == null ? null :
+			// lastMove.getAlgebraicDescription()));
+			// System.err.println("currentMove: " + move);
+			// System.err.println("lastMoveWhite: " + lastMoveWhite);
+			// System.err.println("Position last move white: " +
+			// position.isWhitesMove());
+			// System.err.println("=================================");
+
+			if (lastMove == null
+					|| (!lastMove.equals("none") && !(lastMove
+							.getAlgebraicDescription().equals(move) && (lastMoveWhite != position
+							.isWhitesMove())))) {
 				getChessArea().getMoveList().appendMove(move, timeTaken,
 						position);
 			}
@@ -519,7 +521,8 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 				}
 
 				// Dont select if its the users move that was made.
-				if ((!isPlaying || lastMoveWasPremove || isUsersMove() || getPreferences().getBoardPreferences().isShowingMyMovesAsSelected())
+				if ((!isPlaying || lastMoveWasPremove || isUsersMove() || getPreferences()
+						.getBoardPreferences().isShowingMyMovesAsSelected())
 						&& verboseNotation != null) {
 
 					int[] startCoordinates = verboseNotationToStartCoordinates(
@@ -534,7 +537,8 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 						selectSquare(endCoordinates);
 					}
 					if (isPremoveSet()) {
-						rememberLastCoordinates(startCoordinates, endCoordinates);
+						rememberLastCoordinates(startCoordinates,
+								endCoordinates);
 					} else {
 						rememberLastCoordinates(null, null);
 					}
@@ -579,17 +583,18 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 				SoundManagerFactory.getInstance().playSound(
 						SoundKeys.OBS_MOVE_KEY);
 			}
-			
-			if (isPlaying() && isUsersMove() && getPreferences().getSpeechPreferences().isSpeechEnabled() && getPreferences().getSpeechPreferences().isAnnouncingCheck())
-			{
-				 if (move.contains("+"))
-				 {
-				     SpeechManager.getInstance().getSpeech().speak("check");
-				 }
-				 else if (move.contains("#"))
-				 {
-					 SpeechManager.getInstance().getSpeech().speak("check mate");					 
-				 }
+
+			if (isPlaying()
+					&& isUsersMove()
+					&& getPreferences().getSpeechPreferences()
+							.isSpeechEnabled()
+					&& getPreferences().getSpeechPreferences()
+							.isAnnouncingCheck()) {
+				if (move.contains("+")) {
+					SpeechManager.getInstance().getSpeech().speak("check");
+				} else if (move.contains("#")) {
+					SpeechManager.getInstance().getSpeech().speak("check mate");
+				}
 			}
 
 			if (!wasPremoveMade) {
@@ -597,16 +602,17 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 			}
 		}
 	}
-	
-	private void rememberLastCoordinates(int [] startCoordinates, int [] endCoordinates) {
+
+	private void rememberLastCoordinates(int[] startCoordinates,
+			int[] endCoordinates) {
 		lastOppponentMoveStart = startCoordinates;
 		lastOpponentMoveEnd = endCoordinates;
 	}
-	
+
 	private void unselectLastCoordinates() {
 		if (lastOppponentMoveStart != null) {
 			unselectSquare(lastOppponentMoveStart);
-		} 
+		}
 		if (lastOpponentMoveEnd != null) {
 			unselectSquare(lastOpponentMoveEnd);
 		}
@@ -1509,9 +1515,9 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 			if (queuedPremoves.size() == 1) {
 				unselectAllSquares();
 				selectSquare(startCoordinates);
-			} 
-			
-			preSelectSquare(endCoordinates, queuedPremoves.size());	
+			}
+
+			preSelectSquare(endCoordinates, queuedPremoves.size());
 		} else {
 			// LOGGER.warn("Null premove was encountered");
 		}
@@ -1534,11 +1540,11 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 	private final void selectSquare(int[] coordinates) {
 		getChessArea().getBoard().selectSquare(coordinates);
 	}
-	
+
 	private final void unselectSquare(int[] coordinates) {
 		getChessArea().getBoard().unselectSquare(coordinates);
 	}
-	
+
 	private final void preSelectSquare(int[] coordinates, int index) {
 		getChessArea().getBoard().preSelectSquare(coordinates, index);
 	}

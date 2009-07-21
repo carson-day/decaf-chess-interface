@@ -34,11 +34,13 @@ import decaf.messaging.ics.nongameparser.CShoutEventParser;
 import decaf.messaging.ics.nongameparser.ChallengeEventParser;
 import decaf.messaging.ics.nongameparser.ChannelTellEventParser;
 import decaf.messaging.ics.nongameparser.ClosedEventParser;
+import decaf.messaging.ics.nongameparser.FollowingEventParser;
 import decaf.messaging.ics.nongameparser.KibitzEventParser;
 import decaf.messaging.ics.nongameparser.MoveListParser;
 import decaf.messaging.ics.nongameparser.NonGameEventParser;
 import decaf.messaging.ics.nongameparser.NotificationEventParser;
 import decaf.messaging.ics.nongameparser.OpenEventParser;
+import decaf.messaging.ics.nongameparser.ParserUtil;
 import decaf.messaging.ics.nongameparser.PartnerTellEventParser;
 import decaf.messaging.ics.nongameparser.PartnershipCreatedEventParser;
 import decaf.messaging.ics.nongameparser.PartnershipEndedEventParser;
@@ -91,7 +93,7 @@ public class FicsParser {
 	private IllegalMoveParser illegalMoveParser;
 
 	private List<GameStartEvent> orhpanedG1s = new LinkedList<GameStartEvent>();
-	
+
 	private List<Class> classesHidingFromUser = new LinkedList<Class>();
 
 	/**
@@ -142,7 +144,7 @@ public class FicsParser {
 		g1Parser = new G1Parser(icsId);
 		illegalMoveParser = new IllegalMoveParser(icsId);
 
-		// handle user tell types of events first so others cant be spoofed
+		// handle user tell types of events first so others can't be spoofed
 		nonGameEventParsers.add(new BugWhoGEventParser(icsId));
 		nonGameEventParsers.add(new BugWhoPEventParser(icsId));
 		nonGameEventParsers.add(new BugWhoUEventParser(icsId));
@@ -165,11 +167,11 @@ public class FicsParser {
 		nonGameEventParsers.add(new ChallengeEventParser(icsId));
 		nonGameEventParsers.add(new PartnershipCreatedEventParser(icsId));
 		nonGameEventParsers.add(new PartnershipEndedEventParser(icsId));
+		nonGameEventParsers.add(new FollowingEventParser(icsId));
 
 	}
-	
-	public void hideNextClassFromUser(Class clazz)
-	{
+
+	public void hideNextClassFromUser(Class clazz) {
 		classesHidingFromUser.add(clazz);
 	}
 
@@ -265,6 +267,8 @@ public class FicsParser {
 						} else {
 							result.add(moveEvent);
 						}
+
+					
 						message = message
 								.delete(style12Index, charAfterNextLT2);
 					} else {
@@ -487,15 +491,13 @@ public class FicsParser {
 			String message) {
 		boolean parsedEvent = false;
 
-		try
-		{
+		try {
 			for (NonGameEventParser parser : nonGameEventParsers) {
 				IcsNonGameEvent event = parser.parse(message);
-	
+
 				if (event != null) {
 					events.add(event);
-					if (classesHidingFromUser.contains(event.getClass()))
-					{
+					if (classesHidingFromUser.contains(event.getClass())) {
 						classesHidingFromUser.remove(event.getClass());
 						event.setHideFromUser(true);
 					}
@@ -503,10 +505,8 @@ public class FicsParser {
 					break;
 				}
 			}
-		}
-		catch (Throwable t)
-		{
-			LOGGER.error("Error occured parsing non game event:",t);
+		} catch (Throwable t) {
+			LOGGER.error("Error occured parsing non game event:", t);
 		}
 
 		if (!parsedEvent) {
@@ -540,7 +540,6 @@ public class FicsParser {
 		} else {
 			return ILLEGAL_INDEX;
 		}
-
 	}
 
 }

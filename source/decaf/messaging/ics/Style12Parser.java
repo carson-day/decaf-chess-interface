@@ -154,9 +154,12 @@ public class Style12Parser {
 		String verboseNotationString = tok.nextToken();
 		long timeTakenForLastMove = timeTakenStringToInt(tok.nextToken());
 		String prettyNotationString = tok.nextToken();
-		boolean isWhiteOnTop = tok.nextToken().equals(TRUE_FLAG);
+		boolean isWhiteOnTop = !tok.nextToken().equals(TRUE_FLAG);
 		boolean isClockTicking = tok.nextToken().equals(TRUE_FLAG);
 		int lagInMillis = Integer.parseInt(tok.nextToken());
+		
+		
+		LOGGER.error("isWhiteOnTop = " + isWhiteOnTop);
 
 		Position position = new Position(positionArray, canWhiteCastleShort,
 				canWhiteCastleLong, canBlackCastleShort, canBlackCastleLong,

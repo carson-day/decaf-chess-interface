@@ -229,4 +229,10 @@ public class MoveEvent extends GameEvent {
 		this.holdingsChangedEvent = holdingsChangedEvent;
 	}
 
+	public void setWhiteOnTop(boolean isWhiteOnTop) {
+		this.isWhiteOnTop = isWhiteOnTop;
+	}
+	
+	
+
 }

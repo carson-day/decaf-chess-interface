@@ -208,7 +208,7 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 	}
 
 	public void dispose() {
-
+		removeAll();
 		if (squares != null) {
 			for (int i = 0; i < squares.length; i++) {
 				for (int j = 0; j < squares[i].length; j++) {
