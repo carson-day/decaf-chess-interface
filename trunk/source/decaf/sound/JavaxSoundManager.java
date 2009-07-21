@@ -29,10 +29,11 @@ public class JavaxSoundManager implements SoundManager {
 				public void run() {
 					LOGGER.debug("Playing sound " + key);
 					ClipInfo clipInfo = sounds.get(key);
-
+					SourceDataLine dataLine = null;
+					AudioInputStream stream = null;
 					if (!clipInfo.isRunning) {
 						try {
-							AudioInputStream stream = AudioSystem
+							stream = AudioSystem
 									.getAudioInputStream(ResourceManagerFactory
 											.getManager().getUrl(clipInfo.file));
 
@@ -58,7 +59,7 @@ public class JavaxSoundManager implements SoundManager {
 									SourceDataLine.class, stream.getFormat(),
 									((int) stream.getFrameLength() * format
 											.getFrameSize()));
-							SourceDataLine dataLine = (SourceDataLine) AudioSystem
+							dataLine = (SourceDataLine) AudioSystem
 									.getLine(info);
 
 							// This method does not return until the audio file
@@ -78,13 +79,20 @@ public class JavaxSoundManager implements SoundManager {
 								r = stream.read(buffer, 0, BUFFER_SIZE);
 							}
 							dataLine.drain();
-							dataLine.close();
-							stream.close();
 
 						} catch (Exception e) {
 							LOGGER.error("Error playing sound: key=" + key, e);
+						} finally {
+							clipInfo.isRunning = false;
+
+							dataLine.close();
+							try {
+								stream.close();
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 						}
-						clipInfo.isRunning = false;
+
 					}
 
 				}

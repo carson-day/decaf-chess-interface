@@ -21,21 +21,12 @@ package decaf.gui.widgets;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 public class ChessPieceCache {
 
-	private static final int MAX_DIMENSIONS_MANAGED = 5;
-
-	private Map<ChessPieceCacheKey, BufferedImage> keyToImageMap = new HashMap<ChessPieceCacheKey, BufferedImage>();
-
-	private ChessSet lastSet;
-
-	private LinkedList<Dimension> dimensionsManaged = new LinkedList<Dimension>();
+	private Map<ChessPieceCacheKey, BufferedImage> keyToImageMap = new WeakHashMap<ChessPieceCacheKey, BufferedImage>();
 
 	private class ChessPieceCacheKey {
 		private int hash;
@@ -45,9 +36,14 @@ public class ChessPieceCache {
 		private Dimension dimension;
 
 		public boolean equals(Object object) {
-			ChessPieceCacheKey compare = (ChessPieceCacheKey) object;
-			return chessPiece == compare.chessPiece
-					&& dimension.equals(compare.dimension);
+			if (object == null) {
+				return false;
+			}
+			else {
+				ChessPieceCacheKey compare = (ChessPieceCacheKey) object;
+				return chessPiece == compare.chessPiece
+						&& dimension.equals(compare.dimension);
+			}
 		}
 
 		public int hashCode() {
@@ -59,63 +55,24 @@ public class ChessPieceCache {
 		}
 	}
 
-	public void clear() {
-		synchronized (this) {
-			keyToImageMap.clear();
-			dimensionsManaged.clear();
-		}
-	}
-
-	private synchronized void purgeDimension(Dimension dimension) {
-		List<ChessPieceCacheKey> list = new ArrayList<ChessPieceCacheKey>(
-				keyToImageMap.keySet());
-		for (int i = 0; i < list.size(); i++) {
-			ChessPieceCacheKey key = (ChessPieceCacheKey) list.get(i);
-			if (key.dimension.equals(dimension)) {
-				keyToImageMap.remove(key);
-			}
-		}
-	}
-
-	private synchronized void purgeOldDimensions() {
-		if (dimensionsManaged.size() > MAX_DIMENSIONS_MANAGED) {
-			// dump the first one in the list.
-			purgeDimension(dimensionsManaged.getFirst());
-			dimensionsManaged.removeFirst();
-		}
-	}
-
 	public BufferedImage getChessPiece(ChessSet set, int chessPiece, int width,
 			int height) {
-		
-		if (width <= 0 || height <= 0)
-		{
-			width=1;
-			height=1;
+
+		if (width <= 0 || height <= 0) {
+			width = 1;
+			height = 1;
 		}
 
-		purgeOldDimensions();
-
-		if (!set.equals(lastSet)) {
-			clear();
-		}
-
-		lastSet = set;
 		ChessPieceCacheKey key = new ChessPieceCacheKey();
 		key.dimension = new Dimension(width, height);
 		key.chessPiece = chessPiece;
 
 		BufferedImage result = null;
-		synchronized (this) {
-			result = keyToImageMap.get(key);
-		}
+
+		result = keyToImageMap.get(key);
 
 		if (result == null) {
 			result = set.getScaledImage(chessPiece, width, height);
-
-			if (!dimensionsManaged.contains(key.dimension)) {
-				dimensionsManaged.addLast(key.dimension);
-			}
 			keyToImageMap.put(key, result);
 		}
 		return result;

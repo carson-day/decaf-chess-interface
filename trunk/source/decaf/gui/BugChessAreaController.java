@@ -122,6 +122,7 @@ public class BugChessAreaController extends ChessAreaControllerBase implements
 										: BugChessArea.AREA1_ON_RIGHT);
 			} else {
 				setUserWhite(false);
+
 			}
 
 			setGameId(bugStartEvent.getGameId());
@@ -142,6 +143,16 @@ public class BugChessAreaController extends ChessAreaControllerBase implements
 			setInitialTimeSecs(intialTime);
 			setInitialIncSecs(initialInc);
 
+			boolean isWhiteOnTop = false;
+			if (!isPlaying()) {
+				String following = User.getInstance().getFollowing();
+				if (following != null) {
+					isWhiteOnTop = game1MoveEvent.getWhiteName().equals(
+							following) ? false : game1MoveEvent.getBlackName()
+							.equals(following) ? true : false;
+				}
+			}
+
 			getChessArea().setup(
 					"" + getGameId(),
 					bugStartEvent.getWhiteName(),
@@ -150,14 +161,13 @@ public class BugChessAreaController extends ChessAreaControllerBase implements
 					bugStartEvent.getBlackName(),
 					bugStartEvent.getBlackRating().equals("0P") ? "++++"
 							: bugStartEvent.getBlackRating(), true,
-					isPlaying() ? !isUserWhite() : false, intialTime,
+					isPlaying() ? !isUserWhite() : isWhiteOnTop, intialTime,
 					initialInc, game1MoveEvent.getPosition(),
 					getPreferences().getBughousePreferences().isShowingLag());
 
 			getPartnersChessArea().setup("-1", "Loading ...", "",
-					"Loading ...", "", true,
-					isPlaying() ? isUserWhite() : true, intialTime, initialInc,
-					Position.getEmpty(),
+					"Loading ...", "", true, !getChessArea().isWhiteOnTop(),
+					intialTime, initialInc, Position.getEmpty(),
 					getPreferences().getBughousePreferences().isShowingLag());
 
 			setGameId(bugStartEvent.getGameId());
@@ -252,7 +262,8 @@ public class BugChessAreaController extends ChessAreaControllerBase implements
 
 			if ((isObserving() || isExamining())) {
 				EventService.getInstance().publish(
-						new OutboundEvent("moves " + getGameId(),true,MoveListEvent.class));
+						new OutboundEvent("moves " + getGameId(), true,
+								MoveListEvent.class));
 			}
 
 			if (isPlaying()
@@ -303,7 +314,8 @@ public class BugChessAreaController extends ChessAreaControllerBase implements
 
 			if ((isObserving() || isExamining())) {
 				EventService.getInstance().publish(
-						new OutboundEvent("moves " + getPartnersGameId(),true,MoveListEvent.class));
+						new OutboundEvent("moves " + getPartnersGameId(), true,
+								MoveListEvent.class));
 			}
 		}
 	}

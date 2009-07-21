@@ -70,14 +70,6 @@ import decaf.util.PropertiesConstants;
 
 public class GUIManager implements Preferenceable {
 
-	private static int INITIAL_CACHED_CHESS_AREA_CONTROLLERS = 0;
-
-	private static int INITIAL_CACHED_BUG_CHESS_AREA_CONTROLLERS = 0;
-
-	private static int MAX_CACHED_CHESS_AREA_CONTROLLERS = 0;
-
-	private static int MAX_CACHED_BUG_CHESS_AREA_CONTROLLERS = 0;
-
 	private static final Logger LOGGER = Logger.getLogger(GUIManager.class);
 
 	private static final int Y_FRAME_ADJUSTMENT = 20;
@@ -88,17 +80,7 @@ public class GUIManager implements Preferenceable {
 
 	static {
 		try {
-			INITIAL_CACHED_CHESS_AREA_CONTROLLERS = ResourceManagerFactory
-					.getManager().getInt("Decaf", "initialChessControllers");
-			INITIAL_CACHED_BUG_CHESS_AREA_CONTROLLERS = ResourceManagerFactory
-					.getManager().getInt("Decaf", "initialBugControllers");
-			MAX_CACHED_CHESS_AREA_CONTROLLERS = ResourceManagerFactory
-					.getManager().getInt("Decaf", "maxChessControllers");
-			MAX_CACHED_BUG_CHESS_AREA_CONTROLLERS = ResourceManagerFactory
-					.getManager().getInt("Decaf", "maxBugControllers");
 
-			// SwingUtilities.invokeLater(new Runnable() {
-			// public void run() {
 			try {
 
 				DECAF_ICON = ResourceManagerFactory.getManager().getImage(
@@ -106,8 +88,6 @@ public class GUIManager implements Preferenceable {
 			} catch (Exception e) {
 				LOGGER.error(e);
 			}
-			// }
-			// });
 		} catch (Exception e) {
 			LOGGER.error(e);
 		}
@@ -138,10 +118,6 @@ public class GUIManager implements Preferenceable {
 	private GameEndSubscriber gameEndSubscriber;
 
 	private GameStartQueueExecutor gameStartQueueExecutor;
-
-	private LinkedList<ChessAreaController> recycledControllerQueue = new LinkedList<ChessAreaController>();
-
-	private LinkedList<BugChessAreaController> recycledBughouseDelegateQueue = new LinkedList<BugChessAreaController>();
 
 	private LinkedList<GameNotificationListener> gameNotificationListeners = new LinkedList<GameNotificationListener>();
 
@@ -290,7 +266,6 @@ public class GUIManager implements Preferenceable {
 					gameStartQueueExecutor = new GameStartQueueExecutor();
 					addKeyForwarder(chatFrame);
 					initBugEarFrame();
-					initializeChessAreaControllers();
 					initializeSquareImageBackgroundAndSet();
 					updateMenus();
 				}
@@ -473,18 +448,10 @@ public class GUIManager implements Preferenceable {
 
 			for (Iterator i = chessAreaControllers.iterator(); i.hasNext(); ((ChessAreaControllerBase) i
 					.next()).setPreferences(preferences))
-				;
 
-			for (ChessAreaController controller : recycledControllerQueue) {
-				controller.setPreferences(preferences);
-			}
-
-			for (BugChessAreaController controller : recycledBughouseDelegateQueue) {
-				controller.setPreferences(preferences);
-			}
-			if (chatFrame != null) {
-				chatFrame.setPreferences(preferences);
-			}
+				if (chatFrame != null) {
+					chatFrame.setPreferences(preferences);
+				}
 			SpeechManager.getInstance().setPreferences(preferences);
 
 			setLookAndFeel();
@@ -651,11 +618,11 @@ public class GUIManager implements Preferenceable {
 			// set the controller to inactive so it unsubscribes
 			controller.setActive(false);
 
-			if (controller.isBughouse()) {
-				recycleBughouseChessAreaController((BugChessAreaController) controller);
-			} else {
-				recycleChessAreaController((ChessAreaController) controller);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Disposing controller: " + controller.getGameId()
+						+ " " + +controller.getPartnersGameId());
 			}
+			controller.dispose();
 		}
 		updateMenus();
 
@@ -982,8 +949,7 @@ public class GUIManager implements Preferenceable {
 	}
 
 	private void fireGameEnded(ChessAreaControllerBase controller) {
-		synchronized(gameNotificationListeners)
-		{
+		synchronized (gameNotificationListeners) {
 			for (GameNotificationListener listener : gameNotificationListeners) {
 				if (controller.isBughouse()) {
 					listener.bugGameEnded((BugChessAreaController) controller);
@@ -1079,81 +1045,27 @@ public class GUIManager implements Preferenceable {
 			boolean recycleInactive) {
 		synchronized (this) {
 
-			if (recycleInactive) {
-				ChessAreaControllerBase inactiveController = null;
-				// Search backwards for a controller to recycle:
-				for (int i = chessAreaControllers.size() - 1; inactiveController == null
-						&& i >= 0; i--) {
-					if (!chessAreaControllers.get(i).isActive()
-							&& !chessAreaControllers.get(i).isBughouse()) {
-						inactiveController = chessAreaControllers.get(i);
-						chessAreaControllers.remove(i);
-						break;
-					}
+			ChessAreaController result = new ChessAreaController();
+			decorateChessAreaController(result);
+			result.getFrame().setLocation(
+					getPreferences().getRememberChessLocation());
+			Dimension size = getPreferences().getRememberChessDimension();
+			if (size.width < 2) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Too narrow, setting width to 640");
 				}
-
-				if (inactiveController != null) {
-					return (ChessAreaController) inactiveController;
-				}
+				size.width = 640;
 			}
-
-			if (recycledControllerQueue.isEmpty()) {
-				ChessAreaController result = new ChessAreaController();
-				decorateChessAreaController(result);
-				result.getFrame().setLocation(
-						getPreferences().getRememberChessLocation());
-				Dimension size = getPreferences().getRememberChessDimension();
-				if (size.width < 2) {
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("Too narrow, setting width to 640");
-					}
-					size.width = 640;
+			if (size.height < 2) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Too small, setting height to 480");
 				}
-				if (size.height < 2) {
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("Too small, setting height to 480");
-					}
-					size.height = 480;
-				}
-				result.getFrame().setSize(size);
-				return result;
-			} else {
-				ChessAreaController recycledController = recycledControllerQueue
-						.removeFirst();
-
-				if (recycledController.getChessArea() == null
-						|| recycledController.getFrame() == null) {
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER
-								.debug("recycledDelegateQueue: encountered a controller who was disposed. Purging controller");
-					}
-					recycledController.dispose();
-					return createChessAreaController(recycleInactive);
-				} else {
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER
-								.debug("recycledDelegateQueue: queue was not empty recycling old ChessAreaController");
-					}
-					return recycledController;
-				}
+				size.height = 480;
 			}
-		}
-	}
+			result.getFrame().setSize(size);
+			return result;
 
-	private void initializeChessAreaControllers() {
-		long startTime = System.currentTimeMillis();
-		for (int i = 0; i < INITIAL_CACHED_CHESS_AREA_CONTROLLERS; i++) {
-			recycleChessAreaController(createChessAreaController(false));
 		}
-		for (int i = 0; i < INITIAL_CACHED_BUG_CHESS_AREA_CONTROLLERS; i++) {
-			recycleBughouseChessAreaController(createBughoueChessAreaDelegate(false));
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("initializeDelegateQueues: "
-					+ (System.currentTimeMillis() - startTime));
-		}
-
 	}
 
 	private void initializeSquareImageBackgroundAndSet() {
@@ -1177,103 +1089,20 @@ public class GUIManager implements Preferenceable {
 		}
 	}
 
-	private void recycleChessAreaController(ChessAreaController delegate) {
-		synchronized (this) {
-			if (recycledControllerQueue.size() <= MAX_CACHED_CHESS_AREA_CONTROLLERS) {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("a ChessAreaController is being recycled");
-				}
-				delegate.recycle();
-				recycledControllerQueue.addLast(delegate);
-			} else {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("a ChessAreaController has been executed");
-				}
-				if (delegate.getFrame().getJMenuBar() != null
-						&& delegate.getFrame().getJMenuBar() instanceof DecafMenu) {
-					menus.remove(delegate.getFrame().getJMenuBar());
-				}
-				delegate.dispose();
-
-			}
-		}
-	}
-
 	private BugChessAreaController createBughoueChessAreaDelegate(
 			boolean recycleInactive) {
 		synchronized (this) {
 
-			if (recycleInactive) {
-				ChessAreaControllerBase inactiveController = null;
-				// Search backwards for a controller to recycle:
-				for (int i = chessAreaControllers.size() - 1; inactiveController == null
-						&& i >= 0; i--) {
-					if (!chessAreaControllers.get(i).isActive()
-							&& chessAreaControllers.get(i).isBughouse()) {
-						inactiveController = chessAreaControllers.get(i);
-						chessAreaControllers.remove(i);
-					}
-				}
+			BugChessAreaController result = new BugChessAreaController();
+			decorateChessAreaController(result);
+			result.getFrame().setLocation(
+					getPreferences().getRememberBugLocation());
+			result.getFrame().setSize(
+					getPreferences().getRememberBugDimension());
+			result.getBughouseChessArea().setDividerLocation(
+					getPreferences().getRememberBugSliderPosition());
+			return result;
 
-				if (inactiveController != null) {
-					return (BugChessAreaController) inactiveController;
-				}
-			}
-
-			if (recycledBughouseDelegateQueue.isEmpty()) {
-				BugChessAreaController result = new BugChessAreaController();
-				decorateChessAreaController(result);
-				result.getFrame().setLocation(
-						getPreferences().getRememberBugLocation());
-				result.getFrame().setSize(
-						getPreferences().getRememberBugDimension());
-				result.getBughouseChessArea().setDividerLocation(
-						getPreferences().getRememberBugSliderPosition());
-				return result;
-			} else {
-				BugChessAreaController result = recycledBughouseDelegateQueue
-						.removeFirst();
-				if (result.getFrame() == null || result.getChessArea() == null
-						|| result.getPartnersChessArea() == null
-						|| result.getBughouseChessArea() == null) {
-					LOGGER
-							.debug("recycledBughouseDelegateQueue: encountered a queued controller which was disposed. Purging controller.");
-					result.dispose();
-					return createBughoueChessAreaDelegate(recycleInactive);
-				} else {
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER
-								.debug("recycledBughouseDelegateQueue: queue was not empty recycling old BugChessAreaController");
-					}
-					return result;
-				}
-			}
-		}
-	}
-
-	private void recycleBughouseChessAreaController(
-			BugChessAreaController delegate) {
-		synchronized (this) {
-			if (recycledBughouseDelegateQueue.size() <= MAX_CACHED_BUG_CHESS_AREA_CONTROLLERS) {
-				delegate.recycle();
-				recycledBughouseDelegateQueue.addLast(delegate);
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("a BugChessAreaController is being recycled");
-				}
-
-			} else {
-				delegate.dispose();
-				if (delegate.getFrame() != null && 
-						delegate.getFrame().getJMenuBar() != null
-						&& delegate.getFrame().getJMenuBar() instanceof DecafMenu) {
-					menus.remove(delegate.getFrame().getJMenuBar());
-				}
-
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("a BugChessAreaController has been executed");
-				}
-
-			}
 		}
 	}
 
@@ -1327,18 +1156,6 @@ public class GUIManager implements Preferenceable {
 				if (bugEarFrame != null) {
 					SwingUtilities.updateComponentTreeUI(bugEarFrame);
 				}
-
-				for (int i = 0; i < recycledControllerQueue.size(); i++) {
-					SwingUtilities
-							.updateComponentTreeUI(recycledControllerQueue.get(
-									i).getFrame());
-				}
-
-				for (int i = 0; i < recycledBughouseDelegateQueue.size(); i++) {
-					SwingUtilities
-							.updateComponentTreeUI(recycledBughouseDelegateQueue
-									.get(i).getFrame());
-				}
 			}
 		}
 	}
@@ -1384,13 +1201,10 @@ public class GUIManager implements Preferenceable {
 
 			if (controller.isPlaying()) {
 				snapLayoutToController(controller);
-				if (controller.getCommandToolbar() != null)
-				{
+				if (controller.getCommandToolbar() != null) {
 					controller.getCommandToolbar().requestFocus();
-				}
-				else
-				{
-				    controller.getFrame().requestFocus();
+				} else {
+					controller.getFrame().requestFocus();
 				}
 
 				if (controller.isBughouse()
@@ -1531,9 +1345,8 @@ public class GUIManager implements Preferenceable {
 
 		controller.getFrame().setVisible(true);
 	}
-	
-	private void requestToolbarFocus(final ChessAreaControllerBase controller)
-	{
+
+	private void requestToolbarFocus(final ChessAreaControllerBase controller) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				if (controller.getCommandToolbar() != null) {
@@ -1545,7 +1358,7 @@ public class GUIManager implements Preferenceable {
 							.requestFocus();
 				}
 			}
-		});		
+		});
 	}
 
 	private void temporarilyIgnoreGame(final int gameId) {

@@ -43,7 +43,10 @@ public class DecafMenu extends JMenuBar {
 				dialog.setModal(true);
 				dialog.setVisible(true);
 				// It takes up to much memory so just null it out after it
-				// closed.
+				// closed
+				dialog.setEnabled(false);
+				dialog.dispose();
+				dialog.removeAll();
 				dialog = null;
 			} else if (!dialog.isVisible()) {
 				dialog.setVisible(true);

@@ -80,7 +80,7 @@ public class MoveList extends JPanel implements Preferenceable {
 	private JButton nextButton;
 
 	private JButton lastButton;
-	
+
 	private JButton saveToPGN;
 
 	private Preferences preferences;
@@ -136,6 +136,15 @@ public class MoveList extends JPanel implements Preferenceable {
 
 	public MoveList() {
 		initGui();
+	}
+
+	public void dispose() {
+		removeAll();
+		table.removeAll();
+		listeners.clear();
+		while (tableModel.getRowCount() > 0) {
+			tableModel.removeRow(0);
+		}
 	}
 
 	private void initGui() {
@@ -207,14 +216,14 @@ public class MoveList extends JPanel implements Preferenceable {
 				gotoLast();
 			}
 		}));
-		
+
 		saveToPGN = new JButton(new AbstractAction("Save as PGN") {
 			public void actionPerformed(ActionEvent e) {
 				saveMoveListAsPgn();
 			}
 		});
 		saveToPGN.setEnabled(false);
-		
+
 		JPanel bottomPanel = new JPanel(new GridLayout(2, 1));
 		bottomPanel.add(isRealtimeUpdate);
 		bottomPanel.add(saveToPGN);
@@ -357,7 +366,7 @@ public class MoveList extends JPanel implements Preferenceable {
 			return null;
 		}
 	}
-	
+
 	public boolean isLastMoveWhite() {
 		int moveListSize = moveListModel.getSize();
 		return (moveListSize % 2 != 0);
@@ -487,7 +496,7 @@ public class MoveList extends JPanel implements Preferenceable {
 
 		}
 	}
-	
+
 	private void saveMoveListAsPgn() {
 		firePropertyChange(MoveList.SAVE_TO_PGN, false, true);
 	}

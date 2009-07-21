@@ -26,6 +26,8 @@ import decaf.event.EventService;
 import decaf.event.Subscriber;
 import decaf.event.Subscription;
 import decaf.messaging.inboundevent.game.GameStartEvent;
+import decaf.messaging.inboundevent.inform.FollowingEvent;
+import decaf.messaging.inboundevent.inform.NotFollowingEvent;
 import decaf.messaging.inboundevent.inform.PartnershipCreatedEvent;
 import decaf.messaging.inboundevent.inform.PartnershipEndedEvent;
 import decaf.messaging.inboundevent.inform.UserNameChangedEvent;
@@ -43,6 +45,8 @@ public class User implements Subscriber {
 	private String handle;
 
 	private String bughousePartner;
+
+	private String following;
 
 	private User() {
 
@@ -64,6 +68,13 @@ public class User implements Subscriber {
 						new Subscription(
 								decaf.messaging.inboundevent.inform.UserNameChangedEvent.class,
 								null, this));
+
+		EventService.getInstance().subscribe(
+				new Subscription(NotFollowingEvent.class, null, this));
+
+		EventService.getInstance().subscribe(
+				new Subscription(FollowingEvent.class, null, this));
+
 	}
 
 	public void inform(UserNameChangedEvent event) {
@@ -82,6 +93,14 @@ public class User implements Subscriber {
 
 	public void inform(PartnershipEndedEvent partnershipendedevent) {
 		bughousePartner = null;
+	}
+
+	public void inform(FollowingEvent followingEvent) {
+		following = followingEvent.getName();
+	}
+
+	public void inform(NotFollowingEvent notFollowingEvent) {
+		following = null;
 	}
 
 	public static User getInstance() {
@@ -105,6 +124,10 @@ public class User implements Subscriber {
 
 	public boolean isConnected() {
 		return isConnected;
+	}
+	
+	public String getFollowing() {
+		return following;
 	}
 
 	public boolean isPlaying(GameStartEvent gameStartEvent) {

@@ -166,6 +166,16 @@ public class ChessAreaController extends ChessAreaControllerBase implements
 			resetLastMoveMadeTime();
 			String frameTitle = null;
 
+			boolean isWhiteOnTop = false;
+			if (!isPlaying()) {
+				String following = User.getInstance().getFollowing();
+				if (following != null) {
+					isWhiteOnTop = moveEvent.getWhiteName().equals(following) ? false
+							: moveEvent.getBlackName().equals(following) ? true
+									: false;
+				}
+			}
+
 			if (event == null) {
 				// IF you mess with this code be sure and update the
 				// Style12Subscriber who changes
@@ -199,7 +209,7 @@ public class ChessAreaController extends ChessAreaControllerBase implements
 						event.getBlackRating().equals("0P") ? "++++" : event
 								.getBlackRating(),
 						isDroppable(),
-						isPlaying() ? !isUserWhite() : false,
+						isPlaying() ? !isUserWhite() : isWhiteOnTop,
 						moveEvent.getInitialTime() == 0 ? 10 : moveEvent
 								.getInitialTime() * 60,
 						moveEvent.getInitialInc(), moveEvent.getPosition(),
@@ -241,9 +251,10 @@ public class ChessAreaController extends ChessAreaControllerBase implements
 				}
 			}
 
-			if ( (isObserving() && preferences.getBoardPreferences()
-							.isShowingMoveListOnObsGames())
-					|| (isPlaying() && !isExamining() && preferences.getBoardPreferences()
+			if ((isObserving() && preferences.getBoardPreferences()
+					.isShowingMoveListOnObsGames())
+					|| (isPlaying() && !isExamining() && preferences
+							.getBoardPreferences()
 							.isShowingMoveListOnPlayingGames())) {
 				showMoveList();
 
@@ -280,7 +291,8 @@ public class ChessAreaController extends ChessAreaControllerBase implements
 
 			if ((isObserving() || isExamining())) {
 				EventService.getInstance().publish(
-						new OutboundEvent("moves " + getGameId(),true,MoveListEvent.class));
+						new OutboundEvent("moves " + getGameId(), true,
+								MoveListEvent.class));
 			}
 
 			clearPremove();
@@ -316,9 +328,10 @@ public class ChessAreaController extends ChessAreaControllerBase implements
 
 	public void dispose() {
 		if (getChessArea() != null && getChessArea().getMoveList() != null) {
-			getChessArea().getMoveList().removePropertyChangeListener(MoveList.SAVE_TO_PGN, this);
+			getChessArea().getMoveList().removePropertyChangeListener(
+					MoveList.SAVE_TO_PGN, this);
 		}
-		super.dispose(); 
+		super.dispose();
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
@@ -328,13 +341,11 @@ public class ChessAreaController extends ChessAreaControllerBase implements
 			final JFileChooser fc = new JFileChooser();
 			int returnVal = fc.showSaveDialog(getChessArea());
 
-	        if (returnVal == JFileChooser.APPROVE_OPTION) {
-	            File file = fc.getSelectedFile();
-	            StorePGN.writeOutPGN(this, file, date);
-	        }
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				StorePGN.writeOutPGN(this, file, date);
+			}
 		}
 	}
-	
-	
 
 }
