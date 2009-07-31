@@ -1207,19 +1207,22 @@ public class GUIManager implements Preferenceable {
 					controller.getFrame().requestFocus();
 				}
 
+				
 				if (controller.isBughouse()
 						&& preferences.getBughousePreferences()
 								.getAutoFirstWhiteMove() != null) {
+					if (!controller.isExamining() && controller.isUserWhite() && controller.isWhitesMove()) {
 					EventService.getInstance().publish(
 							new OutboundEvent(preferences
 									.getBughousePreferences()
-									.getAutoFirstWhiteMove(), false));
+									.getAutoFirstWhiteMove(), false)); }
 				} else if (preferences.getBoardPreferences()
 						.getAutoFirstWhiteMove() != null) {
+					if (!controller.isExamining() && controller.isUserWhite() && controller.isWhitesMove()) {
 					EventService.getInstance().publish(
 							new OutboundEvent(preferences
-									.getBughousePreferences()
-									.getAutoFirstWhiteMove(), false));
+									.getBoardPreferences()
+									.getAutoFirstWhiteMove(), false)); }
 				}
 
 			} else if (playingController != null) {

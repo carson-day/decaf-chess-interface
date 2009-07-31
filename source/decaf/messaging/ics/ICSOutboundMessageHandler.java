@@ -165,7 +165,7 @@ public class ICSOutboundMessageHandler implements Subscriber {
 	}
 
 	public void inform(OutboundEvent event) {
-		if (event != null && event.getText() != null) {
+		if (event != null && !event.equals(null) && event.getText() != null) {
 			driver.handlePublishingEventAndLogging(event);
 			driver.sendMsg(event.getText());
 		}

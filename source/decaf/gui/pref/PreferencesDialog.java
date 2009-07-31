@@ -34,6 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import decaf.gui.GUIManager;
+import decaf.messaging.ics.ICSCommunicationsDriver;
 import decaf.resources.ResourceManagerFactory;
 
 public class PreferencesDialog extends JDialog {
@@ -79,6 +80,8 @@ public class PreferencesDialog extends JDialog {
 
 	private Action closeAction = new AbstractAction("Close") {
 		public void actionPerformed(ActionEvent e) {
+			ICSCommunicationsDriver driver = GUIManager.getInstance().getDriver();
+			driver.startTimerCommand(driver.TIMER_DEFAULT_COMMAND);
 			setVisible(false);
 		}
 	};
