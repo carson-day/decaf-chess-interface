@@ -258,7 +258,7 @@ public class ChatTab extends JPanel implements ClipboardOwner {
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Appended text in "
-					+ (System.currentTimeMillis() - startTime));
+					+ (System.currentTimeMillis() - startTime) + " ms");
 		}
 	}
 

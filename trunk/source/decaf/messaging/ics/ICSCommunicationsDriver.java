@@ -46,6 +46,7 @@ import decaf.messaging.outboundevent.OutboundEvent;
 import decaf.resources.ResourceManager;
 import decaf.resources.ResourceManagerFactory;
 import decaf.thread.ThreadManager;
+import decaf.util.ExtendedListUtil;
 import decaf.util.PropertiesConstants;
 
 public class ICSCommunicationsDriver implements Subscriber, Preferenceable {
@@ -99,12 +100,14 @@ public class ICSCommunicationsDriver implements Subscriber, Preferenceable {
 	private String url;
 
 	private Timer delayTimer;
+	
+	public String TIMER_DEFAULT_COMMAND = "date";
 
 	public ICSCommunicationsDriver(Preferences preferences) {
 
 		this.preferences = preferences;
 
-		if (preferences.getChatPreferences().isPreventingIdleLogout()) {
+		/*if (preferences.getChatPreferences().isPreventingIdleLogout()) {
 			delayTimer = new Timer();
 			delayTimer.schedule(new TimerTask() {
 				public void run() {
@@ -112,11 +115,34 @@ public class ICSCommunicationsDriver implements Subscriber, Preferenceable {
 							new OutboundEvent("date"));
 				}
 			}, 60000 * 50, 60000 * 50);
-		}
+		}*/
+		
+		startTimerCommand(TIMER_DEFAULT_COMMAND);
+		
 		outboundMessageHandler = new ICSOutboundMessageHandler(this);
 		messageLog.setPreferences(preferences);
 	}
 
+	public void startTimerCommand(final String command) {
+		if (!preferences.getChatPreferences().isPreventingIdleLogout()) { stopTimerCommand(); } else {
+			if (delayTimer != null) return;
+			delayTimer = new Timer();
+			delayTimer.schedule(new TimerTask() {
+				public void run() {
+					EventService.getInstance().publish(
+							new OutboundEvent(command));
+				}
+			}, 60000 * 50, 60000 * 50);
+			// Timer Command Enabled.
+		}
+		
+	}
+	public void stopTimerCommand() {
+		if (delayTimer == null || delayTimer.equals(null)) return;
+		delayTimer.cancel();
+		// Timer Command Disabled.
+	}
+	
 	public Preferences getPreferences() {
 		return preferences;
 	}
@@ -249,7 +275,6 @@ public class ICSCommunicationsDriver implements Subscriber, Preferenceable {
 					+ (preferences.getBoardPreferences().isSmartMoveEnabled() ? "1"
 							: "0"));
 			sendNonBlockedMessage("set interface " + INTERFACE);
-
 			sendNonBlockedMessage("set style 12");
 			sendNonBlockedMessage("set bell 0");
 
@@ -362,7 +387,7 @@ public class ICSCommunicationsDriver implements Subscriber, Preferenceable {
 
 		if ((firstWord != null && secondWord != null && thirdWord != null
 				&& firstWord.equalsIgnoreCase("SET")
-				&& secondWord.equalsIgnoreCase("STYLE") && !thirdWord
+				&& ( secondWord.equalsIgnoreCase("STYLE") /*|| (secondWord.toUpperCase().startsWith("ST"))*/ ) && !thirdWord
 				.equals("12"))
 				|| (firstWord != null && secondWord != null
 						&& firstWord.equalsIgnoreCase("SET") && secondWord
@@ -373,9 +398,9 @@ public class ICSCommunicationsDriver implements Subscriber, Preferenceable {
 							new IcsNonGameEvent(
 									ICS_ID,
 									"You are changing the style to something other "
-											+ " than 12. Decaf will now not be able to "
-											+ "interpet game events correctly. To fix this set "
-											+ "style 12."));
+											+ "than 12. Decaf will now not be able to "
+											+ "interpet game events correctly. To fix this, \"set "
+											+ "style 12\"."));
 		} else {
 
 			for (int i = 0; i < message.length(); i++) {

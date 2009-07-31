@@ -21,7 +21,7 @@
 package decaf.moveengine;
 
 /**
- * A class containing chess piece constants.
+ * An interface containing chess piece constants.
  */
 public interface Piece {
 	// **WARNING* If you change any constant values you will effect the

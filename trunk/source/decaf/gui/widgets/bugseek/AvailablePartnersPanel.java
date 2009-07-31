@@ -20,6 +20,7 @@ import javax.swing.JScrollPane;
 import org.apache.log4j.Logger;
 
 import decaf.gui.GUIManager;
+import decaf.gui.User;
 import decaf.resources.ResourceManagerFactory;
 import decaf.util.StringUtility;
 
@@ -28,13 +29,17 @@ public class AvailablePartnersPanel extends JPanel {
 	private static final Logger LOGGER = Logger
 			.getLogger(AvailableTeamsPanel.class);
 
+	private boolean enableMaxRatingFilter = false;
+	
 	private JPanel innerPanel = new JPanel();
 
 	private JScrollPane scrollPane = new JScrollPane(innerPanel);
 
 	private BugWhoUEventAdapter adapter;
 
-	private JComboBox ratingFilter;
+	private JComboBox ratingFilterMINIMUM;
+	
+	private JComboBox ratingFilterMAXIMUM;
 
 	private List<UnpartneredBugger> buggers = new LinkedList<UnpartneredBugger>();
 
@@ -55,25 +60,49 @@ public class AvailablePartnersPanel extends JPanel {
 		}));
 
 		JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		ratingFilter = new JComboBox(new Object[] { new Integer(0),
+		Integer[] MIN_RATINGS = {0,1,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,2100,2200};
+			
+			/* new Object[] { new Integer(0),
 				new Integer(1), new Integer(1000), new Integer(1200),
 				new Integer(1400), new Integer(1500), new Integer(1600),
 				new Integer(1700), new Integer(1800), new Integer(1900),
-				new Integer(2000), new Integer(2100), new Integer(2200) });
-		ratingFilter.setSelectedItem(new Integer(GUIManager.getInstance()
+				new Integer(2000), new Integer(2100), new Integer(2200) };
+			 * */
+		Integer[] MAX_RATINGS = {0,1,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,2100,2200,2300,2400,2500,9999};
+			/*new Object[] { new Integer(0),
+				new Integer(1), new Integer(1000), new Integer(1200),
+				new Integer(1400), new Integer(1500), new Integer(1600),
+				new Integer(1700), new Integer(1800), new Integer(1900),
+				new Integer(2000), new Integer(2100), new Integer(2200),
+				new Integer(2500), new Integer(9999)  };*/
+		
+		ratingFilterMINIMUM = new JComboBox(MIN_RATINGS);
+		if (enableMaxRatingFilter) { ratingFilterMAXIMUM = new JComboBox(MAX_RATINGS); }
+		
+		ratingFilterMINIMUM.setSelectedItem(new Integer(GUIManager.getInstance()
 				.getPreferences().getRememberAvailablePartnersFilter()));
-		ratingFilter.addActionListener(new ActionListener() {
+		if (enableMaxRatingFilter) { ratingFilterMAXIMUM.setSelectedIndex(MAX_RATINGS.length-1); }
+		
+		ratingFilterMINIMUM.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				GUIManager.getInstance().getPreferences()
 						.setRememberAvailablePartnersFilter(
-								((Integer) ratingFilter.getSelectedItem())
+								((Integer) ratingFilterMINIMUM.getSelectedItem())
 										.intValue());
 				ResourceManagerFactory.getManager().savePerferences(
 						GUIManager.getInstance().getPreferences());
 			}
 		});
+		
+		
 		topPanel.add(new JLabel("Rating >= "));
-		topPanel.add(ratingFilter);
+		topPanel.add(ratingFilterMINIMUM);
+		
+		if (enableMaxRatingFilter) {
+		topPanel.add(new JLabel(" && Rating <= "));
+		topPanel.add(ratingFilterMAXIMUM);
+		}
+
 
 		add(topPanel, BorderLayout.NORTH);
 		add(buttonPanel, BorderLayout.SOUTH);
@@ -87,7 +116,9 @@ public class AvailablePartnersPanel extends JPanel {
 	}
 
 	private void filterBuggers() {
-		int filter = ((Integer) ratingFilter.getSelectedItem()).intValue();
+		int MIN_filter = ((Integer) ratingFilterMINIMUM.getSelectedItem()).intValue();
+		int MAX_filter = 0;
+		if (enableMaxRatingFilter) MAX_filter = ((Integer) ratingFilterMAXIMUM.getSelectedItem()).intValue();
 
 		for (int i = 0; i < buggers.size(); i++) {
 			int buggerRating = 0;
@@ -97,10 +128,9 @@ public class AvailablePartnersPanel extends JPanel {
 			} catch (NumberFormatException e) {
 			}
 
-			if (buggerRating < filter) {
-				buggers.remove(i);
-				i--;
-			}
+			//if ()
+			if (buggerRating < MIN_filter) { buggers.remove(i); i--; } else
+			if (enableMaxRatingFilter && buggerRating > MAX_filter) { buggers.remove(i); i--; }
 		}
 		Collections.sort(buggers);
 	}
@@ -113,9 +143,13 @@ public class AvailablePartnersPanel extends JPanel {
 
 			innerPanel.removeAll();
 
-			innerPanel.setLayout(new GridLayout(buggers.size() / 3 + 1, 3));
+			int COLS = 3;
+			innerPanel.setLayout(new GridLayout(buggers.size() / 3 + 1, COLS));
 
 			for (final UnpartneredBugger bugger : buggers) {
+			//for(int i=0;i<buggers.size();i++) {
+				//final UnpartneredBugger bugger = buggers.get(i);
+				if (bugger.getHandle().equals(User.getInstance().getHandle())) { continue; }
 				innerPanel.add(new JButton(new AbstractAction(
 						buildButtonText(bugger)) {
 					public void actionPerformed(ActionEvent e) {

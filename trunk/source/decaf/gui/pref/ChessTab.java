@@ -80,7 +80,7 @@ public class ChessTab extends PreferencesTab {
 					new ComboBoxItem("At 30 seconds", new Integer(30)),
 					new ComboBoxItem("At 45 seconds", new Integer(45)),
 					new ComboBoxItem("At 60 seconds", new Integer(60)),
-					new ComboBoxItem("Allways", new Integer(Integer.MAX_VALUE)) });
+					new ComboBoxItem("Always", new Integer(Integer.MAX_VALUE)) });
 
 	private static final ComboBoxItems DRAG_N_DROP = new ComboBoxItems(
 			new ComboBoxItem[] {

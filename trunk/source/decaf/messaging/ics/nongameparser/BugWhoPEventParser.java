@@ -97,10 +97,15 @@ public class BugWhoPEventParser extends NonGameEventParser {
 					
 				}
 
+				if (currentLine.charAt(5) != ' ') currentLine = currentLine.substring(0,4) + " " + currentLine.substring(5,currentLine.length());
+				//System.out.println("CURRENT LINE = " + currentLine);
 				StringTokenizer teamTokenizer = new StringTokenizer(
 						currentLine, " ");
 				BugWhoPTeam team = new BugWhoPTeam();
-				team.setPlayer1Rating(teamTokenizer.nextToken());
+				String tok = null; // <--
+				tok = teamTokenizer.nextToken();
+				//System.out.println("TOK = " + tok);
+				team.setPlayer1Rating(tok);
 
 				String player1Name = teamTokenizer.nextToken();
 				char player1Modifier = getModifier(player1Name);
@@ -112,11 +117,26 @@ public class BugWhoPEventParser extends NonGameEventParser {
 					team.setPlayer1Handle(player1Name);
 				}
 
-				teamTokenizer.nextToken();
+				teamTokenizer.nextToken(); // seperator character '/'
 
-				team.setPlayer2Rating(teamTokenizer.nextToken());
-				String player2Name = teamTokenizer.nextToken();
-				char player2Modifier = getModifier(player2Name);
+				tok = teamTokenizer.nextToken();
+				team.setPlayer2Rating(tok);
+				String player2Name = null; 
+				if (teamTokenizer.hasMoreTokens()) 
+						{ player2Name = teamTokenizer.nextToken(); } 
+				else {
+						String str = team.getPlayer2Rating();
+						//System.out.println("STR = " + str);
+						char mod = findModifierInString(str);
+						//System.out.println("MOD = " + mod);
+						String MyRating = str.substring(0,str.indexOf(""+mod)).trim();
+						team.setPlayer2Rating(MyRating);
+						str = str.substring(str.indexOf(""+mod),str.length()).trim();
+						team.setPlayer2Handle(str);  
+						player2Name = str;
+						//System.out.println("player2Name = " + player2Name);
+						}
+				char player2Modifier = findModifierInString(player2Name); // should be 0.. //getModifier(player2Name);
 				if (player2Modifier != 0) {
 					team.setPlayer2Handle(player2Name.substring(1, player2Name
 							.length()));
@@ -142,6 +162,15 @@ public class BugWhoPEventParser extends NonGameEventParser {
 		} else {
 			return 0;
 		}
+	}
+	
+	private char findModifierInString(String name) {
+		for(int i=0;i<name.length();i++)
+		{
+			char c = name.charAt(i);
+			if (MODIFIERS.indexOf(c) != -1) return c;
+		}
+		return 0;
 	}
 
 	private static final String PARTNERSHIPS_NOT_PLAYING = "Partnerships not playing bughouse";

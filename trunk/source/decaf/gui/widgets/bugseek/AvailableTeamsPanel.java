@@ -83,6 +83,8 @@ public class AvailableTeamsPanel extends JPanel {
 				{
 				   for (BugWhoPTeam team : teams)
 				   {
+					   /*String myUsername = User.getInstance().getHandle();
+					   if (team.getPlayer1Handle().equals(myUsername) || team.getPlayer2Handle().equals(myUsername)) { continue; }*/
 					   adapter.matchPlayer(team.getPlayer1Handle(), "2 0");
 					   adapter.matchPlayer(team.getPlayer2Handle(), "2 0");
 				   }

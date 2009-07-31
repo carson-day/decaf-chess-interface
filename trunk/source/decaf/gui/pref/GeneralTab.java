@@ -12,6 +12,7 @@ import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.apache.log4j.Logger;
 
+import decaf.gui.GUIManager;
 import decaf.gui.widgets.LabeledComponent;
 import decaf.gui.widgets.selectioncontrol.ComboBoxItem;
 import decaf.gui.widgets.selectioncontrol.ComboBoxItems;
@@ -67,8 +68,11 @@ public class GeneralTab extends PreferencesTab {
 	public GeneralTab() {
 		super("General");
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		boolean requiresRestart = true;
+		String DEF_COMM = GUIManager.getInstance().getDriver().TIMER_DEFAULT_COMMAND;
+		DEF_COMM = (DEF_COMM.charAt(0)+"").toUpperCase() + DEF_COMM.substring(1);
 		add(new LabeledComponent(
-				"Prevent Idle Logout With 'Date' (Requires Restart)",
+				"Prevent Idle Logout With '" + DEF_COMM + "' " + (requiresRestart?"(Requires Restart)":""),
 				isPreventingIdleLogout));
 		add(new LabeledComponent("Auto Login Enabled", isAutoLogin));
 		add(new LabeledComponent("Sound Enabled", isSoundOn));
@@ -76,8 +80,9 @@ public class GeneralTab extends PreferencesTab {
 
 		if (!ResourceManagerFactory.getManager().isApplet()) {
 			JPanel labelPanel = new JPanel();
+			String seperator = java.io.File.separator;
 			JLabel label = new JLabel("Log Directory: "
-					+ System.getProperty("user.home") + "/.Decaf/logs",
+					+ System.getProperty("user.home") + seperator + ".Decaf" + seperator + "logs",
 					JLabel.CENTER);
 			labelPanel.add(label);
 			label.setForeground(Color.RED);
@@ -92,7 +97,7 @@ public class GeneralTab extends PreferencesTab {
 			add(new LabeledComponent("Max Log Size", maxFileSize));
 
 			JLabel label2 = new JLabel("Games Directory: "
-					+ System.getProperty("user.home") + "/.Decaf/games",
+					+ System.getProperty("user.home") + seperator + ".Decaf" + seperator + "games",
 					JLabel.CENTER);
 			JPanel labelPanel2 = new JPanel();
 			labelPanel2.add(label2);
