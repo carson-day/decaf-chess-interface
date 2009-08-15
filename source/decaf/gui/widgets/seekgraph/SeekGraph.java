@@ -227,7 +227,7 @@ public class SeekGraph extends JComponent implements MouseMotionListener {
 		}
 	}
 
-	private void showAcceptPopup(Point realLoc, Point loc, Rectangle rect) {
+	private void showAcceptPopup(Point clickLoc, Point loc, Rectangle rect) {
 		// are we're already showing for this?
 		if (_lastPopupRect == null || !rect.equals(_lastPopupRect)) {
 			if (menu.getComponentCount() > 0)
@@ -252,7 +252,11 @@ public class SeekGraph extends JComponent implements MouseMotionListener {
 				menu.add(new JMenuItem(accept));
 			}
 			_lastPopupRect = rect;
-			menu.setLocation(realLoc);
+			// menu.setLocation(realLoc);
+			// show popup right under the seek
+			Point screenLoc = new Point(loc);
+			SwingUtilities.convertPointToScreen(screenLoc, this);
+			menu.setLocation(screenLoc.x + SEEK_SIZE-2, screenLoc.y + SEEK_SIZE-2);
 			menu.setVisible(true);
 		}
 	}
