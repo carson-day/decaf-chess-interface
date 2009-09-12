@@ -34,6 +34,7 @@ import javax.swing.PopupFactory;
 
 import org.apache.log4j.Logger;
 
+import decaf.gui.SwingUtils;
 import decaf.gui.pref.Preferenceable;
 import decaf.gui.pref.Preferences;
 import decaf.gui.widgets.chessarealayout.ChessAreaLayout;
@@ -244,26 +245,44 @@ public class ChessArea extends JPanel implements Preferenceable, Disposable {
 	}
 
 	public void dispose() {
-		synchronized (this) {
-			if (board != null) {
-				board.dispose();
-			}
-			if (whitesClock != null) {
-				whitesClock.dispose();
-			}
-			if (blacksClock != null) {
-				blacksClock.dispose();
-			}
-			if (layout != null) {
-				layout.dispose();
-			}
-			if (moveList != null) {
-				moveList.dispose();
-			}
-			removeAll();
-
-			moveList.removeAllMoveListListeners();
+		LOGGER.error("Disposing chess area");
+		SwingUtils.dispose(this);
+		if (board != null) {
+			board.dispose();
+			board = null;
 		}
+		if (whiteHoldings != null) {
+			whiteHoldings.dispose();
+			whiteHoldings = null;
+		}
+		if (blackHoldings != null) {
+			blackHoldings.dispose();
+			blackHoldings = null;
+		}
+		if (whitesClock != null) {
+			whitesClock.dispose();
+			whitesClock = null;
+		}
+		if (blacksClock != null) {
+			blacksClock.dispose();
+			blacksClock = null;
+		}
+		if (layout != null) {
+			layout.dispose();
+			layout = null;
+		}
+		if (moveList != null) {
+			moveList.dispose();
+			moveList.removeAllMoveListListeners();
+			moveList = null;
+		}
+		SwingUtils.dispose(markWhiteLabel);
+		SwingUtils.dispose(markBlackLabel);
+		SwingUtils.dispose(whiteNameLbl);
+		SwingUtils.dispose(blackNameLbl);
+		SwingUtils.dispose(whiteLagLbl);
+		SwingUtils.dispose(blackLagLbl);
+		SwingUtils.dispose(statusField);
 	}
 
 	public boolean isMoveable() {

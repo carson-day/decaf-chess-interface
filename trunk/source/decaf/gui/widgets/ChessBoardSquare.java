@@ -64,6 +64,7 @@ import javax.swing.Timer;
 import org.apache.log4j.Logger;
 
 import decaf.gui.ChessAreaFrame;
+import decaf.gui.SwingUtils;
 import decaf.gui.event.UserIncompleteMoveEvent;
 import decaf.gui.event.UserMoveEvent;
 import decaf.gui.event.UserMoveInputListener;
@@ -256,7 +257,8 @@ public class ChessBoardSquare extends JPanel // implements MouseListener,
 	}
 
 	public void dispose() {
-		removeAll();
+		LOGGER.error("Disposing chess board square.");
+		SwingUtils.dispose(this);
 		boardId = null;
 		preferences = null;
 		thisSquare = null;

@@ -35,6 +35,7 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 
+import decaf.gui.SwingUtils;
 import decaf.gui.pref.BoardPreferences;
 import decaf.gui.widgets.ChessArea;
 import decaf.gui.widgets.SquareSandwichLayout;
@@ -78,49 +79,18 @@ public class ThiefChessAreaLayout implements ChessAreaLayout {
 	private boolean isWhiteOnTop;
 
 	public void dispose() {
-		if (boradAndControlsPanel != null) {
-			boradAndControlsPanel.removeAll();
-		}
-		if (northFillerPanel != null) {
-			northFillerPanel.removeAll();
-		}
-		if (southFillerPanel != null) {
-			southFillerPanel.removeAll();
-		}
-		if (eastFillerPanel != null) {
-			eastFillerPanel.removeAll();
-		}
-		if (westFillerPanel != null) {
-			westFillerPanel.removeAll();
-		}
-		if (westFillerPanel != null) {
-			westFillerPanel.removeAll();
-		}
-		if (auxileryPanel != null) {
-			whiteControlsPanel.removeAll();
-		}
-		if (boardAndDropPiecesPanel != null) {
-			boardAndDropPiecesPanel.removeAll();
-		}
-		if (blackControlsPanel != null) {
-			blackControlsPanel.removeAll();
-		}
-		if (mainPanel != null) {
-			mainPanel.removeAll();
-		}
-		if (chessArea != null) {
-			chessArea.removeAll();
-		}
-
-		if (hideDropPiecesPanelListener != null) {
-			chessArea.getMoveList().removeComponentListener(
-					hideDropPiecesPanelListener);
-			chessArea.getWhiteHoldings().removeComponentListener(
-					hideDropPiecesPanelListener);
-			chessArea.getBlackHoldings().removeComponentListener(
-					hideDropPiecesPanelListener);
-		}
-
+		LOGGER.error("Disposing ThiefChessAreaLAyout");
+		SwingUtils.dispose(boradAndControlsPanel);
+		SwingUtils.dispose(northFillerPanel);
+		SwingUtils.dispose(southFillerPanel);
+		SwingUtils.dispose(eastFillerPanel);
+		SwingUtils.dispose(westFillerPanel);
+		SwingUtils.dispose(auxileryPanel);
+		SwingUtils.dispose(whiteControlsPanel);
+		SwingUtils.dispose(boardAndDropPiecesPanel);
+		SwingUtils.dispose(blackControlsPanel);
+		SwingUtils.dispose(mainPanel);
+		SwingUtils.dispose(boardAndDropPiecesPanel);
 	}
 
 	public void adjustForLabelChanges() {
@@ -213,9 +183,8 @@ public class ThiefChessAreaLayout implements ChessAreaLayout {
 		chessArea.getMoveList().setMaximumSize(null);
 		chessArea.getMoveList().setPreferredSize(null);
 		chessArea.getMoveList().setMinimumSize(null);
-        chessArea.getMoveList().setAlignmentY(0.5F);
-        chessArea.getMoveList().setAlignmentX(0.5F);
-		
+		chessArea.getMoveList().setAlignmentY(0.5F);
+		chessArea.getMoveList().setAlignmentX(0.5F);
 
 		if (hideDropPiecesPanelListener != null) {
 			chessArea.getMoveList().removeComponentListener(
@@ -348,15 +317,15 @@ public class ThiefChessAreaLayout implements ChessAreaLayout {
 
 			chessArea.setWhiteHoldings(whiteHoldings);
 			chessArea.setBlackHoldings(blackHoldings);
-			
-			chessArea.getMoveList().setMaximumSize(new Dimension(200,3000));
-			chessArea.getMoveList().setPreferredSize(new Dimension(200,3000));
-             chessArea.getMoveList().setAlignmentY(0);
-             whiteHoldings.setAlignmentY(0);
-             blackHoldings.setAlignmentY(0);
-             chessArea.getMoveList().setAlignmentX(0);
-             whiteHoldings.setAlignmentX(0);
-             blackHoldings.setAlignmentX(0);             
+
+			chessArea.getMoveList().setMaximumSize(new Dimension(200, 3000));
+			chessArea.getMoveList().setPreferredSize(new Dimension(200, 3000));
+			chessArea.getMoveList().setAlignmentY(0);
+			whiteHoldings.setAlignmentY(0);
+			blackHoldings.setAlignmentY(0);
+			chessArea.getMoveList().setAlignmentX(0);
+			whiteHoldings.setAlignmentX(0);
+			blackHoldings.setAlignmentX(0);
 
 			auxileryPanel.setLayout(new BoxLayout(auxileryPanel,
 					BoxLayout.Y_AXIS));
@@ -462,15 +431,17 @@ public class ThiefChessAreaLayout implements ChessAreaLayout {
 			layout.setMaxSouthWidth(200);
 			boardAndDropPiecesPanel.setLayout(layout);
 
-			boardAndDropPiecesPanel.add(northFillerPanel, SquareSandwichLayout.NORTH);
-			boardAndDropPiecesPanel.add(isWhiteOnTop ? whiteHoldings : blackHoldings,
-					SquareSandwichLayout.WEST);
-			boardAndDropPiecesPanel
-					.add(chessArea.getBoard(), SquareSandwichLayout.CENTER);
-			boardAndDropPiecesPanel.add(chessArea.getMoveList(), SquareSandwichLayout.SOUTH);
-			boardAndDropPiecesPanel.add(isWhiteOnTop ? blackHoldings : whiteHoldings,
-					SquareSandwichLayout.EAST);
-			
+			boardAndDropPiecesPanel.add(northFillerPanel,
+					SquareSandwichLayout.NORTH);
+			boardAndDropPiecesPanel.add(isWhiteOnTop ? whiteHoldings
+					: blackHoldings, SquareSandwichLayout.WEST);
+			boardAndDropPiecesPanel.add(chessArea.getBoard(),
+					SquareSandwichLayout.CENTER);
+			boardAndDropPiecesPanel.add(chessArea.getMoveList(),
+					SquareSandwichLayout.SOUTH);
+			boardAndDropPiecesPanel.add(isWhiteOnTop ? blackHoldings
+					: whiteHoldings, SquareSandwichLayout.EAST);
+
 		} else if (chessArea.getPreferences().getBoardPreferences()
 				.getDropPiecesLocation() == BoardPreferences.DROP_PIECES_ON_TOP_BOTTOM) {
 
@@ -515,33 +486,35 @@ public class ThiefChessAreaLayout implements ChessAreaLayout {
 			layout.setMaxEastWidth(200);
 			boardAndDropPiecesPanel.setLayout(layout);
 
-			boardAndDropPiecesPanel.add(isWhiteOnTop ? whiteHoldings : blackHoldings,
-					SquareSandwichLayout.NORTH);
-			boardAndDropPiecesPanel.add(westFillerPanel, SquareSandwichLayout.WEST);
-			boardAndDropPiecesPanel
-					.add(chessArea.getBoard(), SquareSandwichLayout.CENTER);
-			boardAndDropPiecesPanel.add(isWhiteOnTop ? blackHoldings : whiteHoldings,
-					SquareSandwichLayout.SOUTH);
-			boardAndDropPiecesPanel.add(chessArea.getMoveList(), SquareSandwichLayout.EAST);
+			boardAndDropPiecesPanel.add(isWhiteOnTop ? whiteHoldings
+					: blackHoldings, SquareSandwichLayout.NORTH);
+			boardAndDropPiecesPanel.add(westFillerPanel,
+					SquareSandwichLayout.WEST);
+			boardAndDropPiecesPanel.add(chessArea.getBoard(),
+					SquareSandwichLayout.CENTER);
+			boardAndDropPiecesPanel.add(isWhiteOnTop ? blackHoldings
+					: whiteHoldings, SquareSandwichLayout.SOUTH);
+			boardAndDropPiecesPanel.add(chessArea.getMoveList(),
+					SquareSandwichLayout.EAST);
 
-/*			boardAndDropPiecesPanel.setLayout(new GridBagLayout());
-			GridBagConstraints constraints = new GridBagConstraints();
-			constraints.gridx = 0;
-			constraints.gridy = 0;
-			constraints.fill = GridBagConstraints.BOTH;
-			constraints.weightx = .9;
-			constraints.weighty = 1.0;
-			boardAndDropPiecesPanel.add(auxileryPanel, constraints);
-
-			constraints.gridx = 1;
-			constraints.gridy = 0;
-			constraints.fill = GridBagConstraints.BOTH;
-			constraints.weightx = .1;
-			constraints.weighty = 1.0;
-			boardAndDropPiecesPanel.add(chessArea.getMoveList(), constraints);
-			chessArea.getMoveList().setMaximumSize(new Dimension(200, 1000));
-			chessArea.getMoveList().setPreferredSize(new Dimension(100, 400));
-			chessArea.getMoveList().setMinimumSize(new Dimension(100, 300));*/
+			/*
+			 * boardAndDropPiecesPanel.setLayout(new GridBagLayout());
+			 * GridBagConstraints constraints = new GridBagConstraints();
+			 * constraints.gridx = 0; constraints.gridy = 0; constraints.fill =
+			 * GridBagConstraints.BOTH; constraints.weightx = .9;
+			 * constraints.weighty = 1.0;
+			 * boardAndDropPiecesPanel.add(auxileryPanel, constraints);
+			 * 
+			 * constraints.gridx = 1; constraints.gridy = 0; constraints.fill =
+			 * GridBagConstraints.BOTH; constraints.weightx = .1;
+			 * constraints.weighty = 1.0;
+			 * boardAndDropPiecesPanel.add(chessArea.getMoveList(),
+			 * constraints); chessArea.getMoveList().setMaximumSize(new
+			 * Dimension(200, 1000));
+			 * chessArea.getMoveList().setPreferredSize(new Dimension(100,
+			 * 400)); chessArea.getMoveList().setMinimumSize(new Dimension(100,
+			 * 300));
+			 */
 		} else {
 			throw new IllegalStateException("Invalid Drop Location: "
 					+ chessArea.getPreferences().getBoardPreferences()

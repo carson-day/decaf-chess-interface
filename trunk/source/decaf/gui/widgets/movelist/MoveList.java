@@ -42,6 +42,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -51,6 +52,7 @@ import javax.swing.table.TableModel;
 import org.apache.log4j.Logger;
 
 import decaf.gui.ChessAreaController;
+import decaf.gui.SwingUtils;
 import decaf.gui.pref.Preferenceable;
 import decaf.gui.pref.Preferences;
 import decaf.moveengine.Position;
@@ -90,8 +92,6 @@ public class MoveList extends JPanel implements Preferenceable {
 	// Ugly but its easier to keep two models so the updates fire correctly.
 	private DefaultTableModel tableModel;
 
-	private MoveList thisList = this;
-
 	private boolean ignoreSelectionChange = false;
 
 	private int selectedRow = -1;
@@ -118,13 +118,13 @@ public class MoveList extends JPanel implements Preferenceable {
 					&& moveListModel.getMove(halfMoveIndex).getPosition() != null) {
 				if (column == 0) {
 					for (MoveListListener listener : listeners) {
-						listener.moveClicked(thisList, halfMoveIndex);
+						listener.moveClicked(MoveList.this, halfMoveIndex);
 					}
 				} else if (column == 1) {
 					String value = (String) tableModel.getValueAt(row, column);
 					if (value != null && !value.equals("")) {
 						for (MoveListListener listener : listeners) {
-							listener.moveClicked(thisList, halfMoveIndex);
+							listener.moveClicked(MoveList.this, halfMoveIndex);
 						}
 					}
 				}
@@ -139,12 +139,26 @@ public class MoveList extends JPanel implements Preferenceable {
 	}
 
 	public void dispose() {
-		removeAll();
+		LOGGER.error("Disposing Move LIst");
+		SwingUtils.dispose(this);
 		table.removeAll();
 		listeners.clear();
 		while (tableModel.getRowCount() > 0) {
 			tableModel.removeRow(0);
 		}
+		TableModelListener[] listeners = tableModel.getTableModelListeners();
+		for (int i = 0; i < listeners.length; i++) {
+			tableModel.removeTableModelListener(listeners[i]);
+		}
+		SwingUtils.dispose(scrollPane);
+		SwingUtils.dispose(buttonPanel);
+		SwingUtils.dispose(isRealtimeUpdate);
+		SwingUtils.dispose(firstButton);
+		SwingUtils.dispose(prevButton);
+		SwingUtils.dispose(nextButton);
+		SwingUtils.dispose(lastButton);
+		SwingUtils.dispose(saveToPGN);
+		SwingUtils.dispose(table);		
 	}
 
 	private void initGui() {
@@ -177,7 +191,7 @@ public class MoveList extends JPanel implements Preferenceable {
 		isRealtimeUpdate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				for (MoveListListener listener : listeners) {
-					listener.realtimeUpdateChanged(thisList, isRealtimeUpdate
+					listener.realtimeUpdateChanged(MoveList.this, isRealtimeUpdate
 							.isSelected());
 				}
 			}

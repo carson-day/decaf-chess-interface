@@ -40,11 +40,13 @@ import javax.swing.JWindow;
 import org.apache.log4j.Logger;
 
 import decaf.gui.ChessAreaControllerBase;
+import decaf.gui.SwingUtils;
 import decaf.gui.pref.BoardPreferences;
 import decaf.gui.pref.Preferenceable;
 import decaf.gui.pref.Preferences;
 import decaf.thread.ThreadManager;
 import decaf.util.ToolbarUtil;
+import decaf.util.ToolbarUtil.ToolbarButton;
 
 /**
  * A ToolBar containing buttons for chess areas. Pass into the constructor the
@@ -73,34 +75,26 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 
 	private List<ToolbarUtil.ToolbarButton> buttons;
 
-	private ChessAreaToolbar thisToolbar = this;
-
 	private Container currentContentPane;
-	
+
 	private boolean isShowingMoveListButton;
 	private boolean isShowingPieceSelectionCombo;
-	
+
 	private List<Component> components = new LinkedList<Component>();
-	
+
 	/**
-	 * This is used to fix all the crazy focus traveral issues with toolbar.
-	 * I think the seperators mess up the default one.
+	 * This is used to fix all the crazy focus traveral issues with toolbar. I
+	 * think the seperators mess up the default one.
 	 */
-	private class ToolbarFocusTraversalPolicy extends FocusTraversalPolicy
-	{
+	private class ToolbarFocusTraversalPolicy extends FocusTraversalPolicy {
 
 		@Override
 		public Component getComponentAfter(Container arg0, Component arg1) {
-			for (int i = 0; i < components.size(); i++)
-			{
-				if (components.get(i) == arg1)
-				{
-					if (i == components.size() - 1)
-					{
+			for (int i = 0; i < components.size(); i++) {
+				if (components.get(i) == arg1) {
+					if (i == components.size() - 1) {
 						return components.get(0);
-					}
-					else
-					{
+					} else {
 						return components.get(i + 1);
 					}
 				}
@@ -110,21 +104,17 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 
 		@Override
 		public Component getComponentBefore(Container arg0, Component arg1) {
-			for (int i = 0; i < components.size(); i++)
-			{
-				if (components.get(i) == arg1)
-				{
-					if (i == 0)
-					{
+			for (int i = 0; i < components.size(); i++) {
+				if (components.get(i) == arg1) {
+					if (i == 0) {
 						return components.get(components.size() - 1);
-					}
-					else
-					{
+					} else {
 						return components.get(i - 1);
 					}
 				}
 			}
-			return components.get(0);		}
+			return components.get(0);
+		}
 
 		@Override
 		public Component getDefaultComponent(Container arg0) {
@@ -143,7 +133,7 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 			// TODO Auto-generated method stub
 			return components.get(components.size() - 1);
 		}
-		
+
 	}
 
 	// DONT USE ME I CRASH WHEN YOU CHANGE THE MOVE LIST SPLIT PLANE
@@ -153,9 +143,9 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 			ThreadManager.execute(new Runnable() {
 				public void run() {
 					try {
-						thisToolbar.remove(fullScreenButton);
-						thisToolbar.add(exitFullScreenButton);
-						thisToolbar.invalidate();
+						ChessAreaToolbar.this.remove(fullScreenButton);
+						ChessAreaToolbar.this.add(exitFullScreenButton);
+						ChessAreaToolbar.this.invalidate();
 						JWindow window = new JWindow(controller.getFrame());
 						currentContentPane = controller.getFrame()
 								.getContentPane();
@@ -188,9 +178,9 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 					GraphicsEnvironment.getLocalGraphicsEnvironment()
 							.getDefaultScreenDevice().setFullScreenWindow(null);
 					controller.getFrame().setContentPane(currentContentPane);
-					thisToolbar.remove(exitFullScreenButton);
-					thisToolbar.add(fullScreenButton);
-					thisToolbar.invalidate();
+					ChessAreaToolbar.this.remove(exitFullScreenButton);
+					ChessAreaToolbar.this.add(fullScreenButton);
+					ChessAreaToolbar.this.invalidate();
 					controller.getFrame().validate();
 				}
 			});
@@ -212,8 +202,22 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 	private ChessAreaControllerBase controller;
 
 	public void dispose() {
-		removeAll();
+		for (ToolbarButton button : buttons) {
+			SwingUtils.dispose(button);
+		}
+		for (Component component : components) {
+			SwingUtils.dispose(component);
+		}
 		preferences = null;
+		if (buttons != null) {
+			buttons.clear();
+			buttons = null;
+		}
+		if (components != null) {
+			components.clear();
+			components = null;
+		}
+		SwingUtils.dispose(this);
 	}
 
 	/**
@@ -231,7 +235,8 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 		long startTime = System.currentTimeMillis();
 		setFloatable(false);
 		isShowingMoveListButton = true;
-		isShowingPieceSelectionCombo = controller.isPlaying() && controller.isActive();
+		isShowingPieceSelectionCombo = controller.isPlaying()
+				&& controller.isActive();
 
 		String propFile = null;
 
@@ -249,9 +254,8 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 		} else {
 			propFile = "ObsBugToolbar";
 		}
-		
-		if (isShowingMoveListButton)
-		{
+
+		if (isShowingMoveListButton) {
 			setPreferences(preferences);
 			add(moveListButton);
 			addSeparator(new Dimension(3, 1));
@@ -264,9 +268,8 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 
 		buttons = ToolbarUtil.addGameToolbarButtonsFromProperties(propFile,
 				this, 12, 3, controller);
-		
-		for (int i = 0; i < buttons.size(); i++)
-		{
+
+		for (int i = 0; i < buttons.size(); i++) {
 			components.add(buttons.get(i));
 		}
 		setClearPremoveEnabled(false);
@@ -332,31 +335,24 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 	public void setButtonToHideMoveList() {
 		moveListButton.setText("Hide Move List");
 		moveListButton.invalidate();
-		thisToolbar.validate();
+		ChessAreaToolbar.this.validate();
 	}
 
 	public void setButtonToShowMoveList() {
 		moveListButton.setText("Show Move List");
 		moveListButton.invalidate();
-		thisToolbar.validate();
+		ChessAreaToolbar.this.validate();
 	}
 
 	public void requestToolbarFocus() {
 		setRequestFocusEnabled(true);
-		if (isShowingMoveListButton)
-		{
+		if (isShowingMoveListButton) {
 			moveListButton.requestFocus();
-		}
-		else if (isShowingPieceSelectionCombo)
-		{			
-		   autoPromotionCombo.requestFocus();
-		}
-		else if (buttons != null && buttons.size() > 0)
-		{			
+		} else if (isShowingPieceSelectionCombo) {
+			autoPromotionCombo.requestFocus();
+		} else if (buttons != null && buttons.size() > 0) {
 			buttons.get(0).requestFocus();
-		}
-		else
-		{			
+		} else {
 			requestFocus();
 		}
 	}

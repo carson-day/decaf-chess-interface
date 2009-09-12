@@ -45,8 +45,6 @@ public class ConsoleTextTab extends PreferencesTab {
 
 		private TextPropertiesSelectionControl control;
 
-		private ChannelControl thisControl = this;
-
 		public ChannelControl(int channel) {
 			this.channel = channel;
 			this.control = new TextPropertiesSelectionControl("Channel "
@@ -55,7 +53,7 @@ public class ConsoleTextTab extends PreferencesTab {
 
 			add(new JButton(new AbstractAction("Remove") {
 				public void actionPerformed(ActionEvent e) {
-					removeChannelControl(thisControl);
+					removeChannelControl(ChannelControl.this);
 				}
 			}));
 			add(control);
@@ -81,8 +79,6 @@ public class ConsoleTextTab extends PreferencesTab {
 			return (TextProperties) control.getValue();
 		}
 	}
-
-	private ConsoleTextTab thisTab = this;
 
 	private boolean ignoreUpdates = true;
 
@@ -382,7 +378,7 @@ public class ConsoleTextTab extends PreferencesTab {
 
 	private void redoLayout() {
 		channelControlPanel.invalidate();
-		thisTab.validate();
+		ConsoleTextTab.this.validate();
 	}
 
 	private void addChannelControl(final ChannelControl control) {

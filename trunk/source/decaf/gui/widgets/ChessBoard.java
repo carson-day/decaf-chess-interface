@@ -32,6 +32,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
+import decaf.gui.SwingUtils;
 import decaf.gui.event.UserMoveInputListener;
 import decaf.gui.pref.Preferenceable;
 import decaf.gui.pref.Preferences;
@@ -48,7 +49,7 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 
 	private String id;
 
-	private ChessBoardSquare squares[][];
+	private ChessBoardSquare squares[][] = new ChessBoardSquare[8][8];
 
 	private Preferences preferences;
 
@@ -208,7 +209,8 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 	}
 
 	public void dispose() {
-		removeAll();
+		LOGGER.error("Disposing chess board");
+		SwingUtils.dispose(this);
 		if (squares != null) {
 			for (int i = 0; i < squares.length; i++) {
 				for (int j = 0; j < squares[i].length; j++) {
@@ -366,7 +368,6 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 	}
 
 	private void setupChessBoardSquares() {
-		squares = new ChessBoardSquare[8][];
 		boolean isWhiteSquare = false;
 		for (int i = 0; i < 8; i++) {
 			squares[i] = new ChessBoardSquare[8];
