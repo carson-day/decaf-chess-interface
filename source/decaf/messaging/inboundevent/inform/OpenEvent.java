@@ -27,6 +27,7 @@ public class OpenEvent extends IcsNonGameEvent {
 		super(icsId, text);
 	}
 
+	@Override
 	public String toString() {
 		return "<OpenEvent>" + super.toString() + "</OpenEvent>";
 	}

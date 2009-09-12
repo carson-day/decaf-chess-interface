@@ -25,12 +25,12 @@ import decaf.util.PieceUtil;
  * Black pieces are lower case and white pieces are upper case.
  * 
  * <pre>
- *                
- *                 
- *                  
- *                   
- *                    
- *                     
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  *                     --- --- --- --- --- --- --- ---
  *                     : r : n : b : q : k : b : n : r :   Whites  move.
  *                     --- --- --- --- --- --- --- ---
@@ -48,12 +48,12 @@ import decaf.util.PieceUtil;
  *                     --- --- --- --- --- --- --- ---
  *                     : R : N : B : Q : K : B : N : R :
  *                     --- --- --- --- --- --- --- ---
- *                     
- *                     
- *                    
- *                   
- *                  
- *                 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * </pre>
  */
 public class AsciiPositionEncoder implements PositionEncoder {
@@ -63,6 +63,67 @@ public class AsciiPositionEncoder implements PositionEncoder {
 	private static final String RANK_SEPARATOR = " --- --- --- --- --- --- --- ---";
 
 	private static final String FILE_SEPARATOR = ":";
+
+	public String encode(int piece) {
+		// assert chess.util.PieceUtil.isValid(piece) : piece;
+
+		switch (piece) {
+		case Piece.EMPTY: {
+			return " ";
+		}
+
+		case Piece.WP: {
+			return "P";
+		}
+
+		case Piece.BP: {
+			return "p";
+		}
+		case Piece.WN: {
+			return "N";
+		}
+		case Piece.BN: {
+			return "n";
+		}
+		case Piece.WB: {
+			return "B";
+		}
+		case Piece.BB: {
+			return "b";
+		}
+		case Piece.WR: {
+			return "R";
+		}
+		case Piece.BR: {
+			return "r";
+		}
+		case Piece.WQ: {
+			return "Q";
+		}
+		case Piece.BQ: {
+			return "q";
+		}
+		case Piece.WK: {
+			return "K";
+		}
+		case Piece.BK: {
+			return "k";
+		}
+		}
+		throw new IllegalStateException("Invalid piece " + piece);
+	}
+
+	public String encode(int[][] board) {
+		String result = NEWLINE + RANK_SEPARATOR + NEWLINE + FILE_SEPARATOR;
+		for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board[i].length; j++) {
+				result += " " + encode(board[i][j]) + " " + FILE_SEPARATOR;
+			}
+			result += NEWLINE + RANK_SEPARATOR + NEWLINE
+					+ (i != 7 ? FILE_SEPARATOR : "");
+		}
+		return result;
+	}
 
 	public String encode(Position position) {
 		String result = NEWLINE + RANK_SEPARATOR + NEWLINE + FILE_SEPARATOR;
@@ -127,66 +188,5 @@ public class AsciiPositionEncoder implements PositionEncoder {
 			}
 		}
 		return result;
-	}
-
-	public String encode(int[][] board) {
-		String result = NEWLINE + RANK_SEPARATOR + NEWLINE + FILE_SEPARATOR;
-		for (int i = 0; i < board.length; i++) {
-			for (int j = 0; j < board[i].length; j++) {
-				result += " " + encode(board[i][j]) + " " + FILE_SEPARATOR;
-			}
-			result += NEWLINE + RANK_SEPARATOR + NEWLINE
-					+ (i != 7 ? FILE_SEPARATOR : "");
-		}
-		return result;
-	}
-
-	public String encode(int piece) {
-		// assert chess.util.PieceUtil.isValid(piece) : piece;
-
-		switch (piece) {
-		case decaf.util.PieceUtil.EMPTY: {
-			return " ";
-		}
-
-		case decaf.util.PieceUtil.WP: {
-			return "P";
-		}
-
-		case decaf.util.PieceUtil.BP: {
-			return "p";
-		}
-		case decaf.util.PieceUtil.WN: {
-			return "N";
-		}
-		case decaf.util.PieceUtil.BN: {
-			return "n";
-		}
-		case decaf.util.PieceUtil.WB: {
-			return "B";
-		}
-		case decaf.util.PieceUtil.BB: {
-			return "b";
-		}
-		case decaf.util.PieceUtil.WR: {
-			return "R";
-		}
-		case decaf.util.PieceUtil.BR: {
-			return "r";
-		}
-		case decaf.util.PieceUtil.WQ: {
-			return "Q";
-		}
-		case decaf.util.PieceUtil.BQ: {
-			return "q";
-		}
-		case decaf.util.PieceUtil.WK: {
-			return "K";
-		}
-		case decaf.util.PieceUtil.BK: {
-			return "k";
-		}
-		}
-		throw new IllegalStateException("Invalid piece " + piece);
 	}
 }

@@ -42,8 +42,6 @@ public class FreeTTSSpeech implements DecafSpeech {
 
 	private static final String VOICE_NAME = "kevin16";
 
-	private ExecutorService executor = Executors.newFixedThreadPool(3);
-
 	/**
 	 * Returns a "no synthesizer" message, and asks the user to check if the
 	 * "speech.properties" file is at <code>user.home</code> or
@@ -70,6 +68,12 @@ public class FreeTTSSpeech implements DecafSpeech {
 		return message;
 	}
 
+	private ExecutorService executor = Executors.newFixedThreadPool(3);
+
+	private Synthesizer synthesizer;
+
+	private SpeechPreferences preferences;
+
 	/**
 	 * Example of how to list all the known voices for a specific mode using
 	 * just JSAPI. FreeTTS maps the domain name to the JSAPI mode name. The
@@ -85,9 +89,9 @@ public class FreeTTSSpeech implements DecafSpeech {
 	 * SynthesizerModeDesc(null, // engine // name modeName, // mode name
 	 * Locale.US, // locale null, // running null); // voices /* Contact the
 	 * primary entry point for JSAPI, which is the Central class, to discover
-	 * what synthesizers are available that match the template we defined above. /
-	 * EngineList engineList = Central.availableSynthesizers(required); for (int
-	 * i = 0; i < engineList.size(); i++) {
+	 * what synthesizers are available that match the template we defined above.
+	 * / EngineList engineList = Central.availableSynthesizers(required); for
+	 * (int i = 0; i < engineList.size(); i++) {
 	 * 
 	 * SynthesizerModeDesc desc = (SynthesizerModeDesc) engineList.get(i);
 	 * System.out.println(" " + desc.getEngineName() + " (mode=" +
@@ -97,6 +101,21 @@ public class FreeTTSSpeech implements DecafSpeech {
 	 */
 
 	public FreeTTSSpeech() {
+	}
+
+	public void dispose() throws Exception {
+		if (synthesizer != null) {
+			synthesizer.deallocate();
+		}
+	}
+
+	@Override
+	public void finalize() throws Exception {
+		dispose();
+	}
+
+	public String getDescription() {
+		return "Free TTS Speech 1.2";
 	}
 
 	public void init() {
@@ -157,37 +176,6 @@ public class FreeTTSSpeech implements DecafSpeech {
 		}
 	}
 
-	public void finalize() throws Exception {
-		dispose();
-	}
-
-	public void dispose() throws Exception {
-		if (synthesizer != null) {
-			synthesizer.deallocate();
-		}
-	}
-
-	public void speak(final String text) {
-		if (synthesizer != null) {
-			executor.execute(new Runnable() {
-				public void run() {
-					if (synthesizer != null) {
-						synthesizer.speakPlainText(text, null);
-						try {
-							synthesizer
-									.waitEngineState(Synthesizer.QUEUE_EMPTY);
-						} catch (InterruptedException ie) {
-						}
-					}
-				}
-			});
-		}
-	}
-
-	private Synthesizer synthesizer;
-
-	private SpeechPreferences preferences;
-
 	public void setPreferences(SpeechPreferences preferences) {
 		this.preferences = preferences;
 		if (synthesizer == null && preferences.isSpeechEnabled()) {
@@ -217,8 +205,21 @@ public class FreeTTSSpeech implements DecafSpeech {
 		}
 	}
 
-	public String getDescription() {
-		return "Free TTS Speech 1.2";
+	public void speak(final String text) {
+		if (synthesizer != null) {
+			executor.execute(new Runnable() {
+				public void run() {
+					if (synthesizer != null) {
+						synthesizer.speakPlainText(text, null);
+						try {
+							synthesizer
+									.waitEngineState(Synthesizer.QUEUE_EMPTY);
+						} catch (InterruptedException ie) {
+						}
+					}
+				}
+			});
+		}
 	}
 
 	public boolean supportsWordsPerMinute() {

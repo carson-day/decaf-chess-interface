@@ -5,6 +5,10 @@ import java.io.Serializable;
 public class LoggingPreferences implements Serializable, Cloneable {
 	private static final long serialVersionUID = 11;
 
+	public static LoggingPreferences getDefault() {
+		return new LoggingPreferences();
+	}
+
 	private int maxFileSize = 5000000;
 
 	public static final int APPEND_TO_GAMES_PGN = 1;
@@ -23,42 +27,7 @@ public class LoggingPreferences implements Serializable, Cloneable {
 
 	private int gameLogMode = APPEND_TO_GAMES_PGN;
 
-	public boolean isLoggingConsole() {
-		return isLoggingConsole;
-	}
-
-	public void setLoggingConsole(boolean isLoggingConsole) {
-		this.isLoggingConsole = isLoggingConsole;
-	}
-
-	public boolean isLoggingChannels() {
-		return isLoggingChannels;
-	}
-
-	public void setLoggingChannels(boolean isLoggingIndividualChannels) {
-		this.isLoggingChannels = isLoggingIndividualChannels;
-	}
-
-	public boolean isLoggingPersonalTells() {
-		return isLoggingPersonalTells;
-	}
-
-	public void setLoggingPersonalTells(boolean isLoggingPersonalTells) {
-		this.isLoggingPersonalTells = isLoggingPersonalTells;
-	}
-
-	public static LoggingPreferences getDefault() {
-		return new LoggingPreferences();
-	}
-
-	public boolean isLoggingEnabled() {
-		return isLoggingEnabled;
-	}
-
-	public void setLoggingEnabled(boolean isLoggingEnabled) {
-		this.isLoggingEnabled = isLoggingEnabled;
-	}
-
+	@Override
 	public Object clone() {
 		try {
 			return super.clone();
@@ -67,27 +36,59 @@ public class LoggingPreferences implements Serializable, Cloneable {
 		}
 	}
 
+	public int getGameLogMode() {
+		return gameLogMode;
+	}
+
 	public int getMaxFileSize() {
 		return maxFileSize;
 	}
 
-	public void setMaxFileSize(int maxFileSize) {
-		this.maxFileSize = maxFileSize;
+	public boolean isLoggingChannels() {
+		return isLoggingChannels;
+	}
+
+	public boolean isLoggingConsole() {
+		return isLoggingConsole;
+	}
+
+	public boolean isLoggingEnabled() {
+		return isLoggingEnabled;
 	}
 
 	public boolean isLoggingGames() {
 		return isLoggingGames;
 	}
 
-	public void setLoggingGames(boolean isLoggingGames) {
-		this.isLoggingGames = isLoggingGames;
-	}
-
-	public int getGameLogMode() {
-		return gameLogMode;
+	public boolean isLoggingPersonalTells() {
+		return isLoggingPersonalTells;
 	}
 
 	public void setGameLogMode(int gameLogMode) {
 		this.gameLogMode = gameLogMode;
+	}
+
+	public void setLoggingChannels(boolean isLoggingIndividualChannels) {
+		this.isLoggingChannels = isLoggingIndividualChannels;
+	}
+
+	public void setLoggingConsole(boolean isLoggingConsole) {
+		this.isLoggingConsole = isLoggingConsole;
+	}
+
+	public void setLoggingEnabled(boolean isLoggingEnabled) {
+		this.isLoggingEnabled = isLoggingEnabled;
+	}
+
+	public void setLoggingGames(boolean isLoggingGames) {
+		this.isLoggingGames = isLoggingGames;
+	}
+
+	public void setLoggingPersonalTells(boolean isLoggingPersonalTells) {
+		this.isLoggingPersonalTells = isLoggingPersonalTells;
+	}
+
+	public void setMaxFileSize(int maxFileSize) {
+		this.maxFileSize = maxFileSize;
 	}
 }

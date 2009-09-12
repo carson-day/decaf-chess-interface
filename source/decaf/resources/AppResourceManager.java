@@ -51,172 +51,6 @@ import decaf.gui.pref.SeekGraphPreferences;
 import decaf.gui.pref.SpeechPreferences;
 
 public class AppResourceManager implements ResourceManager {
-	Logger LOGGER = Logger.getLogger(ResourceManager.class);
-
-	private static final String RESOURCES_DIR = "./Resources";
-
-	private static final File DECAF_USER_HOME = new File(System
-			.getProperty("user.home")
-			+ "/.Decaf");
-
-	static final String PREFERENCES_PATH = "preferences.obj";
-
-	private PropertiesManager manager = new PropertiesManager();
-
-	public URL getUrl(String file) {
-		try {
-			return new URL("file:Resources/" + file);
-		} catch (MalformedURLException me) {
-			throw new RuntimeException(me);
-		}
-	}
-
-	public Image getImage(String imageName) {
-		try {
-			return ImageIO.read(new File(RESOURCES_DIR + "/" + imageName));
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public int getInt(String bundleName, String resourceKey) {
-		return manager.getInt(bundleName, resourceKey);
-	}
-
-	public File getDecafUserHome() {
-		return DECAF_USER_HOME;
-	}
-
-	public boolean isApplet() {
-		return false;
-	}
-
-	public String getString(String bundleName, String resourceKey) {
-		return manager.getString(bundleName, resourceKey);
-	}
-
-	public Preferences loadDefaultPreferences() {
-		Preferences result = new Preferences();
-		result.setLoggingPreferences(LoggingPreferences.getDefault());
-		result.setBughousePreferences(BughousePreferences.getDefault());
-		result.setChatPreferences(ChatPreferences.getDefault());
-		result.setBoardPreferences(BoardPreferences.getDefault());
-		result.setLoginPreferences(LoginPreferences.getDefault());
-		result.setSpeechPreferences(SpeechPreferences.getDefault());
-		result.setSeekGraphPreferences(SeekGraphPreferences.getDefault());
-
-		result.setRememberChatLocation(result.getChatPreferences()
-				.getChatWindowPoint());
-		result.setRememberChatDimension(result.getChatPreferences()
-				.getChatWindowDimension());
-		result.setRememberBugEarLocation(result.getBughousePreferences()
-				.getBugEarPoint());
-		result.setRememberBugEarDimension(result.getBughousePreferences()
-				.getBugEarDimension());
-		result.setRememberBugLocation(result.getBughousePreferences()
-				.getGameWindowPoint());
-		result.setRememberBugDimension(result.getBughousePreferences()
-				.getGameWindowDimension());
-		result.setRememberBugSliderPosition(result.getBughousePreferences()
-				.getBoardSplitterLocation());
-		result.setRememberChessLocation(result.getBoardPreferences()
-				.getGameWindowPoint());
-		result.setRememberChessDimension(result.getBoardPreferences()
-				.getGameWindowSize());
-		
-		result.setRememberBugSeekDimension(new Dimension(750,400));
-		result.setRememberBugSeekLocation(new Point(0,0));
-		result.setRememberSeekDimension(new Dimension(640, 480));
-		result.setRememberSeekLocation(new Point(0,0));
-
-		return result;
-	}
-
-	public Preferences loadPreferences() {
-		Preferences result = null;
-		try {
-			createDecafDirectory();
-			File file = new File(DECAF_USER_HOME, PREFERENCES_PATH);
-			ObjectInputStream objectIn = new ObjectInputStream(
-					new FileInputStream(file));
-			result = (Preferences) objectIn.readObject();
-			objectIn.close();
-		} catch (Throwable ioe) {
-			LOGGER.warn("Could not load preferences: " + PREFERENCES_PATH
-					+ " Loading default preferences.");
-			result = loadDefaultPreferences();
-		}
-		return result;
-	}
-
-	public void savePerferences(Preferences preferences) {
-		try {
-			createDecafDirectory();
-			File file = new File(DECAF_USER_HOME, PREFERENCES_PATH);
-			ObjectOutputStream objOut = new ObjectOutputStream(
-					new FileOutputStream(file));
-			objOut.writeObject(preferences);
-			objOut.close();
-
-		} catch (Exception ioe) {
-			LOGGER.error("Error occured saving options: " + PREFERENCES_PATH,
-					ioe);
-			ioe.printStackTrace();
-		}
-	}
-
-	private void createDecafDirectory() {
-		DECAF_USER_HOME.mkdir();
-	}
-
-	public String[] getBackgroundNames() {
-		List<String> result = new LinkedList<String>();
-
-		File file = new File(RESOURCES_DIR);
-		File[] files = file.listFiles(new FilenameFilter() {
-
-			public boolean accept(File arg0, String arg1) {
-				// TODO Auto-generated method stub
-				return arg1.startsWith("SQUARE.")
-						&& arg1.indexOf("LIGHT") != -1;
-			}
-
-		});
-
-		for (int i = 0; i < files.length; i++) {
-			
-			StringTokenizer tok = new StringTokenizer(files[i].getName(), ".");
-		     tok.nextToken();
-			String name = tok.nextToken();
-			if (name.equalsIgnoreCase("CROP"))
-			{
-				name = tok.nextToken();
-			}
-			result.add(name);
-		}
-		return (String[]) result.toArray(new String[0]);
-	}
-
-	public String[] getChessSetNames() {
-		List<String> result = new LinkedList<String>();
-
-		File file = new File(RESOURCES_DIR);
-		File[] files = file.listFiles(new FilenameFilter() {
-
-			public boolean accept(File arg0, String arg1) {
-				return arg1.startsWith("SET.") && arg1.indexOf("WBISHOP") != -1;
-			}
-
-		});
-
-		for (int i = 0; i < files.length; i++) {
-			StringTokenizer tok = new StringTokenizer(files[i].getName(), ".");
-			tok.nextToken();
-			result.add(tok.nextToken());
-		}
-		return (String[]) result.toArray(new String[0]);
-	}
-
 	private class PropertiesManager {
 		HashMap<String, Properties> bundleNameToProperties = new HashMap<String, Properties>();
 
@@ -249,14 +83,15 @@ public class AppResourceManager implements ResourceManager {
 
 		}
 
-		private void save(String bundleName, String header,
-				Properties properties) {
+		public int getInt(String bundleName, String resourceKey) {
 			try {
-				properties.store(new FileOutputStream("./properties/"
-						+ bundleName + ".properties", false), header);
-			} catch (IOException ioe) {
-				throw new RuntimeException(ioe);
+				return Integer.parseInt(getProperties(bundleName).getProperty(
+						resourceKey));
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new RuntimeException(e.getMessage());
 			}
+
 		}
 
 		private Properties getProperties(String bundleName) {
@@ -302,15 +137,179 @@ public class AppResourceManager implements ResourceManager {
 			}
 		}
 
-		public int getInt(String bundleName, String resourceKey) {
+		private void save(String bundleName, String header,
+				Properties properties) {
 			try {
-				return Integer.parseInt(getProperties(bundleName).getProperty(
-						resourceKey));
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new RuntimeException(e.getMessage());
+				properties.store(new FileOutputStream("./properties/"
+						+ bundleName + ".properties", false), header);
+			} catch (IOException ioe) {
+				throw new RuntimeException(ioe);
+			}
+		}
+	}
+
+	Logger LOGGER = Logger.getLogger(ResourceManager.class);
+
+	private static final String RESOURCES_DIR = "./Resources";
+
+	private static final File DECAF_USER_HOME = new File(System
+			.getProperty("user.home")
+			+ "/.Decaf");
+
+	static final String PREFERENCES_PATH = "preferences.obj";
+
+	private PropertiesManager manager = new PropertiesManager();
+
+	private void createDecafDirectory() {
+		DECAF_USER_HOME.mkdir();
+	}
+
+	public String[] getBackgroundNames() {
+		List<String> result = new LinkedList<String>();
+
+		File file = new File(RESOURCES_DIR);
+		File[] files = file.listFiles(new FilenameFilter() {
+
+			public boolean accept(File arg0, String arg1) {
+				// TODO Auto-generated method stub
+				return arg1.startsWith("SQUARE.")
+						&& arg1.indexOf("LIGHT") != -1;
 			}
 
+		});
+
+		for (int i = 0; i < files.length; i++) {
+
+			StringTokenizer tok = new StringTokenizer(files[i].getName(), ".");
+			tok.nextToken();
+			String name = tok.nextToken();
+			if (name.equalsIgnoreCase("CROP")) {
+				name = tok.nextToken();
+			}
+			result.add(name);
+		}
+		return result.toArray(new String[0]);
+	}
+
+	public String[] getChessSetNames() {
+		List<String> result = new LinkedList<String>();
+
+		File file = new File(RESOURCES_DIR);
+		File[] files = file.listFiles(new FilenameFilter() {
+
+			public boolean accept(File arg0, String arg1) {
+				return arg1.startsWith("SET.") && arg1.indexOf("WBISHOP") != -1;
+			}
+
+		});
+
+		for (int i = 0; i < files.length; i++) {
+			StringTokenizer tok = new StringTokenizer(files[i].getName(), ".");
+			tok.nextToken();
+			result.add(tok.nextToken());
+		}
+		return result.toArray(new String[0]);
+	}
+
+	public File getDecafUserHome() {
+		return DECAF_USER_HOME;
+	}
+
+	public Image getImage(String imageName) {
+		try {
+			return ImageIO.read(new File(RESOURCES_DIR + "/" + imageName));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public int getInt(String bundleName, String resourceKey) {
+		return manager.getInt(bundleName, resourceKey);
+	}
+
+	public String getString(String bundleName, String resourceKey) {
+		return manager.getString(bundleName, resourceKey);
+	}
+
+	public URL getUrl(String file) {
+		try {
+			return new URL("file:Resources/" + file);
+		} catch (MalformedURLException me) {
+			throw new RuntimeException(me);
+		}
+	}
+
+	public boolean isApplet() {
+		return false;
+	}
+
+	public Preferences loadDefaultPreferences() {
+		Preferences result = new Preferences();
+		result.setLoggingPreferences(LoggingPreferences.getDefault());
+		result.setBughousePreferences(BughousePreferences.getDefault());
+		result.setChatPreferences(ChatPreferences.getDefault());
+		result.setBoardPreferences(BoardPreferences.getDefault());
+		result.setLoginPreferences(LoginPreferences.getDefault());
+		result.setSpeechPreferences(SpeechPreferences.getDefault());
+		result.setSeekGraphPreferences(SeekGraphPreferences.getDefault());
+
+		result.setRememberChatLocation(result.getChatPreferences()
+				.getChatWindowPoint());
+		result.setRememberChatDimension(result.getChatPreferences()
+				.getChatWindowDimension());
+		result.setRememberBugEarLocation(result.getBughousePreferences()
+				.getBugEarPoint());
+		result.setRememberBugEarDimension(result.getBughousePreferences()
+				.getBugEarDimension());
+		result.setRememberBugLocation(result.getBughousePreferences()
+				.getGameWindowPoint());
+		result.setRememberBugDimension(result.getBughousePreferences()
+				.getGameWindowDimension());
+		result.setRememberBugSliderPosition(result.getBughousePreferences()
+				.getBoardSplitterLocation());
+		result.setRememberChessLocation(result.getBoardPreferences()
+				.getGameWindowPoint());
+		result.setRememberChessDimension(result.getBoardPreferences()
+				.getGameWindowSize());
+
+		result.setRememberBugSeekDimension(new Dimension(750, 400));
+		result.setRememberBugSeekLocation(new Point(0, 0));
+		result.setRememberSeekDimension(new Dimension(640, 480));
+		result.setRememberSeekLocation(new Point(0, 0));
+
+		return result;
+	}
+
+	public Preferences loadPreferences() {
+		Preferences result = null;
+		try {
+			createDecafDirectory();
+			File file = new File(DECAF_USER_HOME, PREFERENCES_PATH);
+			ObjectInputStream objectIn = new ObjectInputStream(
+					new FileInputStream(file));
+			result = (Preferences) objectIn.readObject();
+			objectIn.close();
+		} catch (Throwable ioe) {
+			LOGGER.warn("Could not load preferences: " + PREFERENCES_PATH
+					+ " Loading default preferences.");
+			result = loadDefaultPreferences();
+		}
+		return result;
+	}
+
+	public void savePerferences(Preferences preferences) {
+		try {
+			createDecafDirectory();
+			File file = new File(DECAF_USER_HOME, PREFERENCES_PATH);
+			ObjectOutputStream objOut = new ObjectOutputStream(
+					new FileOutputStream(file));
+			objOut.writeObject(preferences);
+			objOut.close();
+
+		} catch (Exception ioe) {
+			LOGGER.error("Error occured saving options: " + PREFERENCES_PATH,
+					ioe);
+			ioe.printStackTrace();
 		}
 	}
 }

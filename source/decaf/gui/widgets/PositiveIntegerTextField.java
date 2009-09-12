@@ -27,6 +27,7 @@ public class PositiveIntegerTextField extends JTextField {
 
 	final static String badchars = "-+`~!@#$%^&*()_+=\\|\"':;?/>.<, ";
 
+	@Override
 	public void processKeyEvent(KeyEvent ev) {
 
 		char c = ev.getKeyChar();

@@ -46,7 +46,7 @@ public class PreferencesDialog extends JDialog {
 	private PreferencesTab[] preferenceTabs = new PreferencesTab[] {
 			new GeneralTab(), new ChessGuiTab(preferences), new LayoutTab(),
 			new ChessTab(), new BughouseTab(), new ConsoleTextTab(),
-			new ConsoleTab(), new SpeechTab() , new SeekGraphTab() };
+			new ConsoleTab(), new SpeechTab(), new SeekGraphTab() };
 
 	private Action saveAction = new AbstractAction("Save") {
 		public void actionPerformed(ActionEvent e) {
@@ -80,7 +80,8 @@ public class PreferencesDialog extends JDialog {
 
 	private Action closeAction = new AbstractAction("Close") {
 		public void actionPerformed(ActionEvent e) {
-			ICSCommunicationsDriver driver = GUIManager.getInstance().getDriver();
+			ICSCommunicationsDriver driver = GUIManager.getInstance()
+					.getDriver();
 			driver.startTimerCommand(driver.TIMER_DEFAULT_COMMAND);
 			setVisible(false);
 		}
@@ -104,18 +105,17 @@ public class PreferencesDialog extends JDialog {
 		buttonsPanel.add(new JButton(loadLastSavedAction));
 		buttonsPanel.add(new JButton(closeAction));
 		add(buttonsPanel, BorderLayout.SOUTH);
-		
+
 		addWindowListener(new WindowAdapter() {
 
 			@Override
 			public void windowClosed(WindowEvent arg0) {
-				for (int i = 0; i < preferenceTabs.length; i++)
-				{
+				for (int i = 0; i < preferenceTabs.length; i++) {
 					preferenceTabs[i].dispose();
 				}
 				dispose();
 			}
-			
+
 		});
 
 		pack();

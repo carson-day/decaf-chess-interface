@@ -26,15 +26,25 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
 import decaf.gui.widgets.bugseek.BugWhoPTeam;
-import decaf.gui.widgets.seekgraph.Seek;
 import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 import decaf.messaging.inboundevent.inform.BugWhoPEvent;
-import decaf.messaging.inboundevent.inform.SoughtEvent;
 
 public class BugWhoPEventParser extends NonGameEventParser {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(BugWhoPEventParser.class);
+
+	private static final String PARTNERSHIPS_NOT_PLAYING = "Partnerships not playing bughouse";
+
+	private static final String PARTNERSHIPS_DISPLAYED = "displayed.";
+
+	/*
+	 * ^ involved in a game ~ running a simul match : not open for a match #
+	 * examining a game . inactive for 5 minutes or longer, or if "busy" is set
+	 * 
+	 * not busy & involved in a tournament
+	 */
+	private static final String MODIFIERS = "^~:#.&";
 
 	/**
 	 * Partnerships not playing bughouse 1261 lrzal / ++++ newbface(U) 1701
@@ -45,6 +55,25 @@ public class BugWhoPEventParser extends NonGameEventParser {
 
 	public BugWhoPEventParser(int icsId) {
 		super(icsId);
+	}
+
+	private char findModifierInString(String name) {
+		for (int i = 0; i < name.length(); i++) {
+			char c = name.charAt(i);
+			if (MODIFIERS.indexOf(c) != -1)
+				return c;
+		}
+		return 0;
+	}
+
+	private char getModifier(String name) {
+		int modifiersIndex = MODIFIERS.indexOf(name.charAt(0));
+
+		if (modifiersIndex != -1) {
+			return MODIFIERS.charAt(modifiersIndex);
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
@@ -67,7 +96,7 @@ public class BugWhoPEventParser extends NonGameEventParser {
 				// This code just insures if this happens the lines are altered
 				// so they parse nicely.
 				int lastIndexSearched = 0;
-				
+
 				for (int i = 0; i < MODIFIERS.length(); i++) {
 					int modifierIndex = currentLine
 							.indexOf(MODIFIERS.charAt(i));
@@ -79,32 +108,38 @@ public class BugWhoPEventParser extends NonGameEventParser {
 									+ currentLine.substring(modifierIndex,
 											currentLine.length());
 						}
-						
-						//run it again just to make sure the second one isnt foobared as well.
-						int newModifierIndex = currentLine.indexOf(MODIFIERS.charAt(i));
-						if (newModifierIndex != -1 && newModifierIndex != modifierIndex && newModifierIndex != modifierIndex + 1)
-						{
+
+						// run it again just to make sure the second one isnt
+						// foobared as well.
+						int newModifierIndex = currentLine.indexOf(MODIFIERS
+								.charAt(i));
+						if (newModifierIndex != -1
+								&& newModifierIndex != modifierIndex
+								&& newModifierIndex != modifierIndex + 1) {
 							if (currentLine.charAt(newModifierIndex - 1) != ' ') {
 								currentLine = currentLine.substring(0,
 										newModifierIndex)
 										+ " "
-										+ currentLine.substring(newModifierIndex,
-												currentLine.length());
-							}							
+										+ currentLine.substring(
+												newModifierIndex, currentLine
+														.length());
+							}
 						}
-						//There is no need to run it more than two times
+						// There is no need to run it more than two times
 					}
-					
+
 				}
 
-				if (currentLine.charAt(5) != ' ') currentLine = currentLine.substring(0,4) + " " + currentLine.substring(5,currentLine.length());
-				//System.out.println("CURRENT LINE = " + currentLine);
+				if (currentLine.charAt(5) != ' ')
+					currentLine = currentLine.substring(0, 4) + " "
+							+ currentLine.substring(5, currentLine.length());
+				// System.out.println("CURRENT LINE = " + currentLine);
 				StringTokenizer teamTokenizer = new StringTokenizer(
 						currentLine, " ");
 				BugWhoPTeam team = new BugWhoPTeam();
 				String tok = null; // <--
 				tok = teamTokenizer.nextToken();
-				//System.out.println("TOK = " + tok);
+				// System.out.println("TOK = " + tok);
 				team.setPlayer1Rating(tok);
 
 				String player1Name = teamTokenizer.nextToken();
@@ -121,22 +156,27 @@ public class BugWhoPEventParser extends NonGameEventParser {
 
 				tok = teamTokenizer.nextToken();
 				team.setPlayer2Rating(tok);
-				String player2Name = null; 
-				if (teamTokenizer.hasMoreTokens()) 
-						{ player2Name = teamTokenizer.nextToken(); } 
-				else {
-						String str = team.getPlayer2Rating();
-						//System.out.println("STR = " + str);
-						char mod = findModifierInString(str);
-						//System.out.println("MOD = " + mod);
-						String MyRating = str.substring(0,str.indexOf(""+mod)).trim();
-						team.setPlayer2Rating(MyRating);
-						str = str.substring(str.indexOf(""+mod),str.length()).trim();
-						team.setPlayer2Handle(str);  
-						player2Name = str;
-						//System.out.println("player2Name = " + player2Name);
-						}
-				char player2Modifier = findModifierInString(player2Name); // should be 0.. //getModifier(player2Name);
+				String player2Name = null;
+				if (teamTokenizer.hasMoreTokens()) {
+					player2Name = teamTokenizer.nextToken();
+				} else {
+					String str = team.getPlayer2Rating();
+					// System.out.println("STR = " + str);
+					char mod = findModifierInString(str);
+					// System.out.println("MOD = " + mod);
+					String MyRating = str.substring(0, str.indexOf("" + mod))
+							.trim();
+					team.setPlayer2Rating(MyRating);
+					str = str.substring(str.indexOf("" + mod), str.length())
+							.trim();
+					team.setPlayer2Handle(str);
+					player2Name = str;
+					// System.out.println("player2Name = " + player2Name);
+				}
+				char player2Modifier = findModifierInString(player2Name); // should
+				// be
+				// 0..
+				// //getModifier(player2Name);
 				if (player2Modifier != 0) {
 					team.setPlayer2Handle(player2Name.substring(1, player2Name
 							.length()));
@@ -153,40 +193,5 @@ public class BugWhoPEventParser extends NonGameEventParser {
 			return null;
 		}
 	}
-
-	private char getModifier(String name) {
-		int modifiersIndex = MODIFIERS.indexOf(name.charAt(0));
-
-		if (modifiersIndex != -1) {
-			return MODIFIERS.charAt(modifiersIndex);
-		} else {
-			return 0;
-		}
-	}
-	
-	private char findModifierInString(String name) {
-		for(int i=0;i<name.length();i++)
-		{
-			char c = name.charAt(i);
-			if (MODIFIERS.indexOf(c) != -1) return c;
-		}
-		return 0;
-	}
-
-	private static final String PARTNERSHIPS_NOT_PLAYING = "Partnerships not playing bughouse";
-
-	private static final String PARTNERSHIPS_DISPLAYED = "displayed.";
-
-	/*
-	 *  ^ involved in a game
-	 *  ~ running a simul match
-	 *  : not open for a match
-	 *  # examining a game
-	 *  . inactive for 5 minutes or longer, or if "busy" is set
-	 * 
-	 * not busy
-	 *  & involved in a tournament
-	 */
-	private static final String MODIFIERS = "^~:#.&";
 
 }

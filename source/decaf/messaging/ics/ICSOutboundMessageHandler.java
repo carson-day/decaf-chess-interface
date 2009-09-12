@@ -53,11 +53,6 @@ public class ICSOutboundMessageHandler implements Subscriber {
 
 	private ICSCommunicationsDriver driver;
 
-	public void dispose() {
-		driver = null;
-
-	}
-
 	public ICSOutboundMessageHandler(ICSCommunicationsDriver driver) {
 		this.driver = driver;
 		EventService.getInstance().subscribe(
@@ -105,6 +100,42 @@ public class ICSOutboundMessageHandler implements Subscriber {
 
 		LOGGER.debug("Subscribed in ICSOutboundMessageHandler to "
 				+ EventService.getInstance());
+	}
+
+	public void dispose() {
+		driver = null;
+
+	}
+
+	private String gameTypeToString(int gameType) {
+		switch (gameType) {
+		case GameTypes.BLITZ:
+		case GameTypes.LIGHTNING:
+		case GameTypes.STANDARD: {
+			return "";
+		}
+		case GameTypes.WILD: {
+			return "wild";
+		}
+		case GameTypes.SUICIDE: {
+			return "suicide";
+		}
+		case GameTypes.BUGHOUSE: {
+			return "bughouse";
+		}
+		case GameTypes.CRAZYHOUSE: {
+			return "crazyhouse";
+		}
+		case GameTypes.LOSERS: {
+			return "losers";
+		}
+		case GameTypes.ATOMIC: {
+			return "atomic";
+		}
+		default: {
+			throw new IllegalArgumentException("Unknown gameType: " + gameType);
+		}
+		}
 	}
 
 	public void inform(AbortRequestEvent event) {
@@ -214,36 +245,5 @@ public class ICSOutboundMessageHandler implements Subscriber {
 	public void inform(UnobserveRequestEvent event) {
 		driver.handlePublishingEventAndLogging(event);
 		driver.sendMsg("unobserve " + event.getGameId());
-	}
-
-	private String gameTypeToString(int gameType) {
-		switch (gameType) {
-		case GameTypes.BLITZ:
-		case GameTypes.LIGHTNING:
-		case GameTypes.STANDARD: {
-			return "";
-		}
-		case GameTypes.WILD: {
-			return "wild";
-		}
-		case GameTypes.SUICIDE: {
-			return "suicide";
-		}
-		case GameTypes.BUGHOUSE: {
-			return "bughouse";
-		}
-		case GameTypes.CRAZYHOUSE: {
-			return "crazyhouse";
-		}
-		case GameTypes.LOSERS: {
-			return "losers";
-		}
-		case GameTypes.ATOMIC: {
-			return "atomic";
-		}
-		default: {
-			throw new IllegalArgumentException("Unknown gameType: " + gameType);
-		}
-		}
 	}
 }

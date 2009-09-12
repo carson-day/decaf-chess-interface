@@ -82,6 +82,17 @@ public class WinboardChessAreaLayout implements ChessAreaLayout {
 		}
 	};
 
+	public void adjustForLabelChanges() {
+		if (chessArea.getWhiteNameLbl().getText() != null) {
+			chessArea.getWhiteNameLbl().setText(
+					chessArea.getWhiteNameLbl().getText().trim());
+		}
+		if (chessArea.getBlackNameLbl().getText() != null) {
+			chessArea.getBlackNameLbl().setText(
+					chessArea.getBlackNameLbl().getText().trim());
+		}
+	}
+
 	public void dispose() {
 		if (northFillerPanel != null) {
 			northFillerPanel.removeAll();
@@ -148,17 +159,6 @@ public class WinboardChessAreaLayout implements ChessAreaLayout {
 			}
 		}
 
-	}
-
-	public void adjustForLabelChanges() {
-		if (chessArea.getWhiteNameLbl().getText() != null) {
-			chessArea.getWhiteNameLbl().setText(
-					chessArea.getWhiteNameLbl().getText().trim());
-		}
-		if (chessArea.getBlackNameLbl().getText() != null) {
-			chessArea.getBlackNameLbl().setText(
-					chessArea.getBlackNameLbl().getText().trim());
-		}
 	}
 
 	public void init(final ChessArea chessArea) {
@@ -266,6 +266,22 @@ public class WinboardChessAreaLayout implements ChessAreaLayout {
 		}
 	}
 
+	private void setBackground(Color color) {
+		boardAndDropPiecesPanel.setBackground(color);
+		whiteControlAndClockPanel.setBackground(color);
+		whiteClockPanel.setBackground(color);
+		whiteControlsPanel.setBackground(color);
+		blackControlAndClockPanel.setBackground(color);
+		blackClockPanel.setBackground(color);
+		blackControlsPanel.setBackground(color);
+		dropPiecesPanel.setBackground(color);
+		topPanel.setBackground(color);
+		mainPanel.setBackground(color);
+		dropPiecesPanel.setBackground(color);
+		northFillerPanel.setBackground(color);
+		southFillerPanel.setBackground(color);
+	}
+
 	private void setupClockLabels() {
 		if (chessArea.getWhitesClock().isRunning()
 				|| chessArea.getWhitesClock().isRunningWithoutTicking()) {
@@ -370,22 +386,6 @@ public class WinboardChessAreaLayout implements ChessAreaLayout {
 					chessArea.getPreferences().getBoardPreferences()
 							.getControlLabelTextProperties().getForeground());
 		}
-	}
-
-	private void setBackground(Color color) {
-		boardAndDropPiecesPanel.setBackground(color);
-		whiteControlAndClockPanel.setBackground(color);
-		whiteClockPanel.setBackground(color);
-		whiteControlsPanel.setBackground(color);
-		blackControlAndClockPanel.setBackground(color);
-		blackClockPanel.setBackground(color);
-		blackControlsPanel.setBackground(color);
-		dropPiecesPanel.setBackground(color);
-		topPanel.setBackground(color);
-		mainPanel.setBackground(color);
-		dropPiecesPanel.setBackground(color);
-		northFillerPanel.setBackground(color);
-		southFillerPanel.setBackground(color);
 	}
 
 	private void setupDropPieces() {

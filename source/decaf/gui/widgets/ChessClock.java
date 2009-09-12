@@ -37,6 +37,25 @@ import decaf.speech.SpeechManager;
 import decaf.util.TextProperties;
 
 public class ChessClock extends JPanel implements Preferenceable, Disposable {
+	private class ChessClockUpdater extends TimerTask {
+		@Override
+		public void run() {
+			if (timer != null) {
+				synchronized (ChessClock.this) {
+					currentMilliseconds -= updateInterval;
+				}
+				setToCurrentTime();
+				setUpdateInterval();
+				handleFiringSpeech(currentMilliseconds);
+				if (isRunning && currentMilliseconds > 0) {
+					timer.schedule(new ChessClockUpdater(),
+							getNextClockUpdate());
+				}
+			}
+
+		}
+	}
+
 	private static final Logger LOGGER = Logger.getLogger(ChessClock.class);
 
 	private int showTenthsWhenTimeIsLessThanSeconds;
@@ -69,6 +88,20 @@ public class ChessClock extends JPanel implements Preferenceable, Disposable {
 
 	private List<ClockStateChangedListener> clockStateChangedListeners = new LinkedList<ClockStateChangedListener>();
 
+	public ChessClock(int timeInSeconds, int increment) {
+		timeLabel = new JLabel("0:00.0");
+		this.initialSeconds = timeInSeconds;
+		this.increment = increment;
+		this.currentMilliseconds = timeInSeconds * 1000;
+		add(timeLabel);
+		setToCurrentTime();
+		isRunning = false;
+	}
+
+	public void addClockStateChangedListener(ClockStateChangedListener listener) {
+		clockStateChangedListeners.add(listener);
+	}
+
 	public void dispose() {
 		LOGGER.error("Disposing chess clock");
 		if (!hasBeenDisposed) {
@@ -88,205 +121,38 @@ public class ChessClock extends JPanel implements Preferenceable, Disposable {
 
 	}
 
-	public ChessClock(int timeInSeconds, int increment) {
-		timeLabel = new JLabel("0:00.0");
-		this.initialSeconds = timeInSeconds;
-		this.increment = increment;
-		this.currentMilliseconds = timeInSeconds * 1000;
-		add(timeLabel);
-		setToCurrentTime();
-		isRunning = false;
-	}
-
-	public boolean isSpeakingCountdown() {
-		return isSpeakingCountdown;
-	}
-
-	public void setSpeakingCountdown(boolean isSpeakingCountdown) {
-		this.isSpeakingCountdown = isSpeakingCountdown;
-	}
-
-	public String getBoardId() {
-		return boardId;
-	}
-
-	public void setBoardId(String boardId) {
-		this.boardId = boardId;
-	}
-
-	public boolean isWhiteClock() {
-		return isWhiteClock;
-	}
-
-	public void setWhiteClock(boolean isWhiteClock) {
-		this.isWhiteClock = isWhiteClock;
-	}
-
-	private void speakTime(int second) {
-		if (isSpeakingCountdown() && second <= 10 && second > 0) {
-			SpeechManager.getInstance().getSpeech().speak("" + second);
-		}
-	}
-
-	public void setShowTenthsWhenTimeIsLessThanSeconds(int value) {
-		this.showTenthsWhenTimeIsLessThanSeconds = value;
-	}
-
-	public int getShowTenthsWhenTimeIsLessThanSeconds() {
-		return showTenthsWhenTimeIsLessThanSeconds;
-	}
-
-	public void setPreferences(Preferences preferences) {
-		this.preferences = preferences;
-		if (preferences != null) {
-			setTextProperties();
-		}
-	}
-
-	public Preferences getPreferences() {
-		return preferences;
-	}
-
-	private void setToCurrentTime() {
-		if (!hasBeenDisposed) {
-			long i = Math.abs(currentMilliseconds);
-			boolean flag = currentMilliseconds < 0;
-			long j = i / 1000;
-			long k = j < 60 ? j : j % 60;
-			long l = j < 3600 ? j / 60 : (j % 3600) / 60;
-			long i1 = j / 3600;
-			boolean flag1 = j < showTenthsWhenTimeIsLessThanSeconds;
-			long j1 = 0;
-			if (flag1)
-				j1 = (i % 1000) / 100;
-			final String s = flag ? "0:00.0" : (i1 != 0 ? "" + i1 + ":" : "")
-					+ (l != 0 ? l <= 0 || l >= 10 ? "" + l : "0" + l : "0")
-					+ ":"
-					+ (k != 0 ? k <= 0 || k >= 10 ? "" + k : "0" + k : "00")
-					+ (flag1 ? "." + j1 : "");
-
-			timeLabel.setText(s);
-		}
-	}
-
-	public void addClockStateChangedListener(ClockStateChangedListener listener) {
-		clockStateChangedListeners.add(listener);
-	}
-
-	public void removeClockStateChangedListener(
-			ClockStateChangedListener listener) {
-		clockStateChangedListeners.remove(listener);
-	}
-
-	public void removeAllClockStateChangedListeners() {
-		clockStateChangedListeners.clear();
-	}
-
-	public long getCurrentMilliseconds() {
-		return (long) currentMilliseconds;
-	}
-
-	public int getInitialSeconds() {
-		return initialSeconds;
-	}
-
-	public int getIncrement() {
-		return increment;
-	}
-
 	private void fireClockStateChanged() {
 		for (ClockStateChangedListener listener : clockStateChangedListeners) {
 			listener.clockStateChanged(this);
 		}
 	}
 
-	private void setTextProperties() {
-		TextProperties properties = isRunning ? preferences
-				.getBoardPreferences().getClockActiveTextProperties()
-				: preferences.getBoardPreferences()
-						.getClockInactiveTextProperties();
-
-		timeLabel.setBackground(properties.getBackground());
-		setBackground(properties.getBackground());
-		timeLabel.setForeground(properties.getForeground());
-		timeLabel.setFont(properties.getFont());
+	public String getBoardId() {
+		return boardId;
 	}
 
-	public void stop() {
-		synchronized (this) {
-			isRunning = false;
-			isRunningWithoutTicking = false;
-			currentMilliseconds += increment * 1000;
-			setTextProperties();
-			if (timer != null) {
-				timer.cancel();
-			}
-			fireClockStateChanged();
-		}
+	public long getCurrentMilliseconds() {
+		return currentMilliseconds;
 	}
 
-	public boolean isRunning() {
-		return isRunning;
+	public int getIncrement() {
+		return increment;
 	}
 
-	public void start() {
-		synchronized (this) {
-			if (!hasBeenDisposed) {
-				if (!isRunning) {
-					timer.cancel();
-					timer = new Timer();
-					isRunning = true;
-					isRunningWithoutTicking = false;
-					setTextProperties();
-					setUpdateInterval();
-					timer.schedule(new ChessClockUpdater(),
-							getNextClockUpdate());
-					fireClockStateChanged();
-				}
-			}
-		}
+	public int getInitialSeconds() {
+		return initialSeconds;
 	}
 
-	public boolean isRunningWithoutTicking() {
-		return isRunningWithoutTicking;
+	private long getNextClockUpdate() {
+		return updateInterval;
 	}
 
-	public void startWithoutTicking() {
-		if (!hasBeenDisposed) {
-
-			if (!isRunning) {
-				isRunning = true;
-				setTextProperties();
-				isRunning = false;
-				isRunningWithoutTicking = true;
-				fireClockStateChanged();
-			}
-		}
+	public Preferences getPreferences() {
+		return preferences;
 	}
 
-	public void set(long time) {
-		synchronized (this) {
-			if (!hasBeenDisposed) {
-				currentMilliseconds = time;
-				setToCurrentTime();
-			}
-		}
-	}
-
-	public void set(int initialTime, int intiialInc) {
-		synchronized (this) {
-			if (!hasBeenDisposed) {
-				increment = intiialInc;
-				set(initialTime);
-			}
-		}
-	}
-
-	public boolean hasFlagged() {
-		boolean flag = false;
-		if (currentMilliseconds <= 0)
-			flag = true;
-		return flag;
+	public int getShowTenthsWhenTimeIsLessThanSeconds() {
+		return showTenthsWhenTimeIsLessThanSeconds;
 	}
 
 	private void handleFiringSpeech(long currentMilliseconds) {
@@ -316,6 +182,109 @@ public class ChessClock extends JPanel implements Preferenceable, Disposable {
 		}
 	}
 
+	public boolean hasFlagged() {
+		boolean flag = false;
+		if (currentMilliseconds <= 0)
+			flag = true;
+		return flag;
+	}
+
+	public boolean isRunning() {
+		return isRunning;
+	}
+
+	public boolean isRunningWithoutTicking() {
+		return isRunningWithoutTicking;
+	}
+
+	public boolean isSpeakingCountdown() {
+		return isSpeakingCountdown;
+	}
+
+	public boolean isWhiteClock() {
+		return isWhiteClock;
+	}
+
+	public void removeAllClockStateChangedListeners() {
+		clockStateChangedListeners.clear();
+	}
+
+	public void removeClockStateChangedListener(
+			ClockStateChangedListener listener) {
+		clockStateChangedListeners.remove(listener);
+	}
+
+	public void set(int initialTime, int intiialInc) {
+		synchronized (this) {
+			if (!hasBeenDisposed) {
+				increment = intiialInc;
+				set(initialTime);
+			}
+		}
+	}
+
+	public void set(long time) {
+		synchronized (this) {
+			if (!hasBeenDisposed) {
+				currentMilliseconds = time;
+				setToCurrentTime();
+			}
+		}
+	}
+
+	public void setBoardId(String boardId) {
+		this.boardId = boardId;
+	}
+
+	public void setPreferences(Preferences preferences) {
+		this.preferences = preferences;
+		if (preferences != null) {
+			setTextProperties();
+		}
+	}
+
+	public void setShowTenthsWhenTimeIsLessThanSeconds(int value) {
+		this.showTenthsWhenTimeIsLessThanSeconds = value;
+	}
+
+	public void setSpeakingCountdown(boolean isSpeakingCountdown) {
+		this.isSpeakingCountdown = isSpeakingCountdown;
+	}
+
+	private void setTextProperties() {
+		TextProperties properties = isRunning ? preferences
+				.getBoardPreferences().getClockActiveTextProperties()
+				: preferences.getBoardPreferences()
+						.getClockInactiveTextProperties();
+
+		timeLabel.setBackground(properties.getBackground());
+		setBackground(properties.getBackground());
+		timeLabel.setForeground(properties.getForeground());
+		timeLabel.setFont(properties.getFont());
+	}
+
+	private void setToCurrentTime() {
+		if (!hasBeenDisposed) {
+			long i = Math.abs(currentMilliseconds);
+			boolean flag = currentMilliseconds < 0;
+			long j = i / 1000;
+			long k = j < 60 ? j : j % 60;
+			long l = j < 3600 ? j / 60 : (j % 3600) / 60;
+			long i1 = j / 3600;
+			boolean flag1 = j < showTenthsWhenTimeIsLessThanSeconds;
+			long j1 = 0;
+			if (flag1)
+				j1 = (i % 1000) / 100;
+			final String s = flag ? "0:00.0" : (i1 != 0 ? "" + i1 + ":" : "")
+					+ (l != 0 ? l <= 0 || l >= 10 ? "" + l : "0" + l : "0")
+					+ ":"
+					+ (k != 0 ? k <= 0 || k >= 10 ? "" + k : "0" + k : "00")
+					+ (flag1 ? "." + j1 : "");
+
+			timeLabel.setText(s);
+		}
+	}
+
 	private synchronized void setUpdateInterval() {
 		if (currentMilliseconds < (preferences.getBoardPreferences()
 				.getShowTenthsWhenTimeIsLessThanSeconds() * 1000 + 1000)
@@ -326,25 +295,57 @@ public class ChessClock extends JPanel implements Preferenceable, Disposable {
 		}
 	}
 
-	private long getNextClockUpdate() {
-		return updateInterval;
+	public void setWhiteClock(boolean isWhiteClock) {
+		this.isWhiteClock = isWhiteClock;
 	}
 
-	private class ChessClockUpdater extends TimerTask {
-		public void run() {
-			if (timer != null) {
-				synchronized (ChessClock.this) {
-					currentMilliseconds -= updateInterval;
-				}
-				setToCurrentTime();
-				setUpdateInterval();
-				handleFiringSpeech(currentMilliseconds);
-				if (isRunning && currentMilliseconds > 0) {
+	private void speakTime(int second) {
+		if (isSpeakingCountdown() && second <= 10 && second > 0) {
+			SpeechManager.getInstance().getSpeech().speak("" + second);
+		}
+	}
+
+	public void start() {
+		synchronized (this) {
+			if (!hasBeenDisposed) {
+				if (!isRunning) {
+					timer.cancel();
+					timer = new Timer();
+					isRunning = true;
+					isRunningWithoutTicking = false;
+					setTextProperties();
+					setUpdateInterval();
 					timer.schedule(new ChessClockUpdater(),
 							getNextClockUpdate());
+					fireClockStateChanged();
 				}
 			}
+		}
+	}
 
+	public void startWithoutTicking() {
+		if (!hasBeenDisposed) {
+
+			if (!isRunning) {
+				isRunning = true;
+				setTextProperties();
+				isRunning = false;
+				isRunningWithoutTicking = true;
+				fireClockStateChanged();
+			}
+		}
+	}
+
+	public void stop() {
+		synchronized (this) {
+			isRunning = false;
+			isRunningWithoutTicking = false;
+			currentMilliseconds += increment * 1000;
+			setTextProperties();
+			if (timer != null) {
+				timer.cancel();
+			}
+			fireClockStateChanged();
 		}
 	}
 }

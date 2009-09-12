@@ -7,6 +7,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -38,6 +39,19 @@ public class GeneralTab extends PreferencesTab {
 					new ComboBoxItem("appended to eachother in games.pgn",
 							new Integer(LoggingPreferences.APPEND_TO_GAMES_PGN)) });
 
+	private static ComboBoxItem[] getLookAndFeels() {
+		LookAndFeelInfo[] lookAndFeels = UIManager.getInstalledLookAndFeels();
+		ComboBoxItem[] result = new ComboBoxItem[lookAndFeels.length];
+
+		for (int i = 0; i < lookAndFeels.length; i++) {
+			LOGGER.debug("Adding :" + lookAndFeels[i].getClassName());
+			result[i] = new ComboBoxItem(lookAndFeels[i].getName(),
+					lookAndFeels[i].getClassName());
+		}
+
+		return result;
+	}
+
 	private JCheckBox isSoundOn = new JCheckBox("");
 
 	private JCheckBox isPreventingIdleLogout = new JCheckBox("");
@@ -59,20 +73,16 @@ public class GeneralTab extends PreferencesTab {
 	private JComboBox maxFileSize = new JComboBox(MAX_FILE_SIZE.getItems());
 
 	private JComboBox pgnStorage = new JComboBox(PGN_STORAGE.getItems());
-	
-	public void dispose()
-	{
-		removeAll();
-	}
 
 	public GeneralTab() {
 		super("General");
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		boolean requiresRestart = true;
 		String DEF_COMM = GUIManager.getInstance().getDriver().TIMER_DEFAULT_COMMAND;
-		DEF_COMM = (DEF_COMM.charAt(0)+"").toUpperCase() + DEF_COMM.substring(1);
-		add(new LabeledComponent(
-				"Prevent Idle Logout With '" + DEF_COMM + "' " + (requiresRestart?"(Requires Restart)":""),
+		DEF_COMM = (DEF_COMM.charAt(0) + "").toUpperCase()
+				+ DEF_COMM.substring(1);
+		add(new LabeledComponent("Prevent Idle Logout With '" + DEF_COMM + "' "
+				+ (requiresRestart ? "(Requires Restart)" : ""),
 				isPreventingIdleLogout));
 		add(new LabeledComponent("Auto Login Enabled", isAutoLogin));
 		add(new LabeledComponent("Sound Enabled", isSoundOn));
@@ -82,8 +92,8 @@ public class GeneralTab extends PreferencesTab {
 			JPanel labelPanel = new JPanel();
 			String seperator = java.io.File.separator;
 			JLabel label = new JLabel("Log Directory: "
-					+ System.getProperty("user.home") + seperator + ".Decaf" + seperator + "logs",
-					JLabel.CENTER);
+					+ System.getProperty("user.home") + seperator + ".Decaf"
+					+ seperator + "logs", SwingConstants.CENTER);
 			labelPanel.add(label);
 			label.setForeground(Color.RED);
 			add(labelPanel);
@@ -97,8 +107,8 @@ public class GeneralTab extends PreferencesTab {
 			add(new LabeledComponent("Max Log Size", maxFileSize));
 
 			JLabel label2 = new JLabel("Games Directory: "
-					+ System.getProperty("user.home") + seperator + ".Decaf" + seperator + "games",
-					JLabel.CENTER);
+					+ System.getProperty("user.home") + seperator + ".Decaf"
+					+ seperator + "games", SwingConstants.CENTER);
 			JPanel labelPanel2 = new JPanel();
 			labelPanel2.add(label2);
 			label2.setForeground(Color.RED);
@@ -108,6 +118,12 @@ public class GeneralTab extends PreferencesTab {
 		}
 	}
 
+	@Override
+	public void dispose() {
+		removeAll();
+	}
+
+	@Override
 	public void load(Preferences preferences) {
 		isPreventingIdleLogout.setSelected(preferences.getChatPreferences()
 				.isPreventingIdleLogout());
@@ -134,6 +150,7 @@ public class GeneralTab extends PreferencesTab {
 
 	}
 
+	@Override
 	public void save(Preferences preferences) {
 		preferences.getChatPreferences().setPreventingIdleLogout(
 				isPreventingIdleLogout.isSelected());
@@ -157,18 +174,5 @@ public class GeneralTab extends PreferencesTab {
 				((ComboBoxItem) maxFileSize.getSelectedItem()).toInt());
 		preferences.getLoggingPreferences().setGameLogMode(
 				((ComboBoxItem) pgnStorage.getSelectedItem()).toInt());
-	}
-
-	private static ComboBoxItem[] getLookAndFeels() {
-		LookAndFeelInfo[] lookAndFeels = UIManager.getInstalledLookAndFeels();
-		ComboBoxItem[] result = new ComboBoxItem[lookAndFeels.length];
-
-		for (int i = 0; i < lookAndFeels.length; i++) {
-			LOGGER.debug("Adding :" + lookAndFeels[i].getClassName());
-			result[i] = new ComboBoxItem(lookAndFeels[i].getName(),
-					lookAndFeels[i].getClassName());
-		}
-
-		return result;
 	}
 }

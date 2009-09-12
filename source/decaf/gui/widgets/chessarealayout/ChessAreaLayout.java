@@ -23,7 +23,7 @@ import decaf.gui.widgets.ChessArea;
 import decaf.gui.widgets.Disposable;
 
 public interface ChessAreaLayout extends Disposable {
-	public void init(ChessArea chessArea);
-
 	public void adjustForLabelChanges();
+
+	public void init(ChessArea chessArea);
 }

@@ -27,13 +27,7 @@ import java.awt.RenderingHints;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
-
-public class LegendLabel extends JLabel {
-
-	public LegendLabel(String text, Color color, int size) {
-		super(text, new LegendIcon(color, size), JLabel.CENTER);
-	}
-}
+import javax.swing.SwingConstants;
 
 class LegendIcon implements Icon {
 
@@ -63,5 +57,12 @@ class LegendIcon implements Icon {
 		g2.fillOval(x, y, getIconWidth(), getIconHeight());
 
 		g2.dispose();
+	}
+}
+
+public class LegendLabel extends JLabel {
+
+	public LegendLabel(String text, Color color, int size) {
+		super(text, new LegendIcon(color, size), SwingConstants.CENTER);
 	}
 }

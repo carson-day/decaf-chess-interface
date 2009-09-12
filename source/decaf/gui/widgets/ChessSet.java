@@ -45,9 +45,51 @@ import decaf.resources.ResourceManagerFactory;
 
 public class ChessSet implements Serializable {
 	private static final long serialVersionUID = 11;
-	
+
 	private static final transient Logger LOGGER = Logger
 			.getLogger(ChessSet.class);
+
+	public static Image getChessPieceImage(String location) {
+		try {
+			Image unTransparent = ResourceManagerFactory.getManager().getImage(
+					location);
+
+			MediaTracker mediaTracker = new MediaTracker(new JButton("test"));
+
+			mediaTracker.waitForAll();
+
+			Image result = makeColorTransparent(unTransparent,
+					TRANSPARENT_COLOR);
+
+			Toolkit.getDefaultToolkit().prepareImage(result, -1, -1, null);
+
+			return result;
+		} catch (Exception ioe) {
+			throw new IllegalArgumentException("Error loading image "
+					+ location, ioe);
+		}
+	}
+
+	public static Image makeColorTransparent(Image im, final Color color) {
+		ImageFilter filter = new RGBImageFilter() {
+			// the color we are looking for... Alpha bits are set to opaque
+			public int markerRGB = color.getRGB() | 0xFF000000;
+
+			@Override
+			public final int filterRGB(int x, int y, int rgb) {
+				if ((rgb | 0xFF000000) == markerRGB) {
+					// Mark the alpha bits as zero - transparent
+					return 0x00FFFFFF & rgb;
+				} else {
+					// nothing to do
+					return rgb;
+				}
+			}
+		};
+
+		ImageProducer ip = new FilteredImageSource(im.getSource(), filter);
+		return Toolkit.getDefaultToolkit().createImage(ip);
+	}
 
 	private transient Image[] initialImages = null;
 
@@ -68,52 +110,19 @@ public class ChessSet implements Serializable {
 		initImages();
 	}
 
+	public ChessSet cloneChessSet() {
+		ChessSet result = new ChessSet();
+		result.initialImages = this.initialImages;
+		return result;
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (o != null) {
 			return getDescription().equals(((ChessSet) o).getDescription());
 		} else {
 			return false;
 		}
-	}
-
-	public int hashCode() {
-		return getDescription().hashCode();
-	}
-
-	Object readResolve() throws ObjectStreamException {
-		initImages();
-		return this;
-	}
-
-	private void initImages() {
-		final String piecePrefix = "SET." + setName + ".";
-
-		String suffix = "BMP";
-
-		initialImages = new Image[] {
-				getChessPieceImage(piecePrefix + "BBISHOP." + suffix),
-				getChessPieceImage(piecePrefix + "BKNIGHT." + suffix),
-				getChessPieceImage(piecePrefix + "BQUEEN." + suffix),
-				getChessPieceImage(piecePrefix + "BPAWN." + suffix),
-				getChessPieceImage(piecePrefix + "BKING." + suffix),
-				getChessPieceImage(piecePrefix + "BROOK." + suffix),
-				getChessPieceImage(piecePrefix + "WBISHOP." + suffix),
-				getChessPieceImage(piecePrefix + "WKNIGHT." + suffix),
-				getChessPieceImage(piecePrefix + "WQUEEN." + suffix),
-				getChessPieceImage(piecePrefix + "WPAWN." + suffix),
-				getChessPieceImage(piecePrefix + "WKING." + suffix),
-				getChessPieceImage(piecePrefix + "WROOK." + suffix) };
-
-	}
-
-	public String getDescription() {
-		return setName;
-	}
-
-	public ChessSet cloneChessSet() {
-		ChessSet result = new ChessSet();
-		result.initialImages = this.initialImages;
-		return result;
 	}
 
 	public Image getChessPieceImage(int chessPiece) {
@@ -160,35 +169,12 @@ public class ChessSet implements Serializable {
 		}
 	}
 
-	public BufferedImage getScaledImage(int chessPiece, int width, int height) {
-		
-		if (width <= 0 || height <= 0)
-		{
-			width=1;
-			height=1;
-		}
-		BufferedImage result = new BufferedImage(width, height, 2);
-
-		Graphics2D graphics = (Graphics2D) result.getGraphics();
-		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
-		graphics.setRenderingHint(RenderingHints.KEY_RENDERING,
-				RenderingHints.VALUE_RENDER_QUALITY);
-
-		Image initialImage = getChessPieceImage(chessPiece);
-
-		graphics.drawImage(initialImage, 0, 0, width, height, null);
-
-		return result;
-	}
-
 	public Cursor getCursor(int chessPiece, int width, int height) {
-		if (width <= 0 || height <= 0)
-		{
-			width=1;
-			height=1;
+		if (width <= 0 || height <= 0) {
+			width = 1;
+			height = 1;
 		}
-		
+
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		Dimension dimension = toolkit.getBestCursorSize(width, height);
 
@@ -205,44 +191,59 @@ public class ChessSet implements Serializable {
 
 	}
 
-	public static Image getChessPieceImage(String location) {
-		try {
-			Image unTransparent = ResourceManagerFactory.getManager().getImage(
-					location);
-
-			MediaTracker mediaTracker = new MediaTracker(new JButton("test"));
-
-			mediaTracker.waitForAll();
-
-			Image result = makeColorTransparent(unTransparent,
-					TRANSPARENT_COLOR);
-
-			Toolkit.getDefaultToolkit().prepareImage(result, -1, -1, null);
-
-			return result;
-		} catch (Exception ioe) {
-			throw new IllegalArgumentException("Error loading image "
-					+ location, ioe);
-		}
+	public String getDescription() {
+		return setName;
 	}
 
-	public static Image makeColorTransparent(Image im, final Color color) {
-		ImageFilter filter = new RGBImageFilter() {
-			// the color we are looking for... Alpha bits are set to opaque
-			public int markerRGB = color.getRGB() | 0xFF000000;
+	public BufferedImage getScaledImage(int chessPiece, int width, int height) {
 
-			public final int filterRGB(int x, int y, int rgb) {
-				if ((rgb | 0xFF000000) == markerRGB) {
-					// Mark the alpha bits as zero - transparent
-					return 0x00FFFFFF & rgb;
-				} else {
-					// nothing to do
-					return rgb;
-				}
-			}
-		};
+		if (width <= 0 || height <= 0) {
+			width = 1;
+			height = 1;
+		}
+		BufferedImage result = new BufferedImage(width, height, 2);
 
-		ImageProducer ip = new FilteredImageSource(im.getSource(), filter);
-		return Toolkit.getDefaultToolkit().createImage(ip);
+		Graphics2D graphics = (Graphics2D) result.getGraphics();
+		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+		graphics.setRenderingHint(RenderingHints.KEY_RENDERING,
+				RenderingHints.VALUE_RENDER_QUALITY);
+
+		Image initialImage = getChessPieceImage(chessPiece);
+
+		graphics.drawImage(initialImage, 0, 0, width, height, null);
+
+		return result;
+	}
+
+	@Override
+	public int hashCode() {
+		return getDescription().hashCode();
+	}
+
+	private void initImages() {
+		final String piecePrefix = "SET." + setName + ".";
+
+		String suffix = "BMP";
+
+		initialImages = new Image[] {
+				getChessPieceImage(piecePrefix + "BBISHOP." + suffix),
+				getChessPieceImage(piecePrefix + "BKNIGHT." + suffix),
+				getChessPieceImage(piecePrefix + "BQUEEN." + suffix),
+				getChessPieceImage(piecePrefix + "BPAWN." + suffix),
+				getChessPieceImage(piecePrefix + "BKING." + suffix),
+				getChessPieceImage(piecePrefix + "BROOK." + suffix),
+				getChessPieceImage(piecePrefix + "WBISHOP." + suffix),
+				getChessPieceImage(piecePrefix + "WKNIGHT." + suffix),
+				getChessPieceImage(piecePrefix + "WQUEEN." + suffix),
+				getChessPieceImage(piecePrefix + "WPAWN." + suffix),
+				getChessPieceImage(piecePrefix + "WKING." + suffix),
+				getChessPieceImage(piecePrefix + "WROOK." + suffix) };
+
+	}
+
+	Object readResolve() throws ObjectStreamException {
+		initImages();
+		return this;
 	}
 }

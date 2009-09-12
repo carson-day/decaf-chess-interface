@@ -94,6 +94,10 @@ public class BugEarPanel extends JPanel implements Preferenceable {
 		setupButtons();
 	}
 
+	public Preferences getPreferences() {
+		return preferences;
+	}
+
 	public void setPreferences(Preferences preferences) {
 		this.preferences = preferences;
 		setBackground(preferences.getBughousePreferences()
@@ -124,10 +128,6 @@ public class BugEarPanel extends JPanel implements Preferenceable {
 			button.setForeground(buttonProperties.getForeground());
 			button.setBackground(buttonProperties.getBackground());
 		}
-	}
-
-	public Preferences getPreferences() {
-		return preferences;
 	}
 
 }

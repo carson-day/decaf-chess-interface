@@ -30,6 +30,8 @@ import decaf.messaging.inboundevent.game.IllegalMoveEvent;
 
 public class IllegalMoveSubscriber implements Subscriber, Disposable {
 
+	private ChessAreaControllerBase controller;
+
 	public IllegalMoveSubscriber(ChessAreaControllerBase controller) {
 		this.controller = controller;
 	}
@@ -41,6 +43,4 @@ public class IllegalMoveSubscriber implements Subscriber, Disposable {
 	public void inform(IllegalMoveEvent event) {
 		controller.handleMoveVetoedEvent(event.getMove());
 	}
-
-	private ChessAreaControllerBase controller;
 }

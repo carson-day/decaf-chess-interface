@@ -12,30 +12,22 @@ import decaf.thread.ThreadManager;
 
 public class AppletSoundManager implements SoundManager {
 
+	public class ClipInfo {
+		public AudioClip clip;
+
+		public int numPlays;
+
+		public String file;
+
+		public String key;
+
+		public boolean isRunning;
+	}
+
 	private static final Logger LOGGER = Logger
 			.getLogger(SoundManagerFactory.class);
 
 	private Hashtable<String, ClipInfo> sounds = new Hashtable<String, ClipInfo>();
-
-	public void playSound(final String key) {
-		if (GUIManager.getInstance().getPreferences().isSoundOn()) {
-			ThreadManager.execute(new Runnable() {
-				public void run() {
-					ClipInfo clipInfo = sounds.get(key);
-					try {
-						if (!clipInfo.isRunning) {
-							clipInfo.isRunning = true;
-							clipInfo.clip.play();
-							clipInfo.isRunning = false;
-						}
-					} catch (Exception e) {
-						LOGGER.error("Error playing sound: key=" + key, e);
-						loadClip(clipInfo.key, clipInfo.file);
-					}
-				}
-			});
-		}
-	}
 
 	private void loadClip(String key, String file) {
 		try {
@@ -59,15 +51,23 @@ public class AppletSoundManager implements SoundManager {
 		}
 	}
 
-	public class ClipInfo {
-		public AudioClip clip;
-
-		public int numPlays;
-
-		public String file;
-
-		public String key;
-
-		public boolean isRunning;
+	public void playSound(final String key) {
+		if (GUIManager.getInstance().getPreferences().isSoundOn()) {
+			ThreadManager.execute(new Runnable() {
+				public void run() {
+					ClipInfo clipInfo = sounds.get(key);
+					try {
+						if (!clipInfo.isRunning) {
+							clipInfo.isRunning = true;
+							clipInfo.clip.play();
+							clipInfo.isRunning = false;
+						}
+					} catch (Exception e) {
+						LOGGER.error("Error playing sound: key=" + key, e);
+						loadClip(clipInfo.key, clipInfo.file);
+					}
+				}
+			});
+		}
 	}
 }

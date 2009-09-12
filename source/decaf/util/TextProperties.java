@@ -28,9 +28,9 @@ import java.io.Serializable;
  * A class which stores properties about text.
  */
 public class TextProperties implements Serializable {
-	
+
 	private static final long serialVersionUID = 11;
-	
+
 	private String fontName;
 
 	private int fontStyle;
@@ -50,18 +50,7 @@ public class TextProperties implements Serializable {
 		fontSize = font.getSize();
 	}
 
-	public Color getForeground() {
-		return foreground;
-	}
-
-	public Color getBackground() {
-		return background;
-	}
-
-	public Font getFont() {
-		return new Font(fontName, fontStyle, fontSize);
-	}
-
+	@Override
 	public boolean equals(Object object) {
 		if (object instanceof TextProperties) {
 			TextProperties comparee = (TextProperties) object;
@@ -72,5 +61,17 @@ public class TextProperties implements Serializable {
 		} else {
 			return false;
 		}
+	}
+
+	public Color getBackground() {
+		return background;
+	}
+
+	public Font getFont() {
+		return new Font(fontName, fontStyle, fontSize);
+	}
+
+	public Color getForeground() {
+		return foreground;
 	}
 }

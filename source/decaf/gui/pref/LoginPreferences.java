@@ -22,9 +22,14 @@ package decaf.gui.pref;
 import java.io.Serializable;
 
 public class LoginPreferences implements Cloneable, Serializable {
-	
+
 	private static final long serialVersionUID = 11;
-	
+
+	public static LoginPreferences getDefault() {
+		LoginPreferences result = new LoginPreferences();
+		return result;
+	}
+
 	private String defaultUserName;
 
 	private String defaultPassword;
@@ -39,11 +44,7 @@ public class LoginPreferences implements Cloneable, Serializable {
 
 	private boolean autoLogin = false;
 
-	public static LoginPreferences getDefault() {
-		LoginPreferences result = new LoginPreferences();
-		return result;
-	}
-
+	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}
@@ -52,56 +53,56 @@ public class LoginPreferences implements Cloneable, Serializable {
 		return defaultPassword;
 	}
 
-	public void setDefaultPassword(String defaultPassword) {
-		this.defaultPassword = defaultPassword;
-	}
-
 	public String getDefaultUserName() {
 		return defaultUserName;
-	}
-
-	public void setDefaultUserName(String defaultUserName) {
-		this.defaultUserName = defaultUserName;
-	}
-
-	public boolean isDefaultGuestEnabled() {
-		return isDefaultGuestEnabled;
-	}
-
-	public void setDefaultGuestEnabled(boolean isDefaultGuestEnabled) {
-		this.isDefaultGuestEnabled = isDefaultGuestEnabled;
-	}
-
-	public boolean isDefaultTimesealEnabled() {
-		return isDefaultTimesealEnabled;
-	}
-
-	public void setDefaultTimesealEnabled(boolean isDefaultTimesealEnabled) {
-		this.isDefaultTimesealEnabled = isDefaultTimesealEnabled;
 	}
 
 	public String getServer() {
 		return server;
 	}
 
-	public void setServer(String server) {
-		this.server = server;
-	}
-
 	public int getServerPort() {
 		return serverPort;
-	}
-
-	public void setServerPort(int serverPort) {
-		this.serverPort = serverPort;
 	}
 
 	public boolean isAutoLogin() {
 		return autoLogin;
 	}
 
+	public boolean isDefaultGuestEnabled() {
+		return isDefaultGuestEnabled;
+	}
+
+	public boolean isDefaultTimesealEnabled() {
+		return isDefaultTimesealEnabled;
+	}
+
 	public void setAutoLogin(boolean autoLogin) {
 		this.autoLogin = autoLogin;
+	}
+
+	public void setDefaultGuestEnabled(boolean isDefaultGuestEnabled) {
+		this.isDefaultGuestEnabled = isDefaultGuestEnabled;
+	}
+
+	public void setDefaultPassword(String defaultPassword) {
+		this.defaultPassword = defaultPassword;
+	}
+
+	public void setDefaultTimesealEnabled(boolean isDefaultTimesealEnabled) {
+		this.isDefaultTimesealEnabled = isDefaultTimesealEnabled;
+	}
+
+	public void setDefaultUserName(String defaultUserName) {
+		this.defaultUserName = defaultUserName;
+	}
+
+	public void setServer(String server) {
+		this.server = server;
+	}
+
+	public void setServerPort(int serverPort) {
+		this.serverPort = serverPort;
 	}
 
 }

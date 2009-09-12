@@ -38,6 +38,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -51,7 +52,6 @@ import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
 
-import decaf.gui.ChessAreaController;
 import decaf.gui.SwingUtils;
 import decaf.gui.pref.Preferenceable;
 import decaf.gui.pref.Preferences;
@@ -61,6 +61,43 @@ import decaf.util.TableUtil;
 import decaf.util.TableUtil.TableRowHeader;
 
 public class MoveList extends JPanel implements Preferenceable {
+	private class UneditableJTable extends JTable {
+		public UneditableJTable(TableModel tableModel,
+				TableColumnModel tableColumnModel) {
+			super(tableModel, tableColumnModel);
+		}
+
+		@Override
+		public void changeSelection(int row, int column, boolean arg2,
+				boolean arg3) {
+			super.changeSelection(row, column, arg2, arg3);
+			int halfMoveIndex = rowColmunToHalfMoveIndex(row, column);
+			if (!ignoreSelectionChange
+					&& moveListModel.getSize() > halfMoveIndex
+					&& moveListModel.getMove(halfMoveIndex).getPosition() != null) {
+				if (column == 0) {
+					for (MoveListListener listener : listeners) {
+						listener.moveClicked(MoveList.this, halfMoveIndex);
+					}
+				} else if (column == 1) {
+					String value = (String) tableModel.getValueAt(row, column);
+					if (value != null && !value.equals("")) {
+						for (MoveListListener listener : listeners) {
+							listener.moveClicked(MoveList.this, halfMoveIndex);
+						}
+					}
+				}
+			}
+			selectedRow = row;
+			selectedColumn = column;
+		}
+
+		@Override
+		public boolean isCellEditable(int rowIndex, int vColIndex) {
+			return false;
+		}
+	}
+
 	private static final Logger LOGGER = Logger.getLogger(MoveList.class);
 
 	public static final String SAVE_TO_PGN = "Save To PGN";
@@ -98,44 +135,74 @@ public class MoveList extends JPanel implements Preferenceable {
 
 	private int selectedColumn = -1;
 
-	private class UneditableJTable extends JTable {
-		public UneditableJTable(TableModel tableModel,
-				TableColumnModel tableColumnModel) {
-			super(tableModel, tableColumnModel);
-		}
+	public MoveList() {
+		initGui();
+	}
 
-		public boolean isCellEditable(int rowIndex, int vColIndex) {
-			return false;
-		}
+	public void addMoveListListener(MoveListListener listener) {
+		listeners.add(listener);
+	}
 
-		@Override
-		public void changeSelection(int row, int column, boolean arg2,
-				boolean arg3) {
-			super.changeSelection(row, column, arg2, arg3);
-			int halfMoveIndex = rowColmunToHalfMoveIndex(row, column);
-			if (!ignoreSelectionChange
-					&& moveListModel.getSize() > halfMoveIndex
-					&& moveListModel.getMove(halfMoveIndex).getPosition() != null) {
-				if (column == 0) {
-					for (MoveListListener listener : listeners) {
-						listener.moveClicked(MoveList.this, halfMoveIndex);
+	public void appendMove(String algebraicDescription, long timeMillis,
+			Position position) {
+		// Need to cache these if waiting on moves.
+		// All kinds of bugs.
+		final MoveListModelMove move = new MoveListModelMove(
+				algebraicDescription, position, timeMillis);
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				synchronized (moveListModel) {
+					moveListModel.append(move);
+
+					int moveListSize = moveListModel.getSize();
+
+					if (moveListSize % 2 != 0) {
+						appendNewRow(moveListModel.getMove(moveListSize - 1)
+								.getAlgebraicDescription());
+					} else {
+						updateLastRow(moveListModel.getMove(moveListSize - 1)
+								.getAlgebraicDescription());
 					}
-				} else if (column == 1) {
-					String value = (String) tableModel.getValueAt(row, column);
-					if (value != null && !value.equals("")) {
-						for (MoveListListener listener : listeners) {
-							listener.moveClicked(MoveList.this, halfMoveIndex);
-						}
+
+					if (isRealtimeUpdate.isSelected()) {
+						setScrollBarToMax();
+						selectLastMove();
 					}
 				}
 			}
-			selectedRow = row;
-			selectedColumn = column;
+		});
+	}
+
+	private void appendNewRow(String whitesAlgebraicDescription) {
+		tableModel.addRow(new String[] { whitesAlgebraicDescription, "" });
+
+		if (scrollPane.getRowHeader().getView() instanceof TableUtil.TableRowHeader) {
+			TableRowHeader header = (TableUtil.TableRowHeader) scrollPane
+					.getRowHeader().getView();
+			header.invalidate();
+			header.validate();
 		}
 	}
 
-	public MoveList() {
-		initGui();
+	public void clear() {
+		synchronized (this) {
+			ignoreSelectionChange = true;
+			moveListModel = new MoveListModel(new Position());
+			clearTableModel();
+			invalidate();
+			selectedRow = -1;
+			selectedColumn = -1;
+			ignoreSelectionChange = false;
+
+		}
+	}
+
+	private void clearTableModel() {
+		while (tableModel.getRowCount() > 0) {
+			tableModel.removeRow(0);
+		}
+
 	}
 
 	public void dispose() {
@@ -158,7 +225,114 @@ public class MoveList extends JPanel implements Preferenceable {
 		SwingUtils.dispose(nextButton);
 		SwingUtils.dispose(lastButton);
 		SwingUtils.dispose(saveToPGN);
-		SwingUtils.dispose(table);		
+		SwingUtils.dispose(table);
+	}
+
+	public long getBlackElapsedTime(int halfMoveIndex, int inc) {
+		return moveListModel.getBlackElapsedTime(halfMoveIndex, inc);
+	}
+
+	public int getHalfMoves() {
+		return moveListModel.getSize();
+	}
+
+	public int getHalfMoveWithElapsedTime(long elapsedTime, int inc) {
+		int result = 0;
+		long accumulatedTime = 0;
+		int i = 0;
+		for (i = 0; result == 0 && i < moveListModel.getSize(); i++) {
+			accumulatedTime += moveListModel.getMove(i).getTimeTakenMillis()
+					- inc * 1000;
+			if (accumulatedTime > elapsedTime) {
+				result = i;
+			}
+		}
+
+		if (result == 0 && i == moveListModel.getSize()) {
+			result = moveListModel.getSize() - 1;
+		}
+
+		return result;
+	}
+
+	public MoveListModelMove getLastMove() {
+		if (moveListModel.getSize() != 0) {
+			return moveListModel.getMove(moveListModel.getSize() - 1);
+		} else {
+			return null;
+		}
+	}
+
+	public MoveListModelMove getMove(int halfMoveIndex) {
+		return moveListModel.getMove(halfMoveIndex);
+	}
+
+	public MoveListModel getMoveList() {
+		return moveListModel;
+	}
+
+	public Preferences getPreferences() {
+		return preferences;
+	}
+
+	/**
+	 * Returns the 0 based half move index.
+	 */
+	public int getSelectedHalfMove() {
+		return rowColmunToHalfMoveIndex(selectedRow, selectedColumn);
+	}
+
+	public long getWhiteElapsedTime(int halfMoveIndex, int inc) {
+		return moveListModel.getWhiteElapsedTime(halfMoveIndex, inc);
+	}
+
+	public void gotoFirst() {
+		if (moveListModel.getSize() > 0) {
+			table.changeSelection(0, 0, false, false);
+		}
+	}
+
+	public void gotoLast() {
+		if (moveListModel.getSize() > 0) {
+			int[] rowColumn = halfMoveToRowColumn(moveListModel.getSize());
+			table.changeSelection(rowColumn[0], rowColumn[1], false, false);
+		}
+	}
+
+	public void gotoNext() {
+		if (moveListModel.getSize() > 0 && selectedRow != -1
+				&& selectedColumn != -1) {
+			int[] maxRowColumn = halfMoveToRowColumn(moveListModel.getSize());
+
+			if (selectedColumn == 0) {
+				table.changeSelection(selectedRow, 1, false, false);
+			} else if (selectedRow + 1 <= maxRowColumn[0]) {
+				table.changeSelection(selectedRow + 1, 0, false, false);
+			}
+		}
+	}
+
+	public void gotoPrevious() {
+		if (moveListModel.getSize() > 0 && selectedRow != -1
+				&& selectedColumn != -1) {
+			if (selectedColumn == 1) {
+				table.changeSelection(selectedRow, 0, false, false);
+			} else if (selectedRow - 1 >= 0) {
+				table.changeSelection(selectedRow - 1, 1, false, false);
+			}
+		}
+
+	}
+
+	private int[] halfMoveToRowColumn(int halfMoveIndex) {
+		int row = halfMoveIndex / 2;
+		int column = halfMoveIndex % 2 == 0 ? 1 : 0;
+
+		if (column == 1 && row > 0) {
+			row -= 1;
+		}
+		return new int[] { row, column };
+
 	}
 
 	private void initGui() {
@@ -182,17 +356,17 @@ public class MoveList extends JPanel implements Preferenceable {
 				});
 		scrollPane = new JScrollPane(table);
 		scrollPane
-				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane
-				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
 		isRealtimeUpdate = new JCheckBox("Realtime Update");
 		isRealtimeUpdate.setSelected(true);
 		isRealtimeUpdate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				for (MoveListListener listener : listeners) {
-					listener.realtimeUpdateChanged(MoveList.this, isRealtimeUpdate
-							.isSelected());
+					listener.realtimeUpdateChanged(MoveList.this,
+							isRealtimeUpdate.isSelected());
 				}
 			}
 		});
@@ -250,140 +424,43 @@ public class MoveList extends JPanel implements Preferenceable {
 		setBorder(new EmptyBorder(new Insets(2, 2, 2, 2)));
 	}
 
-	public void gotoFirst() {
-		if (moveListModel.getSize() > 0) {
-			table.changeSelection(0, 0, false, false);
-		}
-	}
-
-	public void gotoLast() {
-		if (moveListModel.getSize() > 0) {
-			int[] rowColumn = halfMoveToRowColumn(moveListModel.getSize());
-			table.changeSelection(rowColumn[0], rowColumn[1], false, false);
-		}
-	}
-
-	public void gotoNext() {
-		if (moveListModel.getSize() > 0 && selectedRow != -1
-				&& selectedColumn != -1) {
-			int[] maxRowColumn = halfMoveToRowColumn(moveListModel.getSize());
-
-			if (selectedColumn == 0) {
-				table.changeSelection(selectedRow, 1, false, false);
-			} else if (selectedRow + 1 <= maxRowColumn[0]) {
-				table.changeSelection(selectedRow + 1, 0, false, false);
-			}
-		}
-	}
-
-	public void gotoPrevious() {
-		if (moveListModel.getSize() > 0 && selectedRow != -1
-				&& selectedColumn != -1) {
-			if (selectedColumn == 1) {
-				table.changeSelection(selectedRow, 0, false, false);
-			} else if (selectedRow - 1 >= 0) {
-				table.changeSelection(selectedRow - 1, 1, false, false);
-			}
-		}
-
-	}
-
-	public void setRealtimeUpdateEnabled(boolean isEnabled) {
-		// isRealtimeUpdate.setEnabled(isEnabled);
+	public boolean isLastMoveWhite() {
+		int moveListSize = moveListModel.getSize();
+		return (moveListSize % 2 != 0);
 	}
 
 	public boolean isRealtimeUpdate() {
 		return isRealtimeUpdate.isSelected();
 	}
 
-	public void setRealtimeUpdate(boolean value) {
-		isRealtimeUpdate.setSelected(value);
+	public void removeAllMoveListListeners() {
+		listeners.clear();
 	}
 
-	public MoveListModelMove getMove(int halfMoveIndex) {
-		return moveListModel.getMove(halfMoveIndex);
+	public void removeMoveListListener(MoveListListener listener) {
+		listeners.remove(listener);
 	}
 
-	public long getWhiteElapsedTime(int halfMoveIndex, int inc) {
-		return moveListModel.getWhiteElapsedTime(halfMoveIndex, inc);
+	private int rowColmunToHalfMoveIndex(int row, int column) {
+		return row * 2 + (column > 0 ? 1 : 0);
 	}
 
-	public long getBlackElapsedTime(int halfMoveIndex, int inc) {
-		return moveListModel.getBlackElapsedTime(halfMoveIndex, inc);
+	private void saveMoveListAsPgn() {
+		firePropertyChange(MoveList.SAVE_TO_PGN, false, true);
 	}
 
-	public int getHalfMoveWithElapsedTime(long elapsedTime, int inc) {
-		int result = 0;
-		long accumulatedTime = 0;
-		int i = 0;
-		for (i = 0; result == 0 && i < moveListModel.getSize(); i++) {
-			accumulatedTime += moveListModel.getMove(i).getTimeTakenMillis()
-					- inc * 1000;
-			if (accumulatedTime > elapsedTime) {
-				result = i;
-			}
-		}
-
-		if (result == 0 && i == moveListModel.getSize()) {
-			result = moveListModel.getSize() - 1;
-		}
-
-		return result;
-	}
-
-	public void appendMove(String algebraicDescription, long timeMillis,
-			Position position) {
-		// Need to cache these if waiting on moves.
-		// All kinds of bugs.
-		final MoveListModelMove move = new MoveListModelMove(
-				algebraicDescription, position, timeMillis);
-
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				synchronized (moveListModel) {
-					moveListModel.append(move);
-
-					int moveListSize = moveListModel.getSize();
-
-					if (moveListSize % 2 != 0) {
-						appendNewRow(moveListModel.getMove(moveListSize - 1)
-								.getAlgebraicDescription());
-					} else {
-						updateLastRow(moveListModel.getMove(moveListSize - 1)
-								.getAlgebraicDescription());
-					}
-
-					if (isRealtimeUpdate.isSelected()) {
-						setScrollBarToMax();
-						selectLastMove();
-					}
-				}
-			}
-		});
-	}
-
-	/**
-	 * Returns the 0 based half move index.
-	 */
-	public int getSelectedHalfMove() {
-		return rowColmunToHalfMoveIndex(selectedRow, selectedColumn);
-	}
-
-	public int getHalfMoves() {
-		return moveListModel.getSize();
-	}
-
-	public MoveListModelMove getLastMove() {
-		if (moveListModel.getSize() != 0) {
-			return moveListModel.getMove(moveListModel.getSize() - 1);
-		} else {
-			return null;
+	public void selectLastMove() {
+		int[] rowColumn = halfMoveToRowColumn(moveListModel.getSize());
+		synchronized (this) {
+			ignoreSelectionChange = true;
+			table.changeSelection(rowColumn[0], rowColumn[1], false, false);
+			ignoreSelectionChange = false;
 		}
 	}
 
-	public boolean isLastMoveWhite() {
-		int moveListSize = moveListModel.getSize();
-		return (moveListSize % 2 != 0);
+	public void selectMove(int halfMoveIndex) {
+		int[] rowColumn = halfMoveToRowColumn(halfMoveIndex);
+		table.changeSelection(rowColumn[0], rowColumn[1], false, false);
 	}
 
 	public void setGameEnd(String result) {
@@ -419,10 +496,6 @@ public class MoveList extends JPanel implements Preferenceable {
 				}
 			}
 		});
-	}
-
-	public Preferences getPreferences() {
-		return preferences;
 	}
 
 	public void setPreferences(Preferences preferences) {
@@ -468,58 +541,12 @@ public class MoveList extends JPanel implements Preferenceable {
 		}
 	}
 
-	public void selectLastMove() {
-		int[] rowColumn = halfMoveToRowColumn(moveListModel.getSize());
-		synchronized (this) {
-			ignoreSelectionChange = true;
-			table.changeSelection(rowColumn[0], rowColumn[1], false, false);
-			ignoreSelectionChange = false;
-		}
+	public void setRealtimeUpdate(boolean value) {
+		isRealtimeUpdate.setSelected(value);
 	}
 
-	public void selectMove(int halfMoveIndex) {
-		int[] rowColumn = halfMoveToRowColumn(halfMoveIndex);
-		table.changeSelection(rowColumn[0], rowColumn[1], false, false);
-	}
-
-	public void addMoveListListener(MoveListListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeMoveListListener(MoveListListener listener) {
-		listeners.remove(listener);
-	}
-
-	public void removeAllMoveListListeners() {
-		listeners.clear();
-	}
-
-	public MoveListModel getMoveList() {
-		return moveListModel;
-	}
-
-	public void clear() {
-		synchronized (this) {
-			ignoreSelectionChange = true;
-			moveListModel = new MoveListModel(new Position());
-			clearTableModel();
-			invalidate();
-			selectedRow = -1;
-			selectedColumn = -1;
-			ignoreSelectionChange = false;
-
-		}
-	}
-
-	private void saveMoveListAsPgn() {
-		firePropertyChange(MoveList.SAVE_TO_PGN, false, true);
-	}
-
-	private void clearTableModel() {
-		while (tableModel.getRowCount() > 0) {
-			tableModel.removeRow(0);
-		}
-
+	public void setRealtimeUpdateEnabled(boolean isEnabled) {
+		// isRealtimeUpdate.setEnabled(isEnabled);
 	}
 
 	public void setScrollBarToMax() {
@@ -531,15 +558,10 @@ public class MoveList extends JPanel implements Preferenceable {
 		});
 	}
 
-	private void appendNewRow(String whitesAlgebraicDescription) {
-		tableModel.addRow(new String[] { whitesAlgebraicDescription, "" });
-
-		if (scrollPane.getRowHeader().getView() instanceof TableUtil.TableRowHeader) {
-			TableRowHeader header = (TableUtil.TableRowHeader) scrollPane
-					.getRowHeader().getView();
-			header.invalidate();
-			header.validate();
-		}
+	public void setUpPgnListener(PropertyChangeListener listener) {
+		saveToPGN.setEnabled(false);
+		removePropertyChangeListener(SAVE_TO_PGN, listener);
+		addPropertyChangeListener(SAVE_TO_PGN, listener);
 	}
 
 	private void updateLastRow(String blacksAlgebraicDescription) {
@@ -551,26 +573,5 @@ public class MoveList extends JPanel implements Preferenceable {
 		}
 
 		tableModel.setValueAt(blacksAlgebraicDescription, row, 1);
-	}
-
-	private int rowColmunToHalfMoveIndex(int row, int column) {
-		return row * 2 + (column > 0 ? 1 : 0);
-	}
-
-	private int[] halfMoveToRowColumn(int halfMoveIndex) {
-		int row = halfMoveIndex / 2;
-		int column = halfMoveIndex % 2 == 0 ? 1 : 0;
-
-		if (column == 1 && row > 0) {
-			row -= 1;
-		}
-		return new int[] { row, column };
-
-	}
-
-	public void setUpPgnListener(PropertyChangeListener listener) {
-		saveToPGN.setEnabled(false);
-		removePropertyChangeListener(SAVE_TO_PGN, listener);
-		addPropertyChangeListener(SAVE_TO_PGN, listener);
 	}
 }

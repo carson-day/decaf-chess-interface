@@ -22,7 +22,43 @@ package decaf.util;
 
 public class StringUtility {
 
-	private StringUtility() {
+	public static boolean containsWhiteSpace(String s) {
+		return s.indexOf('\t') != -1 || s.indexOf('\n') != -1
+				|| s.indexOf('\r') != -1;
+	}
+
+	public static String intArrayToString(int[] intArray) {
+		String result = "";
+		for (int i = 0; i < intArray.length; i++) {
+			result += (i == 0 ? "" : ",") + intArray[i];
+		}
+		return result;
+	}
+
+	public static boolean isAlaphabetString(String s) {
+		boolean flag = true;
+		for (int i = 0; i < s.length() && flag; i++)
+			if (!isAlphabetChar(s.charAt(i)))
+				flag = false;
+
+		return flag;
+	}
+
+	public static boolean isAlphabetChar(char c) {
+		char c1 = c;
+		return c1 >= 'A' && c1 <= 'Z' || c1 >= 'a' && c1 <= 'z';
+	}
+
+	public static boolean isNumeric(String s) {
+		boolean flag = true;
+		int i = s.length();
+		for (int j = 0; j < i && flag; j++) {
+			char c = s.charAt(j);
+			if (c < '0' || c > '9')
+				flag = false;
+		}
+
+		return flag;
 	}
 
 	public static String millisToDuration(long millis) {
@@ -50,20 +86,6 @@ public class StringUtility {
 		return seconds + "." + millisString;
 	}
 
-	public static String intArrayToString(int[] intArray) {
-		String result = "";
-		for (int i = 0; i < intArray.length; i++) {
-			result += (i == 0 ? "" : ",") + intArray[i];
-		}
-		return result;
-	}
-
-	public static void setStringAt(StringBuffer stringbuffer, int i, String s) {
-		for (int j = 0; j < s.length(); j++)
-			stringbuffer.setCharAt(i + j, s.charAt(j));
-
-	}
-
 	public static int numOccurancesOfString(String s, String s1) {
 		int i = 0;
 		if (!s1.equals(""))
@@ -77,18 +99,6 @@ public class StringUtility {
 				}
 			}
 		return i;
-	}
-
-	public static String replaceStringWithString(String source, String find,
-			String replace) {
-		String s3 = "";
-		int i = source.indexOf(find);
-		if (i != -1) {
-			String s5 = source.substring(0, i) + replace;
-			String s6 = source.substring(i + find.length(), source.length());
-			s3 = s5 + replaceStringWithString(s6, find, replace);
-		}
-		return s3.equals("") ? source : s3;
 	}
 
 	public static String padCharsToLeft(String s, char c, int i) {
@@ -109,66 +119,50 @@ public class StringUtility {
 		return s1;
 	}
 
-	public static String toLeftPaddedFixedLenNumber(String s, int i) {
-		return padCharsToLeft(s, '0', i);
+	public static String replaceStringWithString(String source, String find,
+			String replace) {
+		String s3 = "";
+		int i = source.indexOf(find);
+		if (i != -1) {
+			String s5 = source.substring(0, i) + replace;
+			String s6 = source.substring(i + find.length(), source.length());
+			s3 = s5 + replaceStringWithString(s6, find, replace);
+		}
+		return s3.equals("") ? source : s3;
 	}
 
-	public static String toRightPaddedFixedLenNumber(String s, int i) {
-		return padCharsToRight(s, '0', i);
+	public static void setStringAt(StringBuffer stringbuffer, int i, String s) {
+		for (int j = 0; j < s.length(); j++)
+			stringbuffer.setCharAt(i + j, s.charAt(j));
+
+	}
+
+	public static String toLeftPaddedFixedLenNumber(String s, int i) {
+		return padCharsToLeft(s, '0', i);
 	}
 
 	public static String toLeftPaddedFixedLenString(String s, int i) {
 		return padCharsToLeft(s, ' ', i);
 	}
 
+	public static String toRightPaddedFixedLenNumber(String s, int i) {
+		return padCharsToRight(s, '0', i);
+	}
+
 	public static String toRightPaddedFixedLenString(String s, int i) {
 		return padCharsToRight(s, ' ', i);
 	}
-	
-	public static String trimOrRightPad(String s,int width)
-	{
-		if (s.length() > width)
-		{
-			return s.substring(0,width);
-		}
-		else if (s.length() < width)
-		{
-			return toRightPaddedFixedLenString(s,width);
-		}
-		else
-		{
+
+	public static String trimOrRightPad(String s, int width) {
+		if (s.length() > width) {
+			return s.substring(0, width);
+		} else if (s.length() < width) {
+			return toRightPaddedFixedLenString(s, width);
+		} else {
 			return s;
 		}
 	}
 
-	public static boolean isNumeric(String s) {
-		boolean flag = true;
-		int i = s.length();
-		for (int j = 0; j < i && flag; j++) {
-			char c = s.charAt(j);
-			if (c < '0' || c > '9')
-				flag = false;
-		}
-
-		return flag;
-	}
-
-	public static boolean isAlphabetChar(char c) {
-		char c1 = c;
-		return c1 >= 'A' && c1 <= 'Z' || c1 >= 'a' && c1 <= 'z';
-	}
-
-	public static boolean isAlaphabetString(String s) {
-		boolean flag = true;
-		for (int i = 0; i < s.length() && flag; i++)
-			if (!isAlphabetChar(s.charAt(i)))
-				flag = false;
-
-		return flag;
-	}
-
-	public static boolean containsWhiteSpace(String s) {
-		return s.indexOf('\t') != -1 || s.indexOf('\n') != -1
-				|| s.indexOf('\r') != -1;
+	private StringUtility() {
 	}
 }

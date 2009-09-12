@@ -3,7 +3,9 @@ package decaf.gui.event;
 import decaf.gui.widgets.ChessBoardSquare;
 
 public interface UserMoveInputListener {
-	public void userRightClicked(UserRightClickSquareEvent event);
+	public void userClicked(ChessBoardSquare square);
+
+	public void userMadeIncompleteMove(UserIncompleteMoveEvent event);
 
 	/**
 	 * Should return true if the move was successful, false otherwise.
@@ -13,7 +15,5 @@ public interface UserMoveInputListener {
 	 */
 	public boolean userMoved(UserMoveEvent event);
 
-	public void userMadeIncompleteMove(UserIncompleteMoveEvent event);
-
-	public void userClicked(ChessBoardSquare square);
+	public void userRightClicked(UserRightClickSquareEvent event);
 }

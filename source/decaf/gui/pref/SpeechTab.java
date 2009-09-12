@@ -51,16 +51,11 @@ public class SpeechTab extends PreferencesTab {
 	private JCheckBox isSpeakingName = new JCheckBox("");
 
 	private JCheckBox isSpeaking10SecondCountdown = new JCheckBox("");
-	
+
 	private JCheckBox isSpeakingChecks = new JCheckBox("");
 
 	private JComboBox wordsPerMinute = new JComboBox(WORDS_PER_MINUTE
 			.getItems());
-	
-	public void dispose()
-	{
-		removeAll();
-	}
 
 	public SpeechTab() {
 		super("Speech");
@@ -74,7 +69,7 @@ public class SpeechTab extends PreferencesTab {
 		add(new LabeledComponent("Speak Name", isSpeakingName));
 		add(new LabeledComponent("Speak 10 Second Countdown",
 				isSpeaking10SecondCountdown));
-		add(new LabeledComponent("Announce Checks",isSpeakingChecks));
+		add(new LabeledComponent("Announce Checks", isSpeakingChecks));
 		add(new LabeledComponent("Speak rate (words per minute)",
 				wordsPerMinute));
 
@@ -84,6 +79,12 @@ public class SpeechTab extends PreferencesTab {
 		add(Box.createVerticalGlue());
 	}
 
+	@Override
+	public void dispose() {
+		removeAll();
+	}
+
+	@Override
 	public void load(Preferences preferences) {
 		speechEnabled.setSelected(preferences.getSpeechPreferences()
 				.isSpeechEnabled());
@@ -97,12 +98,14 @@ public class SpeechTab extends PreferencesTab {
 				.isSpeakingName());
 		isSpeaking10SecondCountdown.setSelected(preferences
 				.getSpeechPreferences().isSpeaking10SecondCountdown());
-		isSpeakingChecks.setSelected(preferences.getSpeechPreferences().isAnnouncingCheck());
+		isSpeakingChecks.setSelected(preferences.getSpeechPreferences()
+				.isAnnouncingCheck());
 		wordsPerMinute.setSelectedIndex(WORDS_PER_MINUTE
 				.getIndexWithValue(new Integer(preferences
 						.getSpeechPreferences().getSpokenWordsPerMinuite())));
 	}
 
+	@Override
 	public void save(Preferences preferences) {
 		preferences.getSpeechPreferences().setSpeechEnabled(
 				speechEnabled.isSelected());
@@ -116,7 +119,8 @@ public class SpeechTab extends PreferencesTab {
 				isSpeakingName.isSelected());
 		preferences.getSpeechPreferences().setSpeaking10SecondCountdown(
 				isSpeaking10SecondCountdown.isSelected());
-		preferences.getSpeechPreferences().setAnnouncingCheck(isSpeakingChecks.isSelected());
+		preferences.getSpeechPreferences().setAnnouncingCheck(
+				isSpeakingChecks.isSelected());
 		preferences.getSpeechPreferences().setSpokenWordsPerMinuite(
 				((ComboBoxItem) wordsPerMinute.getSelectedItem()).toInt());
 	}

@@ -34,6 +34,35 @@ import decaf.util.TextProperties;
 public class BughousePreferences implements Cloneable, Serializable {
 	private static final long serialVersionUID = 11;
 
+	public static BughousePreferences getDefault() {
+		BughousePreferences result = new BughousePreferences();
+
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(
+				GraphicsEnvironment.getLocalGraphicsEnvironment()
+						.getDefaultScreenDevice().getDefaultConfiguration());
+
+		int totalWidth = screenSize.width - insets.left - insets.right;
+		int totalHeight = screenSize.height - insets.top - insets.bottom;
+
+		result.bugEarPoint = new Point(insets.left, insets.top);
+		result.bugEarDimension = new Dimension(250, (int) (totalHeight * .7));
+
+		result.gameWindowPoint = new Point(insets.left
+				+ result.bugEarDimension.width + 2, insets.top);
+		result.gameWindowDimension = new Dimension(totalWidth
+				- result.bugEarDimension.width, (int) (totalHeight * .7));
+
+		result.chatWindowPoint = new Point(insets.left, insets.top
+				+ (int) (totalHeight * .7) + 1);
+		result.chatWindowDimension = new Dimension(totalWidth,
+				(int) (totalHeight * .3));
+
+		result.boardSplitterLocation = result.gameWindowDimension.width / 2;
+
+		return result;
+	}
+
 	private Dimension bugEarDimension = null;
 
 	private Point bugEarPoint = null;
@@ -76,65 +105,109 @@ public class BughousePreferences implements Cloneable, Serializable {
 
 	private boolean isShowingUpSideUpTime = true;
 
-	public static BughousePreferences getDefault() {
-		BughousePreferences result = new BughousePreferences();
-
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(
-				GraphicsEnvironment.getLocalGraphicsEnvironment()
-						.getDefaultScreenDevice().getDefaultConfiguration());
-
-		int totalWidth = screenSize.width - insets.left - insets.right;
-		int totalHeight = screenSize.height - insets.top - insets.bottom;
-
-		result.bugEarPoint = new Point(insets.left, insets.top);
-		result.bugEarDimension = new Dimension(250, (int) (totalHeight * .7));
-
-		result.gameWindowPoint = new Point(insets.left
-				+ result.bugEarDimension.width + 2, insets.top);
-		result.gameWindowDimension = new Dimension(totalWidth
-				- result.bugEarDimension.width, (int) (totalHeight * .7));
-
-		result.chatWindowPoint = new Point(insets.left, insets.top
-				+ (int) (totalHeight * .7) + 1);
-		result.chatWindowDimension = new Dimension(totalWidth,
-				(int) (totalHeight * .3));
-
-		result.boardSplitterLocation = result.gameWindowDimension.width / 2;
-
-		return result;
-	}
-
+	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
+	}
+
+	public String getAutoFirstWhiteMove() {
+		return autoFirstWhiteMove;
+	}
+
+	public int getBoardSplitterLocation() {
+		return boardSplitterLocation;
 	}
 
 	public Dimension getBugEarDimension() {
 		return bugEarDimension;
 	}
 
-	public void setBugEarDimension(Dimension bugEarDimension) {
-		this.bugEarDimension = bugEarDimension;
-	}
-
 	public Point getBugEarPoint() {
 		return bugEarPoint;
-	}
-
-	public void setBugEarPoint(Point bugEarPoint) {
-		this.bugEarPoint = bugEarPoint;
 	}
 
 	public Color getBughouseButtonBackground() {
 		return bughouseButtonBackground;
 	}
 
-	public void setBughouseButtonBackground(Color bughouseButtonBackground) {
-		this.bughouseButtonBackground = bughouseButtonBackground;
-	}
-
 	public TextProperties getBughouseButtonTextProperties() {
 		return bughouseButtonTextProperties;
+	}
+
+	public Dimension getChatWindowDimension() {
+		return chatWindowDimension;
+	}
+
+	public Point getChatWindowPoint() {
+		return chatWindowPoint;
+	}
+
+	public Dimension getGameWindowDimension() {
+		return gameWindowDimension;
+	}
+
+	public Point getGameWindowPoint() {
+		return gameWindowPoint;
+	}
+
+	public boolean isPlayingLeftBoard() {
+		return isPlayingLeftBoard;
+	}
+
+	public boolean isPlayingMoveSoundOnPartnersBoard() {
+		return isPlayingMoveSoundOnPartnersBoard;
+	}
+
+	public boolean isShowingBugToolbar() {
+		return isShowingBugToolbar;
+	}
+
+	public boolean isShowingLag() {
+		return isShowingLag;
+	}
+
+	public boolean isShowingMoveListOnObsGame() {
+		return isShowingMoveListOnObsGame;
+	}
+
+	public boolean isShowingMoveListsOnPlayingGame() {
+		return isShowingMoveListsOnPlayingGame;
+	}
+
+	public boolean isShowingPartnerCaptions() {
+		return isShowingPartnerCaptions;
+	}
+
+	public boolean isShowingPartnerCommunicationButtons() {
+		return isShowingPartnerCommunicationButtons;
+	}
+
+	public boolean isShowingStatusBar() {
+		return isShowingStatusBar;
+	}
+
+	public boolean isShowingUpSideUpTime() {
+		return isShowingUpSideUpTime;
+	}
+
+	public void setAutoFirstWhiteMove(String autoFirstWhiteMove) {
+		this.autoFirstWhiteMove = autoFirstWhiteMove;
+	}
+
+	public void setBoardSplitterLocation(int boardSplitterLocation) {
+		this.boardSplitterLocation = boardSplitterLocation;
+	}
+
+	public void setBugEarDimension(Dimension bugEarDimension) {
+		this.bugEarDimension = bugEarDimension;
+	}
+
+	public void setBugEarPoint(Point bugEarPoint) {
+		this.bugEarPoint = bugEarPoint;
+	}
+
+	public void setBughouseButtonBackground(Color bughouseButtonBackground) {
+		this.bughouseButtonBackground = bughouseButtonBackground;
 	}
 
 	public void setBughouseButtonTextProperties(
@@ -142,40 +215,24 @@ public class BughousePreferences implements Cloneable, Serializable {
 		this.bughouseButtonTextProperties = bughouseButtonTextProperties;
 	}
 
-	public Dimension getChatWindowDimension() {
-		return chatWindowDimension;
-	}
-
 	public void setChatWindowDimension(Dimension chatWindowDimension) {
 		this.chatWindowDimension = chatWindowDimension;
-	}
-
-	public Point getChatWindowPoint() {
-		return chatWindowPoint;
 	}
 
 	public void setChatWindowPoint(Point chatWindowPoint) {
 		this.chatWindowPoint = chatWindowPoint;
 	}
 
-	public Dimension getGameWindowDimension() {
-		return gameWindowDimension;
-	}
-
 	public void setGameWindowDimension(Dimension gameWindowDimension) {
 		this.gameWindowDimension = gameWindowDimension;
-	}
-
-	public Point getGameWindowPoint() {
-		return gameWindowPoint;
 	}
 
 	public void setGameWindowPoint(Point gameWindowPoint) {
 		this.gameWindowPoint = gameWindowPoint;
 	}
 
-	public boolean isPlayingMoveSoundOnPartnersBoard() {
-		return isPlayingMoveSoundOnPartnersBoard;
+	public void setPlayingLeftBoard(boolean isPlayingLeftBoard) {
+		this.isPlayingLeftBoard = isPlayingLeftBoard;
 	}
 
 	public void setPlayingMoveSoundOnPartnersBoard(
@@ -183,73 +240,16 @@ public class BughousePreferences implements Cloneable, Serializable {
 		this.isPlayingMoveSoundOnPartnersBoard = isPlayingMoveSoundOnPartnersBoard;
 	}
 
-	public boolean isShowingLag() {
-		return isShowingLag;
+	public void setShowingBugToolbar(boolean isShowingBugToolbar) {
+		this.isShowingBugToolbar = isShowingBugToolbar;
 	}
 
 	public void setShowingLag(boolean isShowingLag) {
 		this.isShowingLag = isShowingLag;
 	}
 
-	public boolean isShowingPartnerCommunicationButtons() {
-		return isShowingPartnerCommunicationButtons;
-	}
-
-	public void setShowingPartnerCommunicationButtons(
-			boolean isShowingPartnerCommunicationButtons) {
-		this.isShowingPartnerCommunicationButtons = isShowingPartnerCommunicationButtons;
-	}
-
-	public int getBoardSplitterLocation() {
-		return boardSplitterLocation;
-	}
-
-	public void setBoardSplitterLocation(int boardSplitterLocation) {
-		this.boardSplitterLocation = boardSplitterLocation;
-	}
-
-	public String getAutoFirstWhiteMove() {
-		return autoFirstWhiteMove;
-	}
-
-	public void setAutoFirstWhiteMove(String autoFirstWhiteMove) {
-		this.autoFirstWhiteMove = autoFirstWhiteMove;
-	}
-
-	public boolean isShowingBugToolbar() {
-		return isShowingBugToolbar;
-	}
-
-	public void setShowingBugToolbar(boolean isShowingBugToolbar) {
-		this.isShowingBugToolbar = isShowingBugToolbar;
-	}
-
-	public boolean isShowingStatusBar() {
-		return isShowingStatusBar;
-	}
-
-	public void setShowingStatusBar(boolean isShowingStatusBar) {
-		this.isShowingStatusBar = isShowingStatusBar;
-	}
-
-	public boolean isPlayingLeftBoard() {
-		return isPlayingLeftBoard;
-	}
-
-	public void setPlayingLeftBoard(boolean isPlayingLeftBoard) {
-		this.isPlayingLeftBoard = isPlayingLeftBoard;
-	}
-
-	public boolean isShowingPartnerCaptions() {
-		return isShowingPartnerCaptions;
-	}
-
-	public void setShowingPartnerCaptions(boolean isShowingPartnerCaptions) {
-		this.isShowingPartnerCaptions = isShowingPartnerCaptions;
-	}
-
-	public boolean isShowingMoveListsOnPlayingGame() {
-		return isShowingMoveListsOnPlayingGame;
+	public void setShowingMoveListOnObsGame(boolean isShowingMoveListOnObsGame) {
+		this.isShowingMoveListOnObsGame = isShowingMoveListOnObsGame;
 	}
 
 	public void setShowingMoveListsOnPlayingGame(
@@ -257,20 +257,21 @@ public class BughousePreferences implements Cloneable, Serializable {
 		this.isShowingMoveListsOnPlayingGame = isShowingMoveListsOnPlayingGame;
 	}
 
-	public boolean isShowingUpSideUpTime() {
-		return isShowingUpSideUpTime;
+	public void setShowingPartnerCaptions(boolean isShowingPartnerCaptions) {
+		this.isShowingPartnerCaptions = isShowingPartnerCaptions;
+	}
+
+	public void setShowingPartnerCommunicationButtons(
+			boolean isShowingPartnerCommunicationButtons) {
+		this.isShowingPartnerCommunicationButtons = isShowingPartnerCommunicationButtons;
+	}
+
+	public void setShowingStatusBar(boolean isShowingStatusBar) {
+		this.isShowingStatusBar = isShowingStatusBar;
 	}
 
 	public void setShowingUpSideUpTime(boolean isShowingUpSideUpTime) {
 		this.isShowingUpSideUpTime = isShowingUpSideUpTime;
-	}
-
-	public boolean isShowingMoveListOnObsGame() {
-		return isShowingMoveListOnObsGame;
-	}
-
-	public void setShowingMoveListOnObsGame(boolean isShowingMoveListOnObsGame) {
-		this.isShowingMoveListOnObsGame = isShowingMoveListOnObsGame;
 	}
 
 }

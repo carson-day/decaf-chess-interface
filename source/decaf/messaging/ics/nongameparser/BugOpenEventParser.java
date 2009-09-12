@@ -23,10 +23,15 @@ import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 import decaf.messaging.inboundevent.inform.BugOpenEvent;
 
 public class BugOpenEventParser extends NonGameEventParser {
+	private static final String IDENTIFIER = "You are now open for bughouse.";
+
+	private static final String IDENTIFIER2 = "Setting you open for bughouse.";
+
 	public BugOpenEventParser(int icsId) {
 		super(icsId);
 	}
 
+	@Override
 	public IcsNonGameEvent parse(String text) {
 		if (text.length() < 100 && text.indexOf(IDENTIFIER) != -1
 				|| text.indexOf(IDENTIFIER2) != -1)
@@ -34,8 +39,4 @@ public class BugOpenEventParser extends NonGameEventParser {
 		else
 			return null;
 	}
-
-	private static final String IDENTIFIER = "You are now open for bughouse.";
-
-	private static final String IDENTIFIER2 = "Setting you open for bughouse.";
 }

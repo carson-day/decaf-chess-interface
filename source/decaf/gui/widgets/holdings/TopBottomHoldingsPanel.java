@@ -29,19 +29,29 @@ import decaf.gui.widgets.ChessBoardSquare;
 
 public class TopBottomHoldingsPanel extends HoldingsPanelBase {
 
-	private static final int MIN_HEIGHT = 15;
-
-	private static final int MAX_HEIGHT = 40;
-
-	public static final int NORTH_ORIENTATION = 1;
-
-	public static final int SOUTH_ORIENTATION = 2;
-
-	private int orientation = NORTH_ORIENTATION;
-
-	private ChessBoard board;
-
 	private class VerticalLayout implements LayoutManager2 {
+		public void addLayoutComponent(Component arg0, Object arg1) {
+
+		}
+
+		public void addLayoutComponent(String arg0, Component arg1) {
+
+		}
+
+		public float getLayoutAlignmentX(Container arg0) {
+
+			return 0.5F;
+		}
+
+		public float getLayoutAlignmentY(Container arg0) {
+
+			return 0.5F;
+		}
+
+		public void invalidateLayout(Container arg0) {
+
+		}
+
 		public void layoutContainer(Container container) {
 			int height = container.getSize().height;
 			ChessBoardSquare[] squares = getSquaresWithPieces();
@@ -94,31 +104,9 @@ public class TopBottomHoldingsPanel extends HoldingsPanelBase {
 			}
 		}
 
-		public void addLayoutComponent(Component arg0, Object arg1) {
-
-		}
-
-		public float getLayoutAlignmentX(Container arg0) {
-
-			return 0.5F;
-		}
-
-		public float getLayoutAlignmentY(Container arg0) {
-
-			return 0.5F;
-		}
-
-		public void invalidateLayout(Container arg0) {
-
-		}
-
 		public Dimension maximumLayoutSize(Container arg0) {
 
 			return new Dimension(10000, 10000);
-		}
-
-		public void addLayoutComponent(String arg0, Component arg1) {
-
 		}
 
 		public Dimension minimumLayoutSize(Container arg0) {
@@ -134,6 +122,18 @@ public class TopBottomHoldingsPanel extends HoldingsPanelBase {
 		}
 	}
 
+	private static final int MIN_HEIGHT = 15;
+
+	private static final int MAX_HEIGHT = 40;
+
+	public static final int NORTH_ORIENTATION = 1;
+
+	public static final int SOUTH_ORIENTATION = 2;
+
+	private int orientation = NORTH_ORIENTATION;
+
+	private ChessBoard board;
+
 	public TopBottomHoldingsPanel(ChessBoard board, boolean isWhiteDropPanel) {
 		super(isWhiteDropPanel);
 		this.board = board;
@@ -147,6 +147,7 @@ public class TopBottomHoldingsPanel extends HoldingsPanelBase {
 		this.orientation = orientation;
 	}
 
+	@Override
 	protected void setupLayout() {
 		setLayout(new VerticalLayout());
 	}

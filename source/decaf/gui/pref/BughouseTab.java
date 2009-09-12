@@ -70,11 +70,6 @@ public class BughouseTab extends PreferencesTab {
 			"BugEar Button Text", null, null);
 
 	private JComboBox autoFirstMove = new JComboBox(AUTO_FIRST_MOVE.getItems());
-	
-	public void dispose()
-	{
-		removeAll();
-	}
 
 	public BughouseTab() {
 		super("Bughouse");
@@ -98,6 +93,12 @@ public class BughouseTab extends PreferencesTab {
 		add(Box.createVerticalGlue());
 	}
 
+	@Override
+	public void dispose() {
+		removeAll();
+	}
+
+	@Override
 	public void load(Preferences preferences) {
 		isShowingPartnerCommunicationButtons.setSelected(preferences
 				.getBughousePreferences()
@@ -128,6 +129,7 @@ public class BughouseTab extends PreferencesTab {
 						.getAutoFirstWhiteMove()));
 	}
 
+	@Override
 	public void save(Preferences preferences) {
 		preferences.getBughousePreferences()
 				.setShowingPartnerCommunicationButtons(

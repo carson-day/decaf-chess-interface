@@ -21,11 +21,8 @@ package decaf.gui.widgets.chessarealayout;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
@@ -78,21 +75,6 @@ public class ThiefChessAreaLayout implements ChessAreaLayout {
 
 	private boolean isWhiteOnTop;
 
-	public void dispose() {
-		LOGGER.error("Disposing ThiefChessAreaLAyout");
-		SwingUtils.dispose(boradAndControlsPanel);
-		SwingUtils.dispose(northFillerPanel);
-		SwingUtils.dispose(southFillerPanel);
-		SwingUtils.dispose(eastFillerPanel);
-		SwingUtils.dispose(westFillerPanel);
-		SwingUtils.dispose(auxileryPanel);
-		SwingUtils.dispose(whiteControlsPanel);
-		SwingUtils.dispose(boardAndDropPiecesPanel);
-		SwingUtils.dispose(blackControlsPanel);
-		SwingUtils.dispose(mainPanel);
-		SwingUtils.dispose(boardAndDropPiecesPanel);
-	}
-
 	public void adjustForLabelChanges() {
 		if (chessArea.getWhiteNameLbl().getText() != null) {
 			String infoString = chessArea.getWhiteNameLbl().getText();
@@ -112,6 +94,21 @@ public class ThiefChessAreaLayout implements ChessAreaLayout {
 					StringUtility.padCharsToRight(infoString, ' ',
 							MAX_NAME_LENGTH));
 		}
+	}
+
+	public void dispose() {
+		LOGGER.error("Disposing ThiefChessAreaLAyout");
+		SwingUtils.dispose(boradAndControlsPanel);
+		SwingUtils.dispose(northFillerPanel);
+		SwingUtils.dispose(southFillerPanel);
+		SwingUtils.dispose(eastFillerPanel);
+		SwingUtils.dispose(westFillerPanel);
+		SwingUtils.dispose(auxileryPanel);
+		SwingUtils.dispose(whiteControlsPanel);
+		SwingUtils.dispose(boardAndDropPiecesPanel);
+		SwingUtils.dispose(blackControlsPanel);
+		SwingUtils.dispose(mainPanel);
+		SwingUtils.dispose(boardAndDropPiecesPanel);
 	}
 
 	public void init(ChessArea chessArea) {
@@ -163,18 +160,6 @@ public class ThiefChessAreaLayout implements ChessAreaLayout {
 			LOGGER.debug("Time to create DefaultChessAreaLayout: "
 					+ (System.currentTimeMillis() - startTime));
 		}
-	}
-
-	private void layoutControlsAndBoard() {
-		boradAndControlsPanel.removeAll();
-		boradAndControlsPanel.setLayout(new BorderLayout());
-		boradAndControlsPanel.add(whiteControlsPanel,
-				isWhiteOnTop ? BorderLayout.NORTH : BorderLayout.SOUTH);
-		boradAndControlsPanel.add(blackControlsPanel,
-				isWhiteOnTop ? BorderLayout.SOUTH : BorderLayout.NORTH);
-		boradAndControlsPanel.add(boardAndDropPiecesPanel, BorderLayout.CENTER);
-		boradAndControlsPanel.invalidate();
-
 	}
 
 	private void layoutBoardAndDropPieces() {
@@ -522,6 +507,18 @@ public class ThiefChessAreaLayout implements ChessAreaLayout {
 		}
 		boardAndDropPiecesPanel.invalidate();
 		auxileryPanel.invalidate();
+	}
+
+	private void layoutControlsAndBoard() {
+		boradAndControlsPanel.removeAll();
+		boradAndControlsPanel.setLayout(new BorderLayout());
+		boradAndControlsPanel.add(whiteControlsPanel,
+				isWhiteOnTop ? BorderLayout.NORTH : BorderLayout.SOUTH);
+		boradAndControlsPanel.add(blackControlsPanel,
+				isWhiteOnTop ? BorderLayout.SOUTH : BorderLayout.NORTH);
+		boradAndControlsPanel.add(boardAndDropPiecesPanel, BorderLayout.CENTER);
+		boradAndControlsPanel.invalidate();
+
 	}
 
 	private void setBackground(Color color) {

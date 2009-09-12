@@ -26,6 +26,8 @@ import decaf.messaging.inboundevent.chat.CShoutEvent;
 import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 
 public class CShoutEventParser extends NonGameEventParser {
+	private static final String IDENTIFIER = "c-shouts:";
+
 	public CShoutEventParser(int icsId) {
 		super(icsId);
 	}
@@ -33,6 +35,7 @@ public class CShoutEventParser extends NonGameEventParser {
 	/**
 	 * Returns null if text does not match the event this class produces.
 	 */
+	@Override
 	public IcsNonGameEvent parse(String text) {
 		StringTokenizer stringtokenizer = new StringTokenizer(text, " ");
 		if (stringtokenizer.hasMoreTokens()) {
@@ -47,6 +50,4 @@ public class CShoutEventParser extends NonGameEventParser {
 		return null;
 
 	}
-
-	private static final String IDENTIFIER = "c-shouts:";
 }

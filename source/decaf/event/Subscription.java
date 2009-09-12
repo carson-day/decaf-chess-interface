@@ -32,10 +32,6 @@ public class Subscription {
 
 	private Subscriber subscriber;
 
-	public Subscription(Class eventClass, Subscriber subscriber) {
-		this(eventClass, null, subscriber);
-	}
-
 	public Subscription(Class eventClass, Filter filter, Subscriber subscriber) {
 		if (eventClass == null) {
 			throw new IllegalArgumentException("eventClass can not be null");
@@ -52,16 +48,8 @@ public class Subscription {
 		this.subscriber = subscriber;
 	}
 
-	public Filter getFilter() {
-		return filter;
-	}
-
-	public Class getEventClass() {
-		return eventClass;
-	}
-
-	public Subscriber getSubscriber() {
-		return subscriber;
+	public Subscription(Class eventClass, Subscriber subscriber) {
+		this(eventClass, null, subscriber);
 	}
 
 	public boolean equals(Subscription subscription) {
@@ -70,6 +58,19 @@ public class Subscription {
 				&& subscription.subscriber.equals(subscriber);
 	}
 
+	public Class getEventClass() {
+		return eventClass;
+	}
+
+	public Filter getFilter() {
+		return filter;
+	}
+
+	public Subscriber getSubscriber() {
+		return subscriber;
+	}
+
+	@Override
 	public String toString() {
 		return "<Subscription>" + "<eventClass>" + eventClass.getName()
 				+ "</eventClass>" + "<filter>" + filter + "</filter>"

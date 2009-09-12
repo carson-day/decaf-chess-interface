@@ -24,6 +24,8 @@ import decaf.messaging.inboundevent.inform.BugClosedEvent;
 
 public class BugClosedEventParser extends NonGameEventParser {
 
+	private static final String IDENTIFIER = "You are not open for bughouse.";
+
 	public BugClosedEventParser(int icsId) {
 		super(icsId);
 	}
@@ -31,6 +33,7 @@ public class BugClosedEventParser extends NonGameEventParser {
 	/**
 	 * Returns null if text does not match the event this class produces.
 	 */
+	@Override
 	public IcsNonGameEvent parse(String text) {
 
 		if (text.length() < 100 && text.indexOf(IDENTIFIER) != -1)
@@ -38,6 +41,4 @@ public class BugClosedEventParser extends NonGameEventParser {
 		else
 			return null;
 	}
-
-	private static final String IDENTIFIER = "You are not open for bughouse.";
 }

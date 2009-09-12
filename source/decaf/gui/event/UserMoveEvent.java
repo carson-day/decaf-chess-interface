@@ -48,11 +48,16 @@ public class UserMoveEvent implements Event {
 		}
 	}
 
+	public boolean areStartAndEndSameSquare() {
+		return !isDrop() && getStartCoordinates()[0] == getEndCoordinates()[0]
+				&& getStartCoordinates()[1] == getEndCoordinates()[1];
+	}
+
 	/**
-	 * Returns true if this was a crazyhosue or bughouse piece drop.
+	 * @return Returns the boardId.
 	 */
-	public boolean isDrop() {
-		return dropPiece != Piece.EMPTY;
+	public String getBoardId() {
+		return boardId;
 	}
 
 	/**
@@ -64,13 +69,6 @@ public class UserMoveEvent implements Event {
 	}
 
 	/**
-	 * Returns 0 based rank and file. returns null if this was a dropEvent.
-	 */
-	public int[] getStartCoordinates() {
-		return startCoordinates;
-	}
-
-	/**
 	 * Returns 0 based rank and file.
 	 */
 	public int[] getEndCoordinates() {
@@ -78,15 +76,17 @@ public class UserMoveEvent implements Event {
 	}
 
 	/**
-	 * @return Returns the boardId.
+	 * Returns 0 based rank and file. returns null if this was a dropEvent.
 	 */
-	public String getBoardId() {
-		return boardId;
+	public int[] getStartCoordinates() {
+		return startCoordinates;
 	}
 
-	public boolean areStartAndEndSameSquare() {
-		return !isDrop() && getStartCoordinates()[0] == getEndCoordinates()[0]
-				&& getStartCoordinates()[1] == getEndCoordinates()[1];
+	/**
+	 * Returns true if this was a crazyhosue or bughouse piece drop.
+	 */
+	public boolean isDrop() {
+		return dropPiece != Piece.EMPTY;
 	}
 
 }

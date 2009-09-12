@@ -26,6 +26,7 @@ public class BugOpenEvent extends IcsNonGameEvent {
 		super(icsId, text);
 	}
 
+	@Override
 	public String toString() {
 		return "<BugOpenEvent>" + super.toString() + "</BugOpenEvent>";
 	}

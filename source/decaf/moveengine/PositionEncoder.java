@@ -23,9 +23,9 @@ package decaf.moveengine;
  * An interface used to turn a position into a String.
  */
 public interface PositionEncoder {
-	String encode(Position position);
+	String encode(int piece);
 
 	String encode(int[][] board);
 
-	String encode(int piece);
+	String encode(Position position);
 }

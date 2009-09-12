@@ -37,49 +37,48 @@ public class BugWhoPTeam {
 		return player1Handle;
 	}
 
-	public void setPlayer1Handle(String player1Handle) {
-		this.player1Handle = player1Handle;
-	}
-
 	public char getPlayer1Modifier() {
 		return player1Modifier;
-	}
-
-	public void setPlayer1Modifier(char player1Modifier) {
-		this.player1Modifier = player1Modifier;
 	}
 
 	public String getPlayer1Rating() {
 		return player1Rating;
 	}
 
-	public void setPlayer1Rating(String player1Rating) {
-		this.player1Rating = player1Rating;
-	}
-
 	public String getPlayer2Handle() {
 		return player2Handle;
-	}
-
-	public void setPlayer2Handle(String player2Handle) {
-		this.player2Handle = player2Handle;
 	}
 
 	public char getPlayer2Modifier() {
 		return player2Modifier;
 	}
 
-	public void setPlayer2Modifier(char player2Modifier) {
-		this.player2Modifier = player2Modifier;
-	}
-
 	public String getPlayer2Rating() {
 		return player2Rating;
+	}
+
+	public void setPlayer1Handle(String player1Handle) {
+		this.player1Handle = player1Handle;
+	}
+
+	public void setPlayer1Modifier(char player1Modifier) {
+		this.player1Modifier = player1Modifier;
+	}
+
+	public void setPlayer1Rating(String player1Rating) {
+		this.player1Rating = player1Rating;
+	}
+
+	public void setPlayer2Handle(String player2Handle) {
+		this.player2Handle = player2Handle;
+	}
+
+	public void setPlayer2Modifier(char player2Modifier) {
+		this.player2Modifier = player2Modifier;
 	}
 
 	public void setPlayer2Rating(String player2Rating) {
 		this.player2Rating = player2Rating;
 	}
 
-	
 }

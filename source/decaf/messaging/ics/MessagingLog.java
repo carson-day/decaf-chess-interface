@@ -51,12 +51,68 @@ public class MessagingLog implements Preferenceable {
 
 	private boolean isLogsCreated;
 
-	public Preferences getPreferences() {
-		return preferences;
+	private synchronized void appendToFile(String fileName, String timestamp,
+			String message) {
+		try {
+			createLogsDirectory();
+			File file = new File(ResourceManagerFactory.getManager()
+					.getDecafUserHome()
+					+ "/logs", fileName + ".txt");
+			if (file.length() >= preferences.getLoggingPreferences()
+					.getMaxFileSize()) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("purging 400 lines from file " + file);
+				}
+
+				// Remove first 1k lines from the file and rewrite it.
+				File newFile = new File(ResourceManagerFactory.getManager()
+						.getDecafUserHome()
+						+ "/logs", "tmp" + timestamp);
+				BufferedReader reader = new BufferedReader(new FileReader(file));
+				PrintWriter writer = new PrintWriter(new FileWriter(file));
+
+				int counter = 0;
+				String line = reader.readLine();
+
+				while (line != null) {
+					if (++counter > 400) {
+						writer.println(line);
+					}
+					line = reader.readLine();
+				}
+
+				writer.println("[" + timestamp + "] " + message);
+				reader.close();
+				writer.flush();
+				writer.close();
+				file.delete();
+				newFile.renameTo(file);
+			} else {
+				PrintWriter printOut = new PrintWriter(new FileWriter(file,
+						true));
+				printOut.println("[" + timestamp + "] " + message);
+				printOut.close();
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
 	}
 
-	public void setPreferences(Preferences preferences) {
-		this.preferences = preferences;
+	private void createLogsDirectory() {
+		if (!isLogsCreated) {
+			File file = new File(ResourceManagerFactory.getManager()
+					.getDecafUserHome(), "logs");
+			file.mkdir();
+			isLogsCreated = true;
+		}
+	}
+
+	private String getDate() {
+		return DATE_FORMAT.format(new Date());
+	}
+
+	public Preferences getPreferences() {
+		return preferences;
 	}
 
 	public void log(final IcsInboundEvent event) {
@@ -126,63 +182,7 @@ public class MessagingLog implements Preferenceable {
 		}
 	}
 
-	private void createLogsDirectory() {
-		if (!isLogsCreated) {
-			File file = new File(ResourceManagerFactory.getManager()
-					.getDecafUserHome(), "logs");
-			file.mkdir();
-			isLogsCreated = true;
-		}
-	}
-
-	private synchronized void appendToFile(String fileName, String timestamp,
-			String message) {
-		try {
-			createLogsDirectory();
-			File file = new File(ResourceManagerFactory.getManager()
-					.getDecafUserHome()
-					+ "/logs", fileName + ".txt");
-			if (file.length() >= preferences.getLoggingPreferences()
-					.getMaxFileSize()) {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("purging 400 lines from file " + file);
-				}
-
-				// Remove first 1k lines from the file and rewrite it.
-				File newFile = new File(ResourceManagerFactory.getManager()
-						.getDecafUserHome()
-						+ "/logs", "tmp" + timestamp);
-				BufferedReader reader = new BufferedReader(new FileReader(file));
-				PrintWriter writer = new PrintWriter(new FileWriter(file));
-
-				int counter = 0;
-				String line = reader.readLine();
-
-				while (line != null) {
-					if (++counter > 400) {
-						writer.println(line);
-					}
-					line = reader.readLine();
-				}
-
-				writer.println("[" + timestamp + "] " + message);
-				reader.close();
-				writer.flush();
-				writer.close();
-				file.delete();
-				newFile.renameTo(file);
-			} else {
-				PrintWriter printOut = new PrintWriter(new FileWriter(file,
-						true));
-				printOut.println("[" + timestamp + "] " + message);
-				printOut.close();
-			}
-		} catch (Exception e) {
-			LOGGER.error(e);
-		}
-	}
-
-	private String getDate() {
-		return DATE_FORMAT.format(new Date());
+	public void setPreferences(Preferences preferences) {
+		this.preferences = preferences;
 	}
 }

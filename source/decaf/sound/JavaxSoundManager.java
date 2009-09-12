@@ -16,12 +16,36 @@ import decaf.thread.ThreadManager;
 
 public class JavaxSoundManager implements SoundManager {
 
+	public class ClipInfo {
+		public int numPlays;
+
+		public String file;
+
+		public String key;
+
+		public boolean isRunning;
+	}
+
 	private static final Logger LOGGER = Logger
 			.getLogger(SoundManagerFactory.class);
 
 	private static final int BUFFER_SIZE = 128000;
 
 	private Hashtable<String, ClipInfo> sounds = new Hashtable<String, ClipInfo>();
+
+	private void loadClip(String key, String file) {
+		ClipInfo clipInfo = new ClipInfo();
+		clipInfo.key = key;
+		clipInfo.file = file;
+		sounds.put(key, clipInfo);
+	}
+
+	public void loadSounds() {
+		for (int i = 0; i < SoundKeys.SOUNDS_TO_LOAD.length; i++) {
+			loadClip(SoundKeys.SOUNDS_TO_LOAD[i][1],
+					SoundKeys.SOUNDS_TO_LOAD[i][0]);
+		}
+	}
 
 	public void playSound(final String key) {
 		if (GUIManager.getInstance().getPreferences().isSoundOn()) {
@@ -98,29 +122,5 @@ public class JavaxSoundManager implements SoundManager {
 				}
 			});
 		}
-	}
-
-	private void loadClip(String key, String file) {
-		ClipInfo clipInfo = new ClipInfo();
-		clipInfo.key = key;
-		clipInfo.file = file;
-		sounds.put(key, clipInfo);
-	}
-
-	public void loadSounds() {
-		for (int i = 0; i < SoundKeys.SOUNDS_TO_LOAD.length; i++) {
-			loadClip(SoundKeys.SOUNDS_TO_LOAD[i][1],
-					SoundKeys.SOUNDS_TO_LOAD[i][0]);
-		}
-	}
-
-	public class ClipInfo {
-		public int numPlays;
-
-		public String file;
-
-		public String key;
-
-		public boolean isRunning;
 	}
 }

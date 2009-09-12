@@ -25,6 +25,8 @@ import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 import decaf.messaging.inboundevent.chat.PartnerTellEvent;
 
 public class PartnerTellEventParser extends NonGameEventParser {
+	private static final String PTELL_IDENTIFIER = "(your partner) tells you: ";
+
 	public PartnerTellEventParser(int icsId) {
 		super(icsId);
 	}
@@ -32,6 +34,7 @@ public class PartnerTellEventParser extends NonGameEventParser {
 	/**
 	 * Returns null if text does not match the event this class produces.
 	 */
+	@Override
 	public IcsNonGameEvent parse(String text) {
 		if (text.length() < 1500) {
 			int i = text.indexOf(PTELL_IDENTIFIER);
@@ -47,6 +50,4 @@ public class PartnerTellEventParser extends NonGameEventParser {
 		}
 		return null;
 	}
-
-	private static final String PTELL_IDENTIFIER = "(your partner) tells you: ";
 }

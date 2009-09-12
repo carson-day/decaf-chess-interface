@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 
 import decaf.util.GUIUtil;
 import decaf.util.TextProperties;
@@ -40,19 +40,50 @@ import decaf.util.TextProperties;
 public class ChatPreferences implements Cloneable, Serializable {
 	private static final long serialVersionUID = 11;
 
-	public static final int TABS_ON_LEFT = JTabbedPane.LEFT;
+	public static final int TABS_ON_LEFT = SwingConstants.LEFT;
 
-	public static final int TABS_ON_RIGHT = JTabbedPane.RIGHT;
+	public static final int TABS_ON_RIGHT = SwingConstants.RIGHT;
 
-	public static final int TABS_ON_TOP = JTabbedPane.TOP;
+	public static final int TABS_ON_TOP = SwingConstants.TOP;
 
-	public static final int TABS_ON_BOTTOM = JTabbedPane.BOTTOM;
+	public static final int TABS_ON_BOTTOM = SwingConstants.BOTTOM;
 
 	public static final int LEFT_CLICK_POPUP = 1;
 
 	public static final int RIGHT_CLICK_POPUP = 2;
 
 	public static final int MIDDLE_CLICK_POPUP = 3;
+
+	public static ChatPreferences getDefault() {
+		ChatPreferences result = new ChatPreferences();
+		result.channelToProperties.put(new Integer(1), new TextProperties(
+				new Font(GUIUtil.getDefaultFont(), Font.PLAIN, 15),
+				Color.ORANGE, Color.black));
+		result.channelToProperties.put(new Integer(4), new TextProperties(
+				new Font(GUIUtil.getDefaultFont(), Font.PLAIN, 15),
+				Color.GREEN, Color.black));
+		result.channelToProperties.put(new Integer(50), new TextProperties(
+				new Font(GUIUtil.getDefaultFont(), Font.PLAIN, 15), Color.PINK,
+				Color.black));
+		result.channelToProperties.put(new Integer(53), new TextProperties(
+				new Font(GUIUtil.getDefaultFont(), Font.PLAIN, 15),
+				Color.MAGENTA, Color.black));
+
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(
+				GraphicsEnvironment.getLocalGraphicsEnvironment()
+						.getDefaultScreenDevice().getDefaultConfiguration());
+
+		int totalWidth = screenSize.width - insets.left - insets.right;
+		int totalHeight = screenSize.height - insets.top - insets.bottom;
+
+		result.chatWindowPoint = new Point(insets.left, insets.top
+				+ (int) (totalHeight * .7) + 1);
+		result.chatWindowDimension = new Dimension(totalWidth,
+				(int) (totalHeight * .3));
+
+		return result;
+	}
 
 	private int popupMenuClick = RIGHT_CLICK_POPUP;
 
@@ -106,49 +137,31 @@ public class ChatPreferences implements Cloneable, Serializable {
 	private boolean disableTabs = false;
 
 	private boolean preprendTellToTabs = true;
-	
+
 	private boolean isShowingSeekGraphButton = true;
-	
+
 	private boolean isShowingBugSeek = true;
-	
+
 	private boolean isShowingBugOpenCheckbox = true;
 
 	private int tabOrientation = TABS_ON_LEFT;
 
 	private List<Integer> channelTabs = new LinkedList<Integer>();
 
+	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}
 
-	public static ChatPreferences getDefault() {
-		ChatPreferences result = new ChatPreferences();
-		result.channelToProperties.put(new Integer(1), new TextProperties(
-				new Font(GUIUtil.getDefaultFont(), Font.PLAIN, 15),
-				Color.ORANGE, Color.black));
-		result.channelToProperties.put(new Integer(4), new TextProperties(
-				new Font(GUIUtil.getDefaultFont(), Font.PLAIN, 15),
-				Color.GREEN, Color.black));
-		result.channelToProperties.put(new Integer(50), new TextProperties(
-				new Font(GUIUtil.getDefaultFont(), Font.PLAIN, 15), Color.PINK,
-				Color.black));
-		result.channelToProperties.put(new Integer(53), new TextProperties(
-				new Font(GUIUtil.getDefaultFont(), Font.PLAIN, 15),
-				Color.MAGENTA, Color.black));
+	public TextProperties getAlertTextProperties() {
+		return alertTextProperties;
+	}
 
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(
-				GraphicsEnvironment.getLocalGraphicsEnvironment()
-						.getDefaultScreenDevice().getDefaultConfiguration());
-
-		int totalWidth = screenSize.width - insets.left - insets.right;
-		int totalHeight = screenSize.height - insets.top - insets.bottom;
-
-		result.chatWindowPoint = new Point(insets.left, insets.top
-				+ (int) (totalHeight * .7) + 1);
-		result.chatWindowDimension = new Dimension(totalWidth,
-				(int) (totalHeight * .3));
-
+	public TextProperties getChannelProperties(int channel) {
+		TextProperties result = channelToProperties.get(new Integer(channel));
+		if (result == null) {
+			result = getDefaultTextProperties();
+		}
 		return result;
 	}
 
@@ -165,116 +178,20 @@ public class ChatPreferences implements Cloneable, Serializable {
 		return resultInt;
 	}
 
-	public TextProperties getChannelProperties(int channel) {
-		TextProperties result = channelToProperties.get(new Integer(channel));
-		if (result == null) {
-			result = getDefaultTextProperties();
-		}
-		return result;
+	public List<Integer> getChannelTabs() {
+		return channelTabs;
 	}
 
-	public void setChannelProperties(int channel, TextProperties properties) {
-		if (properties == null) {
-			throw new IllegalArgumentException("properties cant be null");
-		}
-		channelToProperties.put(new Integer(channel), properties);
-	}
-
-	public TextProperties getAlertTextProperties() {
-		return alertTextProperties;
-	}
-
-	public void setAlertTextProperties(TextProperties alertTextProperties) {
-		this.alertTextProperties = alertTextProperties;
+	public int getChatTabBufferSize() {
+		return chatTabBufferSize;
 	}
 
 	public Dimension getChatWindowDimension() {
 		return chatWindowDimension;
 	}
 
-	public void setChatWindowDimension(Dimension chatWindowDimension) {
-		this.chatWindowDimension = chatWindowDimension;
-	}
-
 	public Point getChatWindowPoint() {
 		return chatWindowPoint;
-	}
-
-	public void setChatWindowPoint(Point chatWindowPoint) {
-		this.chatWindowPoint = chatWindowPoint;
-	}
-
-	public TextProperties getCshoutTextProperties() {
-		return cshoutTextProperties;
-	}
-
-	public void setCshoutTextProperties(TextProperties cshoutTextProperties) {
-		this.cshoutTextProperties = cshoutTextProperties;
-	}
-
-	public TextProperties getDefaultTextProperties() {
-		return defaultTextProperties;
-	}
-
-	public void setDefaultTextProperties(TextProperties defaultTextProperties) {
-		this.defaultTextProperties = defaultTextProperties;
-	}
-
-	public boolean isPreventingIdleLogout() {
-		return isPreventingIdleLogout;
-	}
-
-	public void setPreventingIdleLogout(boolean isPreventingIdleLogout) {
-		this.isPreventingIdleLogout = isPreventingIdleLogout;
-	}
-
-	public TextProperties getKibitzTextProperties() {
-		return kibitzTextProperties;
-	}
-
-	public void setKibitzTextProperties(TextProperties kibitzTextProperties) {
-		this.kibitzTextProperties = kibitzTextProperties;
-	}
-
-	public TextProperties getMatchTextProperties() {
-		return matchTextProperties;
-	}
-
-	public void setMatchTextProperties(TextProperties matchTextProperties) {
-		this.matchTextProperties = matchTextProperties;
-	}
-
-	public TextProperties getNotificationTextProperties() {
-		return notificationTextProperties;
-	}
-
-	public void setNotificationTextProperties(
-			TextProperties notificationTextProperties) {
-		this.notificationTextProperties = notificationTextProperties;
-	}
-
-	public TextProperties getPtellTextProperties() {
-		return ptellTextProperties;
-	}
-
-	public void setPtellTextProperties(TextProperties ptellTextProperties) {
-		this.ptellTextProperties = ptellTextProperties;
-	}
-
-	public TextProperties getShoutTextProperties() {
-		return shoutTextProperties;
-	}
-
-	public void setShoutTextProperties(TextProperties shoutTextProperties) {
-		this.shoutTextProperties = shoutTextProperties;
-	}
-
-	public TextProperties getTellTextProperties() {
-		return tellTextProperties;
-	}
-
-	public void setTellTextProperties(TextProperties tellTextProperties) {
-		this.tellTextProperties = tellTextProperties;
 	}
 
 	public int getConsoleTabBufferSize() {
@@ -285,94 +202,176 @@ public class ChatPreferences implements Cloneable, Serializable {
 		this.consoleTabBufferSize = consoleTabBufferSize;
 	}
 
-	public Color getTelnetPanelBackground() {
-		return telnetPanelBackground;
+	public TextProperties getCshoutTextProperties() {
+		return cshoutTextProperties;
 	}
 
-	public void setTelnetPanelBackground(Color telnetPanelBackground) {
-		this.telnetPanelBackground = telnetPanelBackground;
+	public TextProperties getDefaultTextProperties() {
+		return defaultTextProperties;
 	}
 
-	public TextProperties getWhisperTextProperties() {
-		return whisperTextProperties;
+	public TextProperties getKibitzTextProperties() {
+		return kibitzTextProperties;
 	}
 
-	public void setWhisperTextProperties(TextProperties whisperTextProperties) {
-		this.whisperTextProperties = whisperTextProperties;
+	public TextProperties getMatchTextProperties() {
+		return matchTextProperties;
 	}
 
-	public int getChatTabBufferSize() {
-		return chatTabBufferSize;
-	}
-
-	public void setChatTabBufferSize(int chatTabBufferSize) {
-		this.chatTabBufferSize = chatTabBufferSize;
-	}
-
-	public List<Integer> getChannelTabs() {
-		return channelTabs;
-	}
-
-	public void setChannelTabs(List<Integer> channelTabs) {
-		this.channelTabs = channelTabs;
-	}
-
-	public int getTabOrientation() {
-		return tabOrientation;
-	}
-
-	public void setTabOrientation(int tabLocation) {
-		this.tabOrientation = tabLocation;
-	}
-
-	public boolean isDisableTabs() {
-		return disableTabs;
-	}
-
-	public void setDisableTabs(boolean disableTabs) {
-		this.disableTabs = disableTabs;
+	public TextProperties getNotificationTextProperties() {
+		return notificationTextProperties;
 	}
 
 	public int getPopupMenuClick() {
 		return popupMenuClick;
 	}
 
-	public void setPopupMenuClick(int popupMenuClick) {
-		this.popupMenuClick = popupMenuClick;
+	public TextProperties getPtellTextProperties() {
+		return ptellTextProperties;
+	}
+
+	public TextProperties getShoutTextProperties() {
+		return shoutTextProperties;
+	}
+
+	public int getTabOrientation() {
+		return tabOrientation;
+	}
+
+	public TextProperties getTellTextProperties() {
+		return tellTextProperties;
+	}
+
+	public Color getTelnetPanelBackground() {
+		return telnetPanelBackground;
+	}
+
+	public TextProperties getWhisperTextProperties() {
+		return whisperTextProperties;
+	}
+
+	public boolean isDisableTabs() {
+		return disableTabs;
 	}
 
 	public boolean isPreprendTellToTabs() {
 		return preprendTellToTabs;
 	}
 
-	public void setPreprendTellToTabs(boolean preprendTellToTabs) {
-		this.preprendTellToTabs = preprendTellToTabs;
-	}
-
-	public boolean isShowingBugSeekButton() {
-		return isShowingBugSeek;
-	}
-
-	public void setShowingBugSeekButton(boolean isShowingBugSeek) {
-		this.isShowingBugSeek = isShowingBugSeek;
-	}
-
-	public boolean isShowingSeekGraphButton() {
-		return isShowingSeekGraphButton;
-	}
-
-	public void setShowingSeekGraphButton(boolean isShowingSeekGraphButton) {
-		this.isShowingSeekGraphButton = isShowingSeekGraphButton;
+	public boolean isPreventingIdleLogout() {
+		return isPreventingIdleLogout;
 	}
 
 	public boolean isShowingBugOpenCheckbox() {
 		return isShowingBugOpenCheckbox;
 	}
 
+	public boolean isShowingBugSeekButton() {
+		return isShowingBugSeek;
+	}
+
+	public boolean isShowingSeekGraphButton() {
+		return isShowingSeekGraphButton;
+	}
+
+	public void setAlertTextProperties(TextProperties alertTextProperties) {
+		this.alertTextProperties = alertTextProperties;
+	}
+
+	public void setChannelProperties(int channel, TextProperties properties) {
+		if (properties == null) {
+			throw new IllegalArgumentException("properties cant be null");
+		}
+		channelToProperties.put(new Integer(channel), properties);
+	}
+
+	public void setChannelTabs(List<Integer> channelTabs) {
+		this.channelTabs = channelTabs;
+	}
+
+	public void setChatTabBufferSize(int chatTabBufferSize) {
+		this.chatTabBufferSize = chatTabBufferSize;
+	}
+
+	public void setChatWindowDimension(Dimension chatWindowDimension) {
+		this.chatWindowDimension = chatWindowDimension;
+	}
+
+	public void setChatWindowPoint(Point chatWindowPoint) {
+		this.chatWindowPoint = chatWindowPoint;
+	}
+
+	public void setCshoutTextProperties(TextProperties cshoutTextProperties) {
+		this.cshoutTextProperties = cshoutTextProperties;
+	}
+
+	public void setDefaultTextProperties(TextProperties defaultTextProperties) {
+		this.defaultTextProperties = defaultTextProperties;
+	}
+
+	public void setDisableTabs(boolean disableTabs) {
+		this.disableTabs = disableTabs;
+	}
+
+	public void setKibitzTextProperties(TextProperties kibitzTextProperties) {
+		this.kibitzTextProperties = kibitzTextProperties;
+	}
+
+	public void setMatchTextProperties(TextProperties matchTextProperties) {
+		this.matchTextProperties = matchTextProperties;
+	}
+
+	public void setNotificationTextProperties(
+			TextProperties notificationTextProperties) {
+		this.notificationTextProperties = notificationTextProperties;
+	}
+
+	public void setPopupMenuClick(int popupMenuClick) {
+		this.popupMenuClick = popupMenuClick;
+	}
+
+	public void setPreprendTellToTabs(boolean preprendTellToTabs) {
+		this.preprendTellToTabs = preprendTellToTabs;
+	}
+
+	public void setPreventingIdleLogout(boolean isPreventingIdleLogout) {
+		this.isPreventingIdleLogout = isPreventingIdleLogout;
+	}
+
+	public void setPtellTextProperties(TextProperties ptellTextProperties) {
+		this.ptellTextProperties = ptellTextProperties;
+	}
+
+	public void setShoutTextProperties(TextProperties shoutTextProperties) {
+		this.shoutTextProperties = shoutTextProperties;
+	}
+
 	public void setShowingBugOpenCheckbox(boolean isShowingBugOpenCheckbox) {
 		this.isShowingBugOpenCheckbox = isShowingBugOpenCheckbox;
 	}
-	
-	
+
+	public void setShowingBugSeekButton(boolean isShowingBugSeek) {
+		this.isShowingBugSeek = isShowingBugSeek;
+	}
+
+	public void setShowingSeekGraphButton(boolean isShowingSeekGraphButton) {
+		this.isShowingSeekGraphButton = isShowingSeekGraphButton;
+	}
+
+	public void setTabOrientation(int tabLocation) {
+		this.tabOrientation = tabLocation;
+	}
+
+	public void setTellTextProperties(TextProperties tellTextProperties) {
+		this.tellTextProperties = tellTextProperties;
+	}
+
+	public void setTelnetPanelBackground(Color telnetPanelBackground) {
+		this.telnetPanelBackground = telnetPanelBackground;
+	}
+
+	public void setWhisperTextProperties(TextProperties whisperTextProperties) {
+		this.whisperTextProperties = whisperTextProperties;
+	}
 
 }

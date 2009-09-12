@@ -29,7 +29,23 @@ public class PropertiesUtil {
 	private static final ResourceBundle chessProperties = ResourceBundle
 			.getBundle("decaf.moveengine.moveengine");
 
-	private PropertiesUtil() {
+	public static boolean getBoolean(String key) {
+		boolean result = false;
+		String resultTemp = chessProperties.getString(key);
+
+		if (resultTemp == null || resultTemp.trim().equals("")) {
+			throw new IllegalStateException("Could not find property " + key);
+		}
+
+		if (resultTemp.equalsIgnoreCase("true")) {
+			result = true;
+		} else if (resultTemp.equalsIgnoreCase("false")) {
+			result = false;
+		} else {
+			throw new IllegalStateException("Invalid property encountered "
+					+ key + " = " + resultTemp);
+		}
+		return result;
 	}
 
 	public static Object getInstanceOf(String key) {
@@ -54,22 +70,6 @@ public class PropertiesUtil {
 		return result;
 	}
 
-	public static boolean getBoolean(String key) {
-		boolean result = false;
-		String resultTemp = chessProperties.getString(key);
-
-		if (resultTemp == null || resultTemp.trim().equals("")) {
-			throw new IllegalStateException("Could not find property " + key);
-		}
-
-		if (resultTemp.equalsIgnoreCase("true")) {
-			result = true;
-		} else if (resultTemp.equalsIgnoreCase("false")) {
-			result = false;
-		} else {
-			throw new IllegalStateException("Invalid property encountered "
-					+ key + " = " + resultTemp);
-		}
-		return result;
+	private PropertiesUtil() {
 	}
 }

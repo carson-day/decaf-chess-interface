@@ -24,7 +24,7 @@ import java.util.List;
 import decaf.gui.widgets.bugseek.UnpartneredBugger;
 import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 
-public class BugWhoUEvent  extends IcsNonGameEvent {
+public class BugWhoUEvent extends IcsNonGameEvent {
 
 	private List<UnpartneredBugger> buggers;
 
@@ -40,6 +40,5 @@ public class BugWhoUEvent  extends IcsNonGameEvent {
 	public void setBuggers(List<UnpartneredBugger> buggers) {
 		this.buggers = buggers;
 	}
-
 
 }

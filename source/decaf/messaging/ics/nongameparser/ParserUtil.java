@@ -27,6 +27,26 @@ import decaf.messaging.inboundevent.game.GameTypes;
  */
 public class ParserUtil {
 
+	private static final String BLITZ_IDENTIFIER = "blitz";
+
+	private static final String LIGHTNING_IDENTIFIER = "lightning";
+
+	private static final String WILD_IDENTIFIER = "wild";
+
+	private static final String STANDARD_IDENTIFIER = "standard";
+
+	private static final String SUICIDE_IDENTIFIER = "suicide";
+
+	private static final String ATOMIC_IDENTIFIER = "atomic";
+
+	private static final String BUGHOUSE_IDENTIFIER = "bughouse";
+
+	private static final String LOSERS_IDENTIFIER = "losers";
+
+	private static final String CRAZYHOUSE_IDENTIFIER = "crazyhouse";
+
+	private static final String UNTIMED_IDENTIFIER = "untimed";
+
 	/**
 	 * Returns the game type constant for the specified identifier.
 	 * 
@@ -82,24 +102,4 @@ public class ParserUtil {
 		else
 			return playerName;
 	}
-
-	private static final String BLITZ_IDENTIFIER = "blitz";
-
-	private static final String LIGHTNING_IDENTIFIER = "lightning";
-
-	private static final String WILD_IDENTIFIER = "wild";
-
-	private static final String STANDARD_IDENTIFIER = "standard";
-
-	private static final String SUICIDE_IDENTIFIER = "suicide";
-
-	private static final String ATOMIC_IDENTIFIER = "atomic";
-
-	private static final String BUGHOUSE_IDENTIFIER = "bughouse";
-
-	private static final String LOSERS_IDENTIFIER = "losers";
-
-	private static final String CRAZYHOUSE_IDENTIFIER = "crazyhouse";
-
-	private static final String UNTIMED_IDENTIFIER = "untimed";
 }

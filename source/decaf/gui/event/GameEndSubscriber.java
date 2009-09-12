@@ -41,6 +41,21 @@ public class GameEndSubscriber implements Subscriber, Disposable {
 		controller = null;
 	}
 
+	private void handleGameEnd(boolean userIsWhite, int score,
+			String description) {
+		if ((userIsWhite && score == GameEndEvent.WHITE_WON)
+				|| (!userIsWhite && score == GameEndEvent.BLACK_WON)) {
+			controller.handleUserWon(description);
+		} else if ((!userIsWhite && score == GameEndEvent.WHITE_WON)
+				|| (userIsWhite && score == GameEndEvent.BLACK_WON)) {
+			controller.handleUserLost(description);
+		} else if (score == GameEndEvent.DRAW) {
+			controller.handleUserDrew(description);
+		} else {
+			controller.handleGameStopped(description);
+		}
+	}
+
 	public void inform(GameEndEvent event) {
 		if (!controller.isBughouse()) {
 			handleGameEnd(controller.isUserWhite(), event.getScore(), event
@@ -59,20 +74,5 @@ public class GameEndSubscriber implements Subscriber, Disposable {
 			}
 		}
 		controller.processGameEnd(event.getScore());
-	}
-
-	private void handleGameEnd(boolean userIsWhite, int score,
-			String description) {
-		if ((userIsWhite && score == GameEndEvent.WHITE_WON)
-				|| (!userIsWhite && score == GameEndEvent.BLACK_WON)) {
-			controller.handleUserWon(description);
-		} else if ((!userIsWhite && score == GameEndEvent.WHITE_WON)
-				|| (userIsWhite && score == GameEndEvent.BLACK_WON)) {
-			controller.handleUserLost(description);
-		} else if (score == GameEndEvent.DRAW) {
-			controller.handleUserDrew(description);
-		} else {
-			controller.handleGameStopped(description);
-		}
 	}
 }

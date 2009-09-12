@@ -28,7 +28,7 @@ import java.io.File;
 import java.util.Date;
 
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 
 import org.apache.log4j.Logger;
 
@@ -74,11 +74,53 @@ public class ChessAreaController extends ChessAreaControllerBase implements
 
 		setFrame(new ChessAreaFrame());
 		getFrame().setIconImage(GUIManager.DECAF_ICON);
-		getFrame().setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		getFrame()
+				.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
 		Container contentPane = getFrame().getContentPane();
 		contentPane.setLayout(new BorderLayout());
 		contentPane.add(getChessArea(), BorderLayout.CENTER);
+	}
+
+	@Override
+	public void dispose() {
+		System.out.println("Disposing Chess Area Controller.");
+		if (getChessArea() != null && getChessArea().getMoveList() != null) {
+			getChessArea().getMoveList().removePropertyChangeListener(
+					MoveList.SAVE_TO_PGN, this);
+		}
+		super.dispose();
+	}
+
+	private boolean isValidatingGameType(String gameDescription) {
+		boolean result = true;
+
+		for (int i = 0; result && i < DO_NOT_VALIDATE_KEYWORDS.length; i++) {
+			if (gameDescription.indexOf(DO_NOT_VALIDATE_KEYWORDS[i]) != -1) {
+				result = false;
+			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("isValidatingGameType=" + result + " gameDescription="
+					+ gameDescription);
+		}
+		return result;
+
+	}
+
+	public void propertyChange(PropertyChangeEvent evt) {
+		String property = evt.getPropertyName();
+		if (MoveList.SAVE_TO_PGN.equals(property)) {
+			Date date = new Date();
+			final JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showSaveDialog(getChessArea());
+
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				StorePGN.writeOutPGN(this, file, date);
+			}
+		}
 	}
 
 	public void recycle() {
@@ -105,21 +147,8 @@ public class ChessAreaController extends ChessAreaControllerBase implements
 
 	}
 
-	private boolean isValidatingGameType(String gameDescription) {
-		boolean result = true;
-
-		for (int i = 0; result && i < DO_NOT_VALIDATE_KEYWORDS.length; i++) {
-			if (gameDescription.indexOf(DO_NOT_VALIDATE_KEYWORDS[i]) != -1) {
-				result = false;
-			}
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("isValidatingGameType=" + result + " gameDescription="
-					+ gameDescription);
-		}
-		return result;
-
+	public void setup(GameStartEvent event) {
+		setup(event, event.getInitialInboundChessMoveEvent());
 	}
 
 	private void setup(GameStartEvent event, MoveEvent moveEvent) {
@@ -320,33 +349,6 @@ public class ChessAreaController extends ChessAreaControllerBase implements
 
 	public void setupExamine(MoveEvent event) {
 		setup(null, event);
-	}
-
-	public void setup(GameStartEvent event) {
-		setup(event, event.getInitialInboundChessMoveEvent());
-	}
-
-	public void dispose() {
-		System.out.println("Disposing Chess Area Controller.");
-		if (getChessArea() != null && getChessArea().getMoveList() != null) {
-			getChessArea().getMoveList().removePropertyChangeListener(
-					MoveList.SAVE_TO_PGN, this);
-		}
-		super.dispose();
-	}
-
-	public void propertyChange(PropertyChangeEvent evt) {
-		String property = evt.getPropertyName();
-		if (MoveList.SAVE_TO_PGN.equals(property)) {
-			Date date = new Date();
-			final JFileChooser fc = new JFileChooser();
-			int returnVal = fc.showSaveDialog(getChessArea());
-
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				File file = fc.getSelectedFile();
-				StorePGN.writeOutPGN(this, file, date);
-			}
-		}
 	}
 
 }

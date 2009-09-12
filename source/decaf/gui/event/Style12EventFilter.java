@@ -26,6 +26,8 @@ import decaf.messaging.inboundevent.game.MoveEvent;
 
 public class Style12EventFilter implements Filter {
 
+	private int gameId;
+
 	public Style12EventFilter(int gameId) {
 		this.gameId = gameId;
 	}
@@ -33,6 +35,4 @@ public class Style12EventFilter implements Filter {
 	public boolean apply(Event event) {
 		return ((MoveEvent) event).getGameId() == gameId;
 	}
-
-	private int gameId;
 }

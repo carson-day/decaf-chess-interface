@@ -29,7 +29,47 @@ import decaf.resources.ResourceManagerFactory;
 public class GUIUtil {
 	private static String defaultFont;
 
-	private GUIUtil() {
+	public static String getDefaultFont() {
+		if (defaultFont == null) {
+			String font = ResourceManagerFactory.getManager().getString("os",
+					"defaultFonts");
+			String[] fonts = font.split(",");
+			String[] fontNames = GraphicsEnvironment
+					.getLocalGraphicsEnvironment()
+					.getAvailableFontFamilyNames();
+
+			for (int i = 0; defaultFont == null && i < fonts.length; i++) {
+				for (int j = 0; defaultFont == null && j < fontNames.length; j++) {
+					if (fontNames[j].equalsIgnoreCase(fonts[i])) {
+						defaultFont = fontNames[j];
+					}
+				}
+			}
+
+			if (defaultFont == null) {
+				defaultFont = "Monospaced";
+			}
+		}
+		return defaultFont;
+	}
+
+	public static Dimension getDimension(String bundle, String propertyName) {
+		Dimension result = null;
+		String property = ResourceManagerFactory.getManager().getString(bundle,
+				propertyName);
+		if (property == null) {
+			throw new RuntimeException("Could not find " + bundle + "."
+					+ property);
+		}
+		String[] ints = property.split(",");
+		try {
+			result = new Dimension(Integer.parseInt(ints[0]), Integer
+					.parseInt(ints[1]));
+		} catch (Exception e) {
+			throw new RuntimeException("Error loading " + bundle + "."
+					+ property, e);
+		}
+		return result;
 	}
 
 	public static Component getGreatestParent(Component component) {
@@ -59,47 +99,7 @@ public class GUIUtil {
 		return result;
 	}
 
-	public static Dimension getDimension(String bundle, String propertyName) {
-		Dimension result = null;
-		String property = ResourceManagerFactory.getManager().getString(bundle,
-				propertyName);
-		if (property == null) {
-			throw new RuntimeException("Could not find " + bundle + "."
-					+ property);
-		}
-		String[] ints = property.split(",");
-		try {
-			result = new Dimension(Integer.parseInt(ints[0]), Integer
-					.parseInt(ints[1]));
-		} catch (Exception e) {
-			throw new RuntimeException("Error loading " + bundle + "."
-					+ property, e);
-		}
-		return result;
-	}
-
-	public static String getDefaultFont() {
-		if (defaultFont == null) {
-			String font = ResourceManagerFactory.getManager().getString("os",
-					"defaultFonts");
-			String[] fonts = font.split(",");
-			String[] fontNames = GraphicsEnvironment
-					.getLocalGraphicsEnvironment()
-					.getAvailableFontFamilyNames();
-
-			for (int i = 0; defaultFont == null && i < fonts.length; i++) {
-				for (int j = 0; defaultFont == null && j < fontNames.length; j++) {
-					if (fontNames[j].equalsIgnoreCase(fonts[i])) {
-						defaultFont = fontNames[j];
-					}
-				}
-			}
-
-			if (defaultFont == null) {
-				defaultFont = "Monospaced";
-			}
-		}
-		return defaultFont;
+	private GUIUtil() {
 	}
 
 }

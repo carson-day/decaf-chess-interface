@@ -20,6 +20,8 @@
 package decaf.messaging.outboundevent;
 
 public class OpenRequestEvent extends OutboundEvent {
+	private boolean isOpen;
+
 	public OpenRequestEvent(boolean isOpen, boolean isHidingFromUser) {
 		super(isHidingFromUser);
 		this.isOpen = isOpen;
@@ -28,6 +30,4 @@ public class OpenRequestEvent extends OutboundEvent {
 	public boolean isOpen() {
 		return isOpen;
 	}
-
-	private boolean isOpen;
 }

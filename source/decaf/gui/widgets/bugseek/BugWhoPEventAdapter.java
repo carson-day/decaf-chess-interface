@@ -29,21 +29,16 @@ import org.apache.log4j.Logger;
 import decaf.event.EventService;
 import decaf.event.Subscriber;
 import decaf.event.Subscription;
-import decaf.gui.BugChessAreaController;
-import decaf.gui.ChessAreaController;
-import decaf.gui.GUIManager;
-import decaf.gui.GameNotificationListener;
 import decaf.gui.widgets.Disposable;
 import decaf.messaging.ics.nongameparser.ParserUtil;
-import decaf.messaging.inboundevent.inform.BugWhoGEvent;
 import decaf.messaging.inboundevent.inform.BugWhoPEvent;
 import decaf.messaging.outboundevent.OutboundEvent;
 
-public class BugWhoPEventAdapter  implements Subscriber,Disposable {
+public class BugWhoPEventAdapter implements Subscriber, Disposable {
 
 	private static final Logger LOGGER = Logger
-	.getLogger(BugWhoPEventAdapter.class);
-	
+			.getLogger(BugWhoPEventAdapter.class);
+
 	private AvailableTeamsPanel panel;
 
 	private Subscription subscription;
@@ -61,28 +56,32 @@ public class BugWhoPEventAdapter  implements Subscriber,Disposable {
 		refresher.setInitialDelay(10);
 
 	}
-	
-	
-	
+
+	public void dispose() {
+		stop();
+	}
+
 	public AvailableTeamsPanel getPanel() {
 		return panel;
 	}
 
-
-
-	public void setPanel(AvailableTeamsPanel panel) {
-		this.panel = panel;
+	public void inform(BugWhoPEvent event) {
+		panel.setTeams(event.getTeams());
 	}
 
-
-
-	public void dispose()
-	{
-		stop();
+	public void matchPlayer(String handle, String timeControl) {
+		EventService.getInstance().publish(
+				new OutboundEvent("match " + ParserUtil.removeTitles(handle)
+						+ " " + timeControl + " bughouse", false));
 	}
 
 	protected void refresh() {
-		EventService.getInstance().publish(new OutboundEvent("bugwho p", true,BugWhoPEvent.class));
+		EventService.getInstance().publish(
+				new OutboundEvent("bugwho p", true, BugWhoPEvent.class));
+	}
+
+	public void setPanel(AvailableTeamsPanel panel) {
+		this.panel = panel;
 	}
 
 	public void start() {
@@ -102,15 +101,5 @@ public class BugWhoPEventAdapter  implements Subscriber,Disposable {
 			running = false;
 		}
 	}
-
-	public void inform(BugWhoPEvent event) {
-		panel.setTeams(event.getTeams());
-	}
-
-	public void matchPlayer(String handle,String timeControl) {
-		EventService.getInstance().publish(
-				new OutboundEvent("match " + ParserUtil.removeTitles(handle) + " " + timeControl + " bughouse", false));
-	}
-
 
 }

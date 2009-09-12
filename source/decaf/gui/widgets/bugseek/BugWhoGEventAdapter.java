@@ -29,21 +29,15 @@ import org.apache.log4j.Logger;
 import decaf.event.EventService;
 import decaf.event.Subscriber;
 import decaf.event.Subscription;
-import decaf.gui.BugChessAreaController;
-import decaf.gui.ChessAreaController;
-import decaf.gui.GUIManager;
-import decaf.gui.GameNotificationListener;
 import decaf.gui.widgets.Disposable;
-import decaf.messaging.ics.nongameparser.ParserUtil;
 import decaf.messaging.inboundevent.inform.BugWhoGEvent;
-import decaf.messaging.inboundevent.inform.BugWhoPEvent;
 import decaf.messaging.outboundevent.OutboundEvent;
 
-public class BugWhoGEventAdapter  implements Subscriber,Disposable {
+public class BugWhoGEventAdapter implements Subscriber, Disposable {
 
 	private static final Logger LOGGER = Logger
-	.getLogger(BugWhoGEventAdapter.class);
-	
+			.getLogger(BugWhoGEventAdapter.class);
+
 	private GamesInProgressPanel panel;
 
 	private Subscription subscription;
@@ -61,28 +55,31 @@ public class BugWhoGEventAdapter  implements Subscriber,Disposable {
 		refresher.setInitialDelay(10);
 
 	}
-	
-	
-	
+
+	public void dispose() {
+		stop();
+	}
+
 	public GamesInProgressPanel getPanel() {
 		return panel;
 	}
 
-
-
-	public void setPanel(GamesInProgressPanel panel) {
-		this.panel = panel;
+	public void inform(BugWhoGEvent event) {
+		panel.setGames(event.getGames());
 	}
 
-
-
-	public void dispose()
-	{
-		stop();
+	public void obsGame(int gameId) {
+		EventService.getInstance().publish(
+				new OutboundEvent("obs " + gameId, false));
 	}
 
 	protected void refresh() {
-		EventService.getInstance().publish(new OutboundEvent("bugwho g",true,BugWhoGEvent.class));
+		EventService.getInstance().publish(
+				new OutboundEvent("bugwho g", true, BugWhoGEvent.class));
+	}
+
+	public void setPanel(GamesInProgressPanel panel) {
+		this.panel = panel;
 	}
 
 	public void start() {
@@ -102,15 +99,5 @@ public class BugWhoGEventAdapter  implements Subscriber,Disposable {
 			running = false;
 		}
 	}
-
-	public void inform(BugWhoGEvent event) {
-		panel.setGames(event.getGames());
-	}
-
-	public void obsGame(int gameId) {
-		EventService.getInstance().publish(
-				new OutboundEvent("obs " + gameId, false));
-	}
-
 
 }

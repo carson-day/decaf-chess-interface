@@ -24,10 +24,15 @@ import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 import decaf.messaging.inboundevent.inform.PartnershipEndedEvent;
 
 public class PartnershipEndedEventParser extends NonGameEventParser {
+	private static final String ID_1 = "You no longer have a bughouse partner.";
+
+	private static final String ID_2 = "Your partner has ended partnership.";
+
 	public PartnershipEndedEventParser(int icsId) {
 		super(icsId);
 	}
 
+	@Override
 	public IcsNonGameEvent parse(String text) {
 		if (text.length() < 100) {
 			if (text.indexOf(ID_1) != -1 || text.indexOf(ID_2) != -1)
@@ -37,8 +42,4 @@ public class PartnershipEndedEventParser extends NonGameEventParser {
 		}
 		return null;
 	}
-
-	private static final String ID_1 = "You no longer have a bughouse partner.";
-
-	private static final String ID_2 = "Your partner has ended partnership.";
 }

@@ -24,17 +24,17 @@ import decaf.event.Event;
 public class UserIncompleteMoveEvent implements Event {
 	private String boardId;
 
+	public UserIncompleteMoveEvent(String boardId) {
+		super();
+		// TODO Auto-generated constructor stub
+		this.boardId = boardId;
+	}
+
 	public String getBoardId() {
 		return boardId;
 	}
 
 	public void setBoardId(String boardId) {
-		this.boardId = boardId;
-	}
-
-	public UserIncompleteMoveEvent(String boardId) {
-		super();
-		// TODO Auto-generated constructor stub
 		this.boardId = boardId;
 	}
 

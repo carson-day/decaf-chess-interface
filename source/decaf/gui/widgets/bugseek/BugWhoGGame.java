@@ -32,28 +32,28 @@ public class BugWhoGGame {
 		return game1Description;
 	}
 
-	public void setGame1Description(String game1Description) {
-		this.game1Description = game1Description;
-	}
-
 	public int getGame1Id() {
 		return game1Id;
-	}
-
-	public void setGame1Id(int game1Id) {
-		this.game1Id = game1Id;
 	}
 
 	public String getGame2Description() {
 		return game2Description;
 	}
 
-	public void setGame2Description(String game2Description) {
-		this.game2Description = game2Description;
-	}
-
 	public int getGame2Id() {
 		return game2Id;
+	}
+
+	public void setGame1Description(String game1Description) {
+		this.game1Description = game1Description;
+	}
+
+	public void setGame1Id(int game1Id) {
+		this.game1Id = game1Id;
+	}
+
+	public void setGame2Description(String game2Description) {
+		this.game2Description = game2Description;
 	}
 
 	public void setGame2Id(int game2Id) {

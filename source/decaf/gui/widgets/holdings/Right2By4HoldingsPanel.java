@@ -30,6 +30,26 @@ import decaf.gui.widgets.ChessBoardSquare;
 public class Right2By4HoldingsPanel extends HoldingsPanelBase {
 
 	private class HorizontalLayout implements LayoutManager2 {
+		public void addLayoutComponent(Component arg0, Object arg1) {
+
+		}
+
+		public void addLayoutComponent(String arg0, Component arg1) {
+
+		}
+
+		public float getLayoutAlignmentX(Container arg0) {
+
+			return 0.5F;
+		}
+
+		public float getLayoutAlignmentY(Container arg0) {
+			return 0.5F;
+		}
+
+		public void invalidateLayout(Container arg0) {
+		}
+
 		public void layoutContainer(Container arg0) {
 			// ChessBoardSquare squares[] = getOrderToAddPiecesIn();
 			int width = arg0.getSize().width;
@@ -75,29 +95,9 @@ public class Right2By4HoldingsPanel extends HoldingsPanelBase {
 			}
 		}
 
-		public void addLayoutComponent(Component arg0, Object arg1) {
-
-		}
-
-		public float getLayoutAlignmentX(Container arg0) {
-
-			return 0.5F;
-		}
-
-		public float getLayoutAlignmentY(Container arg0) {
-			return 0.5F;
-		}
-
-		public void invalidateLayout(Container arg0) {
-		}
-
 		public Dimension maximumLayoutSize(Container arg0) {
 
 			return new Dimension(10000, 10000);
-		}
-
-		public void addLayoutComponent(String arg0, Component arg1) {
-
 		}
 
 		public Dimension minimumLayoutSize(Container arg0) {
@@ -114,6 +114,13 @@ public class Right2By4HoldingsPanel extends HoldingsPanelBase {
 		}
 	}
 
+	private ChessBoard board;
+
+	public Right2By4HoldingsPanel(ChessBoard board, boolean isWhiteDropPanel) {
+		super(isWhiteDropPanel);
+		this.board = board;
+	}
+
 	public Dimension minimumLayoutSize(Container arg0) {
 		return new Dimension(board.getChessBoardSquareSize().width * 2, board
 				.getChessBoardSquareSize().width * 4);
@@ -124,13 +131,7 @@ public class Right2By4HoldingsPanel extends HoldingsPanelBase {
 				.getChessBoardSquareSize().width * 4);
 	}
 
-	private ChessBoard board;
-
-	public Right2By4HoldingsPanel(ChessBoard board, boolean isWhiteDropPanel) {
-		super(isWhiteDropPanel);
-		this.board = board;
-	}
-
+	@Override
 	protected void setupLayout() {
 		setLayout(new HorizontalLayout());
 	}

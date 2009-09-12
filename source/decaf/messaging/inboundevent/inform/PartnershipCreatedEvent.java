@@ -22,8 +22,9 @@ package decaf.messaging.inboundevent.inform;
 
 import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 
-
 public class PartnershipCreatedEvent extends IcsNonGameEvent {
+
+	private String partnersName;
 
 	public PartnershipCreatedEvent(int icsId, String text, String partnersName) {
 		super(icsId, text);
@@ -34,10 +35,9 @@ public class PartnershipCreatedEvent extends IcsNonGameEvent {
 		return partnersName;
 	}
 
+	@Override
 	public String toString() {
 		return "<PartnershipCreatedEvent>" + super.toString()
 				+ "</PartnershipCreatedEvent>";
 	}
-
-	private String partnersName;
 }

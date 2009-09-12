@@ -26,8 +26,6 @@ import java.util.WeakHashMap;
 
 public class ChessPieceCache {
 
-	private Map<ChessPieceCacheKey, BufferedImage> keyToImageMap = new WeakHashMap<ChessPieceCacheKey, BufferedImage>();
-
 	private class ChessPieceCacheKey {
 		private int hash;
 
@@ -35,17 +33,18 @@ public class ChessPieceCache {
 
 		private Dimension dimension;
 
+		@Override
 		public boolean equals(Object object) {
 			if (object == null) {
 				return false;
-			}
-			else {
+			} else {
 				ChessPieceCacheKey compare = (ChessPieceCacheKey) object;
 				return chessPiece == compare.chessPiece
 						&& dimension.equals(compare.dimension);
 			}
 		}
 
+		@Override
 		public int hashCode() {
 			if (hash == 0) {
 				hash = chessPiece + dimension.width + dimension.height;
@@ -54,6 +53,8 @@ public class ChessPieceCache {
 			return hash;
 		}
 	}
+
+	private Map<ChessPieceCacheKey, BufferedImage> keyToImageMap = new WeakHashMap<ChessPieceCacheKey, BufferedImage>();
 
 	public BufferedImage getChessPiece(ChessSet set, int chessPiece, int width,
 			int height) {

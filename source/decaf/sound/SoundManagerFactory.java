@@ -30,9 +30,6 @@ public class SoundManagerFactory {
 
 	private static SoundManager instance = null;
 
-	private SoundManagerFactory() {
-	}
-
 	public static SoundManager getInstance() {
 		if (instance == null) {
 			String os = ResourceManagerFactory.getManager().getString("os",
@@ -57,5 +54,8 @@ public class SoundManagerFactory {
 			instance.loadSounds();
 		}
 		return instance;
+	}
+
+	private SoundManagerFactory() {
 	}
 }

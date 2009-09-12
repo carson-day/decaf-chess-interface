@@ -40,6 +40,115 @@ public class Style12Parser {
 
 	private static final int POSITION_END_INDEX = POSITION_START_INDEX + 64 + 7;
 
+	/**
+	 * Parses a style 12 position string with the first character always a8
+	 * second a7.
+	 * 
+	 */
+	private static int[][] parsePosition(String positionString) {
+
+		int[][] result = new int[8][];
+		int positionCounter = 0;
+		for (int i = 0; i < 8; i++) {
+			result[i] = new int[8];
+
+			if (i != 0) {
+				// increment past the space.
+				positionCounter++;
+			}
+
+			for (int j = 0; j < 8; j++) {
+				switch (positionString.charAt(positionCounter++)) {
+				case '-': {
+					result[i][j] = Piece.EMPTY;
+					break;
+				}
+
+				case 'p': {
+					result[i][j] = Piece.BLACK_PAWN;
+					break;
+				}
+
+				case 'n': {
+					result[i][j] = Piece.BLACK_KNIGHT;
+					break;
+				}
+
+				case 'b': {
+					result[i][j] = Piece.BLACK_BISHOP;
+					break;
+				}
+
+				case 'r': {
+					result[i][j] = Piece.BLACK_ROOK;
+					break;
+				}
+
+				case 'q': {
+					result[i][j] = Piece.BLACK_QUEEN;
+					break;
+				}
+
+				case 'k': {
+					result[i][j] = Piece.BLACK_KING;
+					break;
+				}
+
+				case 'P': {
+					result[i][j] = Piece.WHITE_PAWN;
+					break;
+				}
+
+				case 'N': {
+					result[i][j] = Piece.WHITE_KNIGHT;
+					break;
+				}
+
+				case 'B': {
+					result[i][j] = Piece.WHITE_BISHOP;
+					break;
+				}
+
+				case 'R': {
+					result[i][j] = Piece.WHITE_ROOK;
+					break;
+				}
+
+				case 'Q': {
+					result[i][j] = Piece.WHITE_QUEEN;
+					break;
+				}
+
+				case 'K': {
+					result[i][j] = Piece.WHITE_KING;
+					break;
+				}
+
+				default: {
+					throw new IllegalArgumentException(
+							"Invalid piece encountered. '"
+									+ positionString.charAt(positionCounter)
+									+ "' " + positionCounter + " "
+									+ positionString);
+				}
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Parses a string in (0:00.000) format into an int.
+	 */
+	private static long timeTakenStringToInt(String timeTakenString) {
+		StringTokenizer tok = new StringTokenizer(timeTakenString, ":().");
+		int minutes = Integer.parseInt(tok.nextToken());
+		int seconds = Integer.parseInt(tok.nextToken());
+		int millis = Integer.parseInt(tok.nextToken());
+
+		return (minutes * 60 + seconds) * 1000 + millis;
+	}
+
 	private B1Parser b1Parser;
 
 	private int icsId;
@@ -157,8 +266,7 @@ public class Style12Parser {
 		boolean isWhiteOnTop = !tok.nextToken().equals(TRUE_FLAG);
 		boolean isClockTicking = tok.nextToken().equals(TRUE_FLAG);
 		int lagInMillis = Integer.parseInt(tok.nextToken());
-		
-		
+
 		LOGGER.error("isWhiteOnTop = " + isWhiteOnTop);
 
 		Position position = new Position(positionArray, canWhiteCastleShort,
@@ -178,114 +286,5 @@ public class Style12Parser {
 		MoveEvent moveEvent = parse(style12Line);
 		moveEvent.setHoldingsChangedEvent(b1Parser.parse(b1Line));
 		return moveEvent;
-	}
-
-	/**
-	 * Parses a string in (0:00.000) format into an int.
-	 */
-	private static long timeTakenStringToInt(String timeTakenString) {
-		StringTokenizer tok = new StringTokenizer(timeTakenString, ":().");
-		int minutes = Integer.parseInt(tok.nextToken());
-		int seconds = Integer.parseInt(tok.nextToken());
-		int millis = Integer.parseInt(tok.nextToken());
-
-		return (minutes * 60 + seconds) * 1000 + millis;
-	}
-
-	/**
-	 * Parses a style 12 position string with the first character always a8
-	 * second a7.
-	 * 
-	 */
-	private static int[][] parsePosition(String positionString) {
-
-		int[][] result = new int[8][];
-		int positionCounter = 0;
-		for (int i = 0; i < 8; i++) {
-			result[i] = new int[8];
-
-			if (i != 0) {
-				// increment past the space.
-				positionCounter++;
-			}
-
-			for (int j = 0; j < 8; j++) {
-				switch (positionString.charAt(positionCounter++)) {
-				case '-': {
-					result[i][j] = Piece.EMPTY;
-					break;
-				}
-
-				case 'p': {
-					result[i][j] = Piece.BLACK_PAWN;
-					break;
-				}
-
-				case 'n': {
-					result[i][j] = Piece.BLACK_KNIGHT;
-					break;
-				}
-
-				case 'b': {
-					result[i][j] = Piece.BLACK_BISHOP;
-					break;
-				}
-
-				case 'r': {
-					result[i][j] = Piece.BLACK_ROOK;
-					break;
-				}
-
-				case 'q': {
-					result[i][j] = Piece.BLACK_QUEEN;
-					break;
-				}
-
-				case 'k': {
-					result[i][j] = Piece.BLACK_KING;
-					break;
-				}
-
-				case 'P': {
-					result[i][j] = Piece.WHITE_PAWN;
-					break;
-				}
-
-				case 'N': {
-					result[i][j] = Piece.WHITE_KNIGHT;
-					break;
-				}
-
-				case 'B': {
-					result[i][j] = Piece.WHITE_BISHOP;
-					break;
-				}
-
-				case 'R': {
-					result[i][j] = Piece.WHITE_ROOK;
-					break;
-				}
-
-				case 'Q': {
-					result[i][j] = Piece.WHITE_QUEEN;
-					break;
-				}
-
-				case 'K': {
-					result[i][j] = Piece.WHITE_KING;
-					break;
-				}
-
-				default: {
-					throw new IllegalArgumentException(
-							"Invalid piece encountered. '"
-									+ positionString.charAt(positionCounter)
-									+ "' " + positionCounter + " "
-									+ positionString);
-				}
-				}
-			}
-		}
-		return result;
 	}
 }

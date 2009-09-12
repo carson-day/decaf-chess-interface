@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JApplet;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
 import org.apache.log4j.Logger;
 
@@ -24,10 +25,15 @@ public class DecafApplet extends JApplet {
 
 	private Preferences preferences = null;
 
+	public DecafApplet() {
+	}
+
+	@Override
 	public void init() {
 		LOGGER.error("init applet " + this);
 	}
 
+	@Override
 	public void start() {
 		LOGGER.error("start applet " + this);
 		ResourceManagerFactory.init(new AppletResourceManager());
@@ -49,7 +55,8 @@ public class DecafApplet extends JApplet {
 		panel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getContentPane().removeAll();
-				getContentPane().add(new JLabel("Loading ...", JLabel.CENTER),
+				getContentPane().add(
+						new JLabel("Loading ...", SwingConstants.CENTER),
 						BorderLayout.CENTER);
 				getContentPane().getLayout().layoutContainer(getContentPane());
 				String userName, password, server;
@@ -98,7 +105,8 @@ public class DecafApplet extends JApplet {
 					}
 				});
 				getContentPane().removeAll();
-				getContentPane().add(new JLabel("Loaded", JLabel.CENTER),
+				getContentPane().add(
+						new JLabel("Loaded", SwingConstants.CENTER),
 						BorderLayout.CENTER);
 				getContentPane().getLayout().layoutContainer(getContentPane());
 			}
@@ -109,6 +117,7 @@ public class DecafApplet extends JApplet {
 		}
 	}
 
+	@Override
 	public void stop() {
 		LOGGER.error("stopping applet " + this);
 		User.reset();
@@ -125,8 +134,5 @@ public class DecafApplet extends JApplet {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Stopped applet " + this);
 		}
-	}
-
-	public DecafApplet() {
 	}
 }

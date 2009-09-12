@@ -112,9 +112,9 @@ public class ChessTab extends PreferencesTab {
 	private JCheckBox isShowingSideUpTime = new JCheckBox("");
 
 	private JCheckBox isShowingPieceJail = new JCheckBox("");
-	
+
 	private JCheckBox isShowingMyMovesAsSelected = new JCheckBox("");
-	
+
 	private JCheckBox isSelectingSquareOnHover = new JCheckBox("");
 
 	private JComboBox premoveType = new JComboBox(PREMOVE_TYPE.getItems());
@@ -126,14 +126,8 @@ public class ChessTab extends PreferencesTab {
 	private JComboBox showTenthsAt = new JComboBox(SHOW_TENTHS.getItems());
 
 	private JComboBox dragAndDrop = new JComboBox(DRAG_N_DROP.getItems());
-	
+
 	private JPanel checkboxPanel;
-	
-	public void dispose()
-	{
-		checkboxPanel.removeAll();
-		removeAll();
-	}
 
 	public ChessTab() {
 		super("Chess");
@@ -169,9 +163,7 @@ public class ChessTab extends PreferencesTab {
 				isShowingMyMovesAsSelected));
 		checkboxPanel.add(new LabeledComponent("Select Squares When Hovering",
 				isSelectingSquareOnHover));
-		
-		
-		
+
 		add(checkboxPanel);
 		add(new LabeledComponent("Show Tenths Of A Second", showTenthsAt));
 		add(new LabeledComponent("Auto Promote", autoPromoteType));
@@ -181,6 +173,13 @@ public class ChessTab extends PreferencesTab {
 		add(Box.createVerticalGlue());
 	}
 
+	@Override
+	public void dispose() {
+		checkboxPanel.removeAll();
+		removeAll();
+	}
+
+	@Override
 	public void load(Preferences preferences) {
 
 		isShowingLag.setSelected(preferences.getBoardPreferences()
@@ -205,9 +204,11 @@ public class ChessTab extends PreferencesTab {
 				.isShowingPieceJail());
 		isShowingMoveListOnObsGame.setSelected(preferences
 				.getBoardPreferences().isShowingMoveListOnObsGames());
-		isShowingMyMovesAsSelected.setSelected(preferences.getBoardPreferences().isShowingMyMovesAsSelected());
-		isSelectingSquareOnHover.setSelected(preferences.getBoardPreferences().isSelectingHoverOverSquares());
-		
+		isShowingMyMovesAsSelected.setSelected(preferences
+				.getBoardPreferences().isShowingMyMovesAsSelected());
+		isSelectingSquareOnHover.setSelected(preferences.getBoardPreferences()
+				.isSelectingHoverOverSquares());
+
 		showTenthsAt.setSelectedIndex(SHOW_TENTHS
 				.getIndexWithValue(preferences.getBoardPreferences()
 						.getShowTenthsWhenTimeIsLessThanSeconds()));
@@ -220,12 +221,13 @@ public class ChessTab extends PreferencesTab {
 		autoFirstMove.setSelectedIndex(AUTO_FIRST_MOVE
 				.getIndexWithValue(preferences.getBoardPreferences()
 						.getAutoFirstWhiteMove()));
-		
+
 		dragAndDrop.setSelectedIndex(DRAG_N_DROP.getIndexWithValue(preferences
 				.getBoardPreferences().getDragAndDropMode()));
 
 	}
 
+	@Override
 	public void save(Preferences preferences) {
 		preferences.getBoardPreferences().setShowingLag(
 				isShowingLag.isSelected());
@@ -249,8 +251,10 @@ public class ChessTab extends PreferencesTab {
 				isShowingPieceJail.isSelected());
 		preferences.getBoardPreferences().setShowingMoveListOnObsGames(
 				isShowingMoveListOnObsGame.isSelected());
-		preferences.getBoardPreferences().setShowingMyMovesAsSelected(isShowingMyMovesAsSelected.isSelected());
-		preferences.getBoardPreferences().setSelectingHoverOverSquares(isSelectingSquareOnHover.isSelected());
+		preferences.getBoardPreferences().setShowingMyMovesAsSelected(
+				isShowingMyMovesAsSelected.isSelected());
+		preferences.getBoardPreferences().setSelectingHoverOverSquares(
+				isSelectingSquareOnHover.isSelected());
 
 		preferences
 				.getBoardPreferences()

@@ -26,6 +26,8 @@ import decaf.messaging.inboundevent.game.GameEvent;
 
 public class GameEndEventFilter implements Filter {
 
+	private int gameId;
+
 	public GameEndEventFilter(int gameId) {
 		this.gameId = gameId;
 	}
@@ -35,6 +37,4 @@ public class GameEndEventFilter implements Filter {
 		GameEvent gameEvent = (GameEvent) event;
 		return gameEvent.getGameId() == gameId;
 	}
-
-	private int gameId;
 }

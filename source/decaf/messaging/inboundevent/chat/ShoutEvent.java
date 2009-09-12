@@ -24,6 +24,8 @@ package decaf.messaging.inboundevent.chat;
 
 public class ShoutEvent extends IcsNonGameEvent {
 
+	private String shouter;
+
 	public ShoutEvent(int icsId, String text, String shouter) {
 		super(icsId, text.trim());
 		this.shouter = shouter;
@@ -33,10 +35,9 @@ public class ShoutEvent extends IcsNonGameEvent {
 		return shouter;
 	}
 
+	@Override
 	public String toString() {
 		return "<ShoutEvent>" + super.toString() + "<shouter>" + shouter
 				+ "</shouter>" + "</ShoutEvent>";
 	}
-
-	private String shouter;
 }

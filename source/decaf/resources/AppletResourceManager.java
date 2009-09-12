@@ -42,98 +42,21 @@ import decaf.gui.pref.SeekGraphPreferences;
 import decaf.gui.pref.SpeechPreferences;
 
 public class AppletResourceManager implements ResourceManager {
-	Logger LOGGER = Logger.getLogger(ResourceManager.class);
-
-	private PropertiesManager manager = new PropertiesManager();
-
-	public AppletResourceManager() {
-	}
-
-	public URL getUrl(String file) {
-		return getClass().getResource("/" + file);
-	}
-
-	public Image getImage(String imageName) {
-		try {
-			return ImageIO
-					.read(getClass().getResourceAsStream("/" + imageName));
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public int getInt(String bundleName, String resourceKey) {
-		return manager.getInt(bundleName, resourceKey);
-	}
-
-	public String getString(String bundleName, String resourceKey) {
-		return manager.getString(bundleName, resourceKey);
-	}
-
-	public Preferences loadDefaultPreferences() {
-		Preferences result = new Preferences();
-		result.setLoggingPreferences(LoggingPreferences.getDefault());
-		result.setBughousePreferences(BughousePreferences.getDefault());
-		result.setChatPreferences(ChatPreferences.getDefault());
-		result.setBoardPreferences(BoardPreferences.getDefault());
-		result.setLoginPreferences(LoginPreferences.getDefault());
-		result.setSpeechPreferences(SpeechPreferences.getDefault());
-		result.setSeekGraphPreferences(SeekGraphPreferences.getDefault());
-
-		result.setRememberChatLocation(result.getChatPreferences()
-				.getChatWindowPoint());
-		result.setRememberChatDimension(result.getChatPreferences()
-				.getChatWindowDimension());
-		result.setRememberBugEarLocation(result.getBughousePreferences()
-				.getBugEarPoint());
-		result.setRememberBugEarDimension(result.getBughousePreferences()
-				.getBugEarDimension());
-		result.setRememberBugLocation(result.getBughousePreferences()
-				.getGameWindowPoint());
-		result.setRememberBugDimension(result.getBughousePreferences()
-				.getGameWindowDimension());
-		result.setRememberBugSliderPosition(result.getBughousePreferences()
-				.getBoardSplitterLocation());
-		result.setRememberChessLocation(result.getBoardPreferences()
-				.getGameWindowPoint());
-		result.setRememberChessDimension(result.getBoardPreferences()
-				.getGameWindowSize());
-		
-		result.setRememberBugSeekDimension(new Dimension(750,400));
-		result.setRememberBugSeekLocation(new Point(0,0));
-		result.setRememberSeekDimension(new Dimension(640, 480));
-		result.setRememberSeekLocation(new Point(0,0));
-
-		return result;
-	}
-
-	public Preferences loadPreferences() {
-		return loadDefaultPreferences();
-	}
-
-	public void savePerferences(Preferences preferences) {
-	}
-
-	public String[] getBackgroundNames() {
-		return new String[] { "MapleCherry" };
-	}
-
-	public String[] getChessSetNames() {
-		return new String[] { "BOOK", "MONO", "WCN" };
-	}
-
-	public File getDecafUserHome() {
-		throw new UnsupportedOperationException();
-	}
-
-	public boolean isApplet() {
-		return true;
-	}
-
 	private class PropertiesManager {
 		HashMap<String, Properties> bundleNameToProperties = new HashMap<String, Properties>();
 
 		public PropertiesManager() {
+
+		}
+
+		public int getInt(String bundleName, String resourceKey) {
+			try {
+				return Integer.parseInt(getProperties(bundleName).getProperty(
+						resourceKey));
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new RuntimeException(e.getMessage());
+			}
 
 		}
 
@@ -172,16 +95,93 @@ public class AppletResourceManager implements ResourceManager {
 				throw new RuntimeException(e.getMessage());
 			}
 		}
+	}
 
-		public int getInt(String bundleName, String resourceKey) {
-			try {
-				return Integer.parseInt(getProperties(bundleName).getProperty(
-						resourceKey));
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new RuntimeException(e.getMessage());
-			}
+	Logger LOGGER = Logger.getLogger(ResourceManager.class);
 
+	private PropertiesManager manager = new PropertiesManager();
+
+	public AppletResourceManager() {
+	}
+
+	public String[] getBackgroundNames() {
+		return new String[] { "MapleCherry" };
+	}
+
+	public String[] getChessSetNames() {
+		return new String[] { "BOOK", "MONO", "WCN" };
+	}
+
+	public File getDecafUserHome() {
+		throw new UnsupportedOperationException();
+	}
+
+	public Image getImage(String imageName) {
+		try {
+			return ImageIO
+					.read(getClass().getResourceAsStream("/" + imageName));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
+	}
+
+	public int getInt(String bundleName, String resourceKey) {
+		return manager.getInt(bundleName, resourceKey);
+	}
+
+	public String getString(String bundleName, String resourceKey) {
+		return manager.getString(bundleName, resourceKey);
+	}
+
+	public URL getUrl(String file) {
+		return getClass().getResource("/" + file);
+	}
+
+	public boolean isApplet() {
+		return true;
+	}
+
+	public Preferences loadDefaultPreferences() {
+		Preferences result = new Preferences();
+		result.setLoggingPreferences(LoggingPreferences.getDefault());
+		result.setBughousePreferences(BughousePreferences.getDefault());
+		result.setChatPreferences(ChatPreferences.getDefault());
+		result.setBoardPreferences(BoardPreferences.getDefault());
+		result.setLoginPreferences(LoginPreferences.getDefault());
+		result.setSpeechPreferences(SpeechPreferences.getDefault());
+		result.setSeekGraphPreferences(SeekGraphPreferences.getDefault());
+
+		result.setRememberChatLocation(result.getChatPreferences()
+				.getChatWindowPoint());
+		result.setRememberChatDimension(result.getChatPreferences()
+				.getChatWindowDimension());
+		result.setRememberBugEarLocation(result.getBughousePreferences()
+				.getBugEarPoint());
+		result.setRememberBugEarDimension(result.getBughousePreferences()
+				.getBugEarDimension());
+		result.setRememberBugLocation(result.getBughousePreferences()
+				.getGameWindowPoint());
+		result.setRememberBugDimension(result.getBughousePreferences()
+				.getGameWindowDimension());
+		result.setRememberBugSliderPosition(result.getBughousePreferences()
+				.getBoardSplitterLocation());
+		result.setRememberChessLocation(result.getBoardPreferences()
+				.getGameWindowPoint());
+		result.setRememberChessDimension(result.getBoardPreferences()
+				.getGameWindowSize());
+
+		result.setRememberBugSeekDimension(new Dimension(750, 400));
+		result.setRememberBugSeekLocation(new Point(0, 0));
+		result.setRememberSeekDimension(new Dimension(640, 480));
+		result.setRememberSeekLocation(new Point(0, 0));
+
+		return result;
+	}
+
+	public Preferences loadPreferences() {
+		return loadDefaultPreferences();
+	}
+
+	public void savePerferences(Preferences preferences) {
 	}
 }

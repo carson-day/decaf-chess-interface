@@ -22,18 +22,15 @@ package decaf.messaging.inboundevent;
 import decaf.event.Event;
 
 public class IcsInboundEvent implements Event {
+	private int icsId;
+
+	private boolean hideFromUser;
+
 	public IcsInboundEvent(int icsId) {
 	}
 
-	private int icsId;
-	private boolean hideFromUser;
-
 	public int getIcsId() {
 		return icsId;
-	}
-
-	public void setIcsId(int icsId) {
-		this.icsId = icsId;
 	}
 
 	public boolean isHideFromUser() {
@@ -43,6 +40,9 @@ public class IcsInboundEvent implements Event {
 	public void setHideFromUser(boolean hideFromUser) {
 		this.hideFromUser = hideFromUser;
 	}
-	
-	
+
+	public void setIcsId(int icsId) {
+		this.icsId = icsId;
+	}
+
 }

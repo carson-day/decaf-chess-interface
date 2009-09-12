@@ -63,20 +63,20 @@ public class ConsoleTextTab extends PreferencesTab {
 			return channel;
 		}
 
-		public void setChannel(int channel) {
-			this.channel = channel;
-		}
-
 		public TextPropertiesSelectionControl getControl() {
 			return control;
 		}
 
-		public void setProperties(TextProperties properties) {
-			control.setValue(properties);
-		}
-
 		public TextProperties getProperties() {
 			return (TextProperties) control.getValue();
+		}
+
+		public void setChannel(int channel) {
+			this.channel = channel;
+		}
+
+		public void setProperties(TextProperties properties) {
+			control.setValue(properties);
 		}
 	}
 
@@ -84,6 +84,7 @@ public class ConsoleTextTab extends PreferencesTab {
 
 	private ColorSelectionControl chatPanelBackground = new ColorSelectionControl(
 			"Background", null, null) {
+		@Override
 		public void setValue(Object value) {
 			super.setValue(value);
 			if (value != null) {
@@ -131,6 +132,7 @@ public class ConsoleTextTab extends PreferencesTab {
 
 	private TextPropertiesSelectionControl chatPanelFont = new TextPropertiesSelectionControl(
 			"All Fonts", null, null) {
+		@Override
 		public void setValue(Object value) {
 			super.setValue(value);
 			if (!ignoreUpdates) {
@@ -205,17 +207,9 @@ public class ConsoleTextTab extends PreferencesTab {
 	private JComboBox channelsCombo = buildChannelsCombo();
 
 	private Preferences preferences;
-	
+
 	private JPanel panel1;
 	private JPanel addChannelPanel;
-	
-	public void dispose()
-	{
-		channelControlPanel.removeAll();
-		panel1.removeAll();
-		addChannelPanel.removeAll();
-		removeAll();
-	}
 
 	public ConsoleTextTab() {
 		super("Console Text");
@@ -265,6 +259,35 @@ public class ConsoleTextTab extends PreferencesTab {
 		add(new JScrollPane(channelControlPanel));
 	}
 
+	private void addChannelControl(final ChannelControl control) {
+		channelControls.add(control);
+		channelControlPanel.add(control);
+		redoLayout();
+	}
+
+	private JComboBox buildChannelsCombo() {
+		Integer[] channels = new Integer[256];
+		for (int i = 0; i < channels.length; i++) {
+			channels[i] = new Integer(i);
+		}
+		return new JComboBox(channels);
+	}
+
+	@Override
+	public void dispose() {
+		channelControlPanel.removeAll();
+		panel1.removeAll();
+		addChannelPanel.removeAll();
+		removeAll();
+	}
+
+	private TextProperties getNewTextProperties(
+			TextPropertiesSelectionControl control, Font newFont) {
+		TextProperties oldProperties = (TextProperties) control.getValue();
+		return new TextProperties(newFont, oldProperties.getForeground(),
+				oldProperties.getBackground());
+	}
+
 	public boolean hasChannelProperties(int channel) {
 
 		for (ChannelControl control : channelControls) {
@@ -275,6 +298,7 @@ public class ConsoleTextTab extends PreferencesTab {
 		return false;
 	}
 
+	@Override
 	public void load(Preferences preferences) {
 		this.preferences = preferences;
 		channelControlPanel.removeAll();
@@ -338,6 +362,18 @@ public class ConsoleTextTab extends PreferencesTab {
 
 	}
 
+	private void redoLayout() {
+		channelControlPanel.invalidate();
+		ConsoleTextTab.this.validate();
+	}
+
+	private void removeChannelControl(final ChannelControl control) {
+		channelControls.remove(control);
+		channelControlPanel.remove(control);
+		redoLayout();
+	}
+
+	@Override
 	public void save(Preferences preferences) {
 
 		preferences.getChatPreferences().setTelnetPanelBackground(
@@ -367,37 +403,5 @@ public class ConsoleTextTab extends PreferencesTab {
 			preferences.getChatPreferences().setChannelProperties(
 					control.getChannel(), control.getProperties());
 		}
-	}
-
-	private TextProperties getNewTextProperties(
-			TextPropertiesSelectionControl control, Font newFont) {
-		TextProperties oldProperties = (TextProperties) control.getValue();
-		return new TextProperties(newFont, oldProperties.getForeground(),
-				oldProperties.getBackground());
-	}
-
-	private void redoLayout() {
-		channelControlPanel.invalidate();
-		ConsoleTextTab.this.validate();
-	}
-
-	private void addChannelControl(final ChannelControl control) {
-		channelControls.add(control);
-		channelControlPanel.add(control);
-		redoLayout();
-	}
-
-	private void removeChannelControl(final ChannelControl control) {
-		channelControls.remove(control);
-		channelControlPanel.remove(control);
-		redoLayout();
-	}
-
-	private JComboBox buildChannelsCombo() {
-		Integer[] channels = new Integer[256];
-		for (int i = 0; i < channels.length; i++) {
-			channels[i] = new Integer(i);
-		}
-		return new JComboBox(channels);
 	}
 }

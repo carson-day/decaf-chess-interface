@@ -7,25 +7,25 @@ import java.net.URL;
 import decaf.gui.pref.Preferences;
 
 public interface ResourceManager {
-	public Image getImage(String imageName);
-
-	public URL getUrl(String file);
-
-	public String getString(String bundleName, String resourceKey);
-
-	public int getInt(String bundleName, String resourceKey);
-
-	public void savePerferences(Preferences preferences);
-
-	public Preferences loadPreferences();
-
-	public Preferences loadDefaultPreferences();
+	public String[] getBackgroundNames();
 
 	public String[] getChessSetNames();
 
-	public String[] getBackgroundNames();
-
 	public File getDecafUserHome();
 
+	public Image getImage(String imageName);
+
+	public int getInt(String bundleName, String resourceKey);
+
+	public String getString(String bundleName, String resourceKey);
+
+	public URL getUrl(String file);
+
 	public boolean isApplet();
+
+	public Preferences loadDefaultPreferences();
+
+	public Preferences loadPreferences();
+
+	public void savePerferences(Preferences preferences);
 }

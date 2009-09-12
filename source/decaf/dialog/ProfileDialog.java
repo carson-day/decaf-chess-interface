@@ -150,6 +150,7 @@ public class ProfileDialog extends JDialog {
 
 		final Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
+			@Override
 			public void run() {
 				if (!thisDialog.isVisible()) {
 					timer.cancel();

@@ -23,10 +23,13 @@ import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 import decaf.messaging.inboundevent.inform.ClosedEvent;
 
 public class ClosedEventParser extends NonGameEventParser {
+	private static final String IDENTIFIER = "You are no longer receiving match requests.";
+
 	public ClosedEventParser(int icsId) {
 		super(icsId);
 	}
 
+	@Override
 	public IcsNonGameEvent parse(String text) {
 		if (text.length() < 100 && text.indexOf(IDENTIFIER) != -1)
 			return new ClosedEvent(getIcsId(), text);
@@ -34,6 +37,4 @@ public class ClosedEventParser extends NonGameEventParser {
 			return null;
 
 	}
-
-	private static final String IDENTIFIER = "You are no longer receiving match requests.";
 }

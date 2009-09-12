@@ -35,15 +35,15 @@ public class DroppableHoldingsChangedSubscriber implements Subscriber,
 
 	private boolean isPartnersBoard;
 
+	public DroppableHoldingsChangedSubscriber(ChessAreaControllerBase controller) {
+		this.controller = controller;
+		isPartnersBoard = false;
+	}
+
 	public DroppableHoldingsChangedSubscriber(
 			ChessAreaControllerBase controller, boolean isPartnersBoard) {
 		this.controller = controller;
 		this.isPartnersBoard = isPartnersBoard;
-	}
-
-	public DroppableHoldingsChangedSubscriber(ChessAreaControllerBase controller) {
-		this.controller = controller;
-		isPartnersBoard = false;
 	}
 
 	public void dispose() {

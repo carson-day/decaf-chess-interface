@@ -24,6 +24,8 @@ import decaf.messaging.inboundevent.IcsInboundEvent;
 
 public class IllegalMoveEvent extends IcsInboundEvent {
 
+	private String move;
+
 	public IllegalMoveEvent(int icsId, String move) {
 		super(icsId);
 		this.move = move;
@@ -33,9 +35,8 @@ public class IllegalMoveEvent extends IcsInboundEvent {
 		return move;
 	}
 
+	@Override
 	public String toString() {
 		return "IllegalMoveEvent: icsId=" + getIcsId() + " move=" + move;
 	}
-
-	private String move;
 }

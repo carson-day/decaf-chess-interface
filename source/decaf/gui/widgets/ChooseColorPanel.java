@@ -32,49 +32,55 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 public class ChooseColorPanel extends JPanel implements ActionListener {
-	
+
 	public static final String COLOR_CHANGED = "ChooseColorPanel Color Changed";
 
+	protected JButton changeColor;
+
+	protected JTextField colorTextField;
+
 	public ChooseColorPanel(String caption) {
-		super(new GridLayout(1,2));
-		
-        int gridx = 0;
-        int gridy = 0;
-        
-        colorTextField = new JTextField();
-        changeColor = new JButton("Change Color");
+		super(new GridLayout(1, 2));
 
-        add(colorTextField);
-        add(changeColor);
-        
-        colorTextField.setEditable(false);
-        
-        changeColor.addActionListener(this);
+		int gridx = 0;
+		int gridy = 0;
 
-        setBorder(new TitledBorder(caption));
+		colorTextField = new JTextField();
+		changeColor = new JButton("Change Color");
+
+		add(colorTextField);
+		add(changeColor);
+
+		colorTextField.setEditable(false);
+
+		changeColor.addActionListener(this);
+
+		setBorder(new TitledBorder(caption));
 	}
-	
+
 	public ChooseColorPanel(String caption, Color color) {
 		this(caption);
 		setColor(color);
 	}
-	
+
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == changeColor) {
-            Color c = JColorChooser.showDialog(this, "Choose color", changeColor.getBackground());
-            if (c != null) {
-            	if (!c.equals(getSelectedColor())) {
-            		setColor(c);
-            		firePropertyChange(ChooseColorPanel.COLOR_CHANGED , false, true);
-            	}
-            }
-        }
+			Color c = JColorChooser.showDialog(this, "Choose color",
+					changeColor.getBackground());
+			if (c != null) {
+				if (!c.equals(getSelectedColor())) {
+					setColor(c);
+					firePropertyChange(ChooseColorPanel.COLOR_CHANGED, false,
+							true);
+				}
+			}
+		}
 	}
-	
+
 	public Color getSelectedColor() {
 		return changeColor.getBackground();
 	}
-	
+
 	public void setColor(Color color) {
 		if (color == null) {
 			color = Color.white;
@@ -83,7 +89,4 @@ public class ChooseColorPanel extends JPanel implements ActionListener {
 		colorTextField.setText(hex);
 		changeColor.setBackground(color);
 	}
-	
-    protected JButton changeColor;
-    protected JTextField colorTextField;
 }

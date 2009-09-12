@@ -23,10 +23,6 @@ package decaf.messaging.outboundevent;
 public class PartnerTellRequestEvent extends OutboundEvent {
 	private String textToTellPartner;
 
-	public String getTextToTellPartner() {
-		return textToTellPartner;
-	}
-
 	/**
 	 * @param text
 	 *            The message to send.
@@ -34,6 +30,10 @@ public class PartnerTellRequestEvent extends OutboundEvent {
 	public PartnerTellRequestEvent(String textToTellPartner) {
 		super(textToTellPartner);
 		this.textToTellPartner = textToTellPartner;
+	}
+
+	public String getTextToTellPartner() {
+		return textToTellPartner;
 	}
 
 }

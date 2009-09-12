@@ -24,12 +24,12 @@ package decaf.moveengine;
  * 
  */
 public interface MoveEncoder {
-	public String encode(int[] coordinates);
+	public Move decode(String moveString, Position position)
+			throws IllegalArgumentException;
 
 	public String encode(int rank, int file);
 
-	public String encode(Move move, Position position);
+	public String encode(int[] coordinates);
 
-	public Move decode(String moveString, Position position)
-			throws IllegalArgumentException;
+	public String encode(Move move, Position position);
 }

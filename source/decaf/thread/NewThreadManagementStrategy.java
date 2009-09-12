@@ -5,7 +5,7 @@ public class NewThreadManagementStrategy implements ThreadManagementStrategy {
 		Thread thread = new Thread(runnable);
 		thread.start();
 	}
-	
-	public void shutdown()
-	{}
+
+	public void shutdown() {
+	}
 }

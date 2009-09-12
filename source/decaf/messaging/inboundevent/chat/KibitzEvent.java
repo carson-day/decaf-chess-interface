@@ -24,6 +24,12 @@ package decaf.messaging.inboundevent.chat;
 
 public class KibitzEvent extends IcsNonGameEvent {
 
+	private String message;
+
+	private String kibitzer;
+
+	private int gameNumber;
+
 	public KibitzEvent(int icsId, String text, String message, String kibitzer,
 			int gameId) {
 		super(icsId, text.trim());
@@ -32,27 +38,22 @@ public class KibitzEvent extends IcsNonGameEvent {
 		this.gameNumber = gameId;
 	}
 
-	public String getKibitzer() {
-		return kibitzer;
-	}
-
 	public int getGameId() {
 		return gameNumber;
+	}
+
+	public String getKibitzer() {
+		return kibitzer;
 	}
 
 	public String getMessage() {
 		return message;
 	}
 
+	@Override
 	public String toString() {
 		return "<KibitzEvent>" + super.toString() + "<kibitzer>" + kibitzer
 				+ "</kibitzer>" + "<gameNumber>" + gameNumber + "</gameNumber>"
 				+ "<message>" + message + "</message>" + "</KibitzEvent>";
 	}
-
-	private String message;
-
-	private String kibitzer;
-
-	private int gameNumber;
 }

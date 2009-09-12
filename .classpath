@@ -11,5 +11,4 @@
 	<classpathentry kind="lib" path="env/freetts/lib/en_us.jar"/>
 	<classpathentry kind="lib" path="env/freetts/lib/freetts.jar"/>
 	<classpathentry kind="lib" path="env/freetts/lib/jsapi.jar"/>
-	<classpathentry kind="output" path="bin"/>
 </classpath>

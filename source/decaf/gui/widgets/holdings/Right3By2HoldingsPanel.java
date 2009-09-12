@@ -29,13 +29,27 @@ import decaf.gui.widgets.ChessBoardSquare;
 
 public class Right3By2HoldingsPanel extends HoldingsPanelBase {
 
-	public static final int TOP_ORIENTATION = 1;
-
-	public static final int BOTTOM_ORIENTATION = 2;
-
-	private int orientation;
-
 	private class HorizontalLayout implements LayoutManager2 {
+		public void addLayoutComponent(Component arg0, Object arg1) {
+
+		}
+
+		public void addLayoutComponent(String arg0, Component arg1) {
+
+		}
+
+		public float getLayoutAlignmentX(Container arg0) {
+
+			return 0.5F;
+		}
+
+		public float getLayoutAlignmentY(Container arg0) {
+			return 0.5F;
+		}
+
+		public void invalidateLayout(Container arg0) {
+		}
+
 		public void layoutContainer(Container arg0) {
 			// ChessBoardSquare squares[] = getOrderToAddPiecesIn();
 			int height = arg0.getSize().height;
@@ -83,29 +97,9 @@ public class Right3By2HoldingsPanel extends HoldingsPanelBase {
 			}
 		}
 
-		public void addLayoutComponent(Component arg0, Object arg1) {
-
-		}
-
-		public float getLayoutAlignmentX(Container arg0) {
-
-			return 0.5F;
-		}
-
-		public float getLayoutAlignmentY(Container arg0) {
-			return 0.5F;
-		}
-
-		public void invalidateLayout(Container arg0) {
-		}
-
 		public Dimension maximumLayoutSize(Container arg0) {
 
 			return new Dimension(10000, 10000);
-		}
-
-		public void addLayoutComponent(String arg0, Component arg1) {
-
 		}
 
 		public Dimension minimumLayoutSize(Container arg0) {
@@ -122,6 +116,12 @@ public class Right3By2HoldingsPanel extends HoldingsPanelBase {
 		}
 	}
 
+	public static final int TOP_ORIENTATION = 1;
+
+	public static final int BOTTOM_ORIENTATION = 2;
+
+	private int orientation;
+
 	private ChessBoard board;
 
 	public Right3By2HoldingsPanel(ChessBoard board, boolean isWhiteDropPanel) {
@@ -129,8 +129,8 @@ public class Right3By2HoldingsPanel extends HoldingsPanelBase {
 		this.board = board;
 	}
 
-	protected void setupLayout() {
-		setLayout(new HorizontalLayout());
+	public int getOrientation() {
+		return orientation;
 	}
 
 	public Dimension minimumLayoutSize(Container arg0) {
@@ -143,12 +143,13 @@ public class Right3By2HoldingsPanel extends HoldingsPanelBase {
 				.getChessBoardSquareSize().width * 2);
 	}
 
-	public int getOrientation() {
-		return orientation;
-	}
-
 	public void setOrientation(int orientation) {
 		this.orientation = orientation;
+	}
+
+	@Override
+	protected void setupLayout() {
+		setLayout(new HorizontalLayout());
 	}
 
 }
