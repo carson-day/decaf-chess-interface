@@ -32,6 +32,7 @@ import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
@@ -82,8 +83,6 @@ public class ChatTab extends JPanel implements ClipboardOwner {
 	private String topic;
 
 	private boolean isMainTab = false;
-
-	private ChatTab thisTab = this;
 
 	private class ChatTextPane extends JTextPane {
 		public ChatTextPane() {
@@ -447,7 +446,7 @@ public class ChatTab extends JPanel implements ClipboardOwner {
 								selectedText);
 						Clipboard clipboard = Toolkit.getDefaultToolkit()
 								.getSystemClipboard();
-						clipboard.setContents(stringSelection, thisTab);
+						clipboard.setContents(stringSelection, ChatTab.this);
 					}
 				});
 				menu.show(textPane, point.x, point.y);
@@ -515,7 +514,7 @@ public class ChatTab extends JPanel implements ClipboardOwner {
 													+ word) {
 										public void actionPerformed(
 												ActionEvent e) {
-											Thread thread = new Thread(
+											ThreadManager.execute(
 													new Runnable() {
 														public void run() {
 															chatPanel
@@ -528,7 +527,6 @@ public class ChatTab extends JPanel implements ClipboardOwner {
 																	word);
 														}
 													});
-											thread.start();
 										}
 									});
 									menu.addSeparator();

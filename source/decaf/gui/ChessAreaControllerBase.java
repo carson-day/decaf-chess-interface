@@ -120,6 +120,8 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 	private ChessArea partnersChessArea;
 
 	private BugChessArea bughouseChessArea;
+	
+	private BugSuggestUserMoveListener bugSuggestUserMoveListener;
 
 	private boolean hasSubscribed;
 
@@ -168,8 +170,6 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 	private long lastPartnersBlackTime;
 
 	private boolean isIgnoringBugMoveListEvents = false;
-
-	private ChessAreaControllerBase thisController = this;
 
 	private int gameEndState;
 
@@ -268,18 +268,19 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 	}
 
 	public void dispose() {
-
+		LOGGER.error("Disposing bug ChessAreaController");
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("A chess area controller is being disposed");
 		}
 
 		synchronized (this) {
 			if (!isDisposed) {
+;
 				unsubscribe();
 				if (frame != null) {
 					frame.setVisible(false);
-					frame.removeAll();
 					frame.dispose();
+					SwingUtils.dispose(frame);
 					frame = null;
 				}
 
@@ -301,6 +302,15 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 				if (commandToolbar != null) {
 					commandToolbar.dispose();
 					commandToolbar = null;
+				}
+				if (bugSuggestUserMoveListener != null) {
+					bugSuggestUserMoveListener.dispose();
+				}
+				if (style12Subscriber != null) {
+					style12Subscriber.dispose();
+				}
+				if (partnersStyle12Subscriber != null) {
+					partnersStyle12Subscriber.dispose();
 				}
 
 				isDisposed = true;
@@ -1215,7 +1225,7 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 
 				if (isPlaying()) {
 					getPartnersChessArea().getBoard().setUserMoveInputListener(
-							new BugSuggestUserMoveListener(this));
+							bugSuggestUserMoveListener = new BugSuggestUserMoveListener(this));
 				}
 				if (isObserving() || isExamining()) {
 					subscribePartner(new Subscription(
@@ -1626,7 +1636,7 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 
 		public void realtimeUpdateChanged(MoveList moveList,
 				boolean isRealtimeUpdate) {
-			synchronized (thisController) {
+			synchronized (ChessAreaControllerBase.this) {
 				if (isIgnoringBugMoveListEvents) {
 					return;
 				}
@@ -1670,7 +1680,7 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 		}
 
 		public void moveClicked(MoveList moveList, int halfMoveNumber) {
-			synchronized (thisController) {
+			synchronized (ChessAreaControllerBase.this) {
 				if (isIgnoringBugMoveListEvents) {
 					return;
 				}
@@ -1906,7 +1916,7 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 
 		public void realtimeUpdateChanged(MoveList moveList,
 				boolean isAutoScrolling) {
-			synchronized (thisController) {
+			synchronized (ChessAreaControllerBase.this) {
 				if (moveList == getChessArea().getMoveList()) {
 					// Ignore if playing.
 					if (isAutoScrolling && isActive
@@ -1924,7 +1934,7 @@ public abstract class ChessAreaControllerBase implements Preferenceable,
 		}
 
 		public void moveClicked(MoveList moveList, int halfMoveNumber) {
-			synchronized (thisController) {
+			synchronized (ChessAreaControllerBase.this) {
 				if (moveList == getChessArea().getMoveList()) {
 					if (isPlaying() && !isExamining() && isActive()) {
 						// tick the clocks

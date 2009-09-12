@@ -327,6 +327,7 @@ public class ChessAreaController extends ChessAreaControllerBase implements
 	}
 
 	public void dispose() {
+		System.out.println("Disposing Chess Area Controller.");
 		if (getChessArea() != null && getChessArea().getMoveList() != null) {
 			getChessArea().getMoveList().removePropertyChangeListener(
 					MoveList.SAVE_TO_PGN, this);

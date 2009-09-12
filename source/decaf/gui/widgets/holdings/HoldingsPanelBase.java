@@ -35,8 +35,12 @@ import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
+import org.apache.log4j.Logger;
+
+import decaf.gui.SwingUtils;
 import decaf.gui.pref.Preferenceable;
 import decaf.gui.pref.Preferences;
+import decaf.gui.widgets.ChessBoard;
 import decaf.gui.widgets.ChessBoardSquare;
 import decaf.gui.widgets.Disposable;
 import decaf.moveengine.Piece;
@@ -45,6 +49,8 @@ import decaf.util.TextProperties;
 
 public abstract class HoldingsPanelBase extends JPanel implements Piece,
 		Preferenceable, Disposable {
+	private static final Logger LOGGER = Logger.getLogger(HoldingsPanelBase.class);
+
 
 	public class DecoratedChessBoardSquare extends ChessBoardSquare {
 
@@ -610,7 +616,8 @@ public abstract class HoldingsPanelBase extends JPanel implements Piece,
 	protected abstract void setupLayout();
 
 	public void dispose() {
-		removeAll();
+		LOGGER.error("Disposing HoldingsPanelBase");
+		SwingUtils.dispose(this);
 		if (pawnSquare != null) {
 			pawnSquare.dispose();
 		}

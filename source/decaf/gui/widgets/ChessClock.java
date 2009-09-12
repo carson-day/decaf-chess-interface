@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 
+import decaf.gui.SwingUtils;
 import decaf.gui.pref.Preferenceable;
 import decaf.gui.pref.Preferences;
 import decaf.speech.SpeechManager;
@@ -66,16 +67,24 @@ public class ChessClock extends JPanel implements Preferenceable, Disposable {
 
 	private int updateInterval = 1000;
 
-	private ChessClock thisClock = this;
-
 	private List<ClockStateChangedListener> clockStateChangedListeners = new LinkedList<ClockStateChangedListener>();
 
 	public void dispose() {
-		if (timer != null) {
-			timer.cancel();
+		LOGGER.error("Disposing chess clock");
+		if (!hasBeenDisposed) {
+			if (timer != null) {
+				timer.cancel();
+				timer.purge();
+				timer = null;
+			}
+			removeAllClockStateChangedListeners();
+			SwingUtils.dispose(this);
+			clockStateChangedListeners = null;
+			timeLabel = null;
+			preferences = null;
+			boardId = null;
 		}
-		removeAll();
-		removeAllClockStateChangedListeners();
+		hasBeenDisposed = true;
 
 	}
 
@@ -323,14 +332,17 @@ public class ChessClock extends JPanel implements Preferenceable, Disposable {
 
 	private class ChessClockUpdater extends TimerTask {
 		public void run() {
-			synchronized (thisClock) {
-				currentMilliseconds -= updateInterval;
-			}
-			setToCurrentTime();
-			setUpdateInterval();
-			handleFiringSpeech(currentMilliseconds);
-			if (isRunning && currentMilliseconds > 0) {
-				timer.schedule(new ChessClockUpdater(), getNextClockUpdate());
+			if (timer != null) {
+				synchronized (ChessClock.this) {
+					currentMilliseconds -= updateInterval;
+				}
+				setToCurrentTime();
+				setUpdateInterval();
+				handleFiringSpeech(currentMilliseconds);
+				if (isRunning && currentMilliseconds > 0) {
+					timer.schedule(new ChessClockUpdater(),
+							getNextClockUpdate());
+				}
 			}
 
 		}

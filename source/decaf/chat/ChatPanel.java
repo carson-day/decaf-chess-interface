@@ -186,8 +186,6 @@ public class ChatPanel extends JPanel implements ActionListener,
 
 	private ChatTab mainTab;
 
-	private ChatPanel thisPanel = this;
-
 	private LinkedList<String> lastTells = new LinkedList<String>();
 
 	private int lastTellsIndex = 0;
@@ -292,7 +290,7 @@ public class ChatPanel extends JPanel implements ActionListener,
 										.getDefaultToolkit()
 										.getSystemClipboard();
 								clipboard.setContents(stringSelection,
-										thisPanel);
+										ChatPanel.this);
 							}
 						});
 					}

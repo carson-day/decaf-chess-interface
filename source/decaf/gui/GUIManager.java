@@ -277,12 +277,12 @@ public class GUIManager implements Preferenceable {
 
 	public void addKeyForwarder(Component component) {
 		// prevent double adds
-		if (!componentsWithKeyForwarders.contains(component)) {
-			List<Component> list = new LinkedList<Component>();
-			list.add(component);
-			addKeyForwarder(component, list);
-			componentsWithKeyForwarders.add(component);
-		}
+//		if (!componentsWithKeyForwarders.contains(component)) {
+//			List<Component> list = new LinkedList<Component>();
+//			list.add(component);
+//			addKeyForwarder(component, list);
+//			componentsWithKeyForwarders.add(component);
+//		}
 	}
 
 	public void showCaption(final String playerName, final String text) {
@@ -1021,24 +1021,24 @@ public class GUIManager implements Preferenceable {
 	}
 
 	private void addKeyForwarder(Component component, List<Component> list) {
-		if (component instanceof Container) {
-			Container container = (Container) component;
-			Component[] comps = container.getComponents();
-			for (int i = 0; i < comps.length; i++) {
+//		if (component instanceof Container) {
+//			Container container = (Container) component;
+//			Component[] comps = container.getComponents();
+//			for (int i = 0; i < comps.length; i++) {
+//
+//				if (chatFrame != null && chatFrame.getChatPanel() != null
+//						&& chatFrame.getChatPanel().getInputField() != null
+//						&& !list.contains(comps[i])
+//						&& comps[i] != chatFrame.getChatPanel().getInputField()) {
+//					list.add(comps[i]);
+//					addKeyForwarder(comps[i], list);
+//				}
+//			}
+//		} else {
+//			list.add(component);
+//		}
 
-				if (chatFrame != null && chatFrame.getChatPanel() != null
-						&& chatFrame.getChatPanel().getInputField() != null
-						&& !list.contains(comps[i])
-						&& comps[i] != chatFrame.getChatPanel().getInputField()) {
-					list.add(comps[i]);
-					addKeyForwarder(comps[i], list);
-				}
-			}
-		} else {
-			list.add(component);
-		}
-
-		component.addKeyListener(KEY_FORWARDER);
+		//component.addKeyListener(KEY_FORWARDER);
 	}
 
 	private ChessAreaController createChessAreaController(

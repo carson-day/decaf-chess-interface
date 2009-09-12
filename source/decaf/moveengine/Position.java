@@ -68,18 +68,6 @@ public class Position implements Cloneable, Serializable, Piece, Coordinates {
 
 	private static final Logger LOGGER = Logger.getLogger(Position.class);
 
-	private static long positionsCreated = 0;
-
-	private static long positionsCloned = 0;
-
-	private static boolean isHashingMoveToPosition = false;
-
-	private static boolean isHashingMoveToPositionSet = false;
-
-	private static boolean isCachingLegalMoves;
-
-	private static boolean isCachingLegalMovesSet;
-
 	static final PositionEncoder DEFAULT_ENCODER = new AsciiPositionEncoder();
 
 	private int[][] board;
@@ -170,45 +158,6 @@ public class Position implements Cloneable, Serializable, Piece, Coordinates {
 					PieceUtil.NILL, PieceUtil.NILL, PieceUtil.NILL,
 					PieceUtil.NILL, PieceUtil.NILL }, };
 
-	public static void resetCounters() {
-		positionsCreated = 0;
-		positionsCloned = 0;
-	}
-
-	public static long positionsCreated() {
-		return positionsCreated;
-	}
-
-	public static long positionsCloned() {
-		return positionsCloned;
-	}
-
-	public static void setIsCachingLegalMoves(boolean isCaching) {
-		isCachingLegalMoves = isCaching;
-		isCachingLegalMovesSet = true;
-	}
-
-	public static boolean isCachingLegalMoves() {
-		if (!isCachingLegalMovesSet) {
-			setIsCachingLegalMoves(PropertiesUtil
-					.getBoolean("chess.position.cacheLegalMoves"));
-		}
-		return isCachingLegalMoves;
-	}
-
-	public static void setIsHashingMoveToPosition(boolean isHashing) {
-		isHashingMoveToPosition = isHashing;
-		isHashingMoveToPositionSet = true;
-	}
-
-	public static boolean isHashingMoveToPosition() {
-		if (!isHashingMoveToPositionSet) {
-			setIsHashingMoveToPosition(PropertiesUtil
-					.getBoolean("chess.position.hashMoveToPositions"));
-		}
-		return isHashingMoveToPosition;
-	}
-
 	/**
 	 * Constructs the begining position of a chess game.
 	 */
@@ -217,7 +166,6 @@ public class Position implements Cloneable, Serializable, Piece, Coordinates {
 		setLastMoveDoublePawnPushFile(-1);
 		setBoard(INITIAL_POSITION);
 		setWhitesMove(true);
-		positionsCreated++;
 	}
 
 	public Position(int[][] board, boolean whiteCanCastleKingside,
@@ -229,7 +177,6 @@ public class Position implements Cloneable, Serializable, Piece, Coordinates {
 				blackCanCastleKingside, blackCanCastleQueenside);
 		setLastMoveDoublePawnPushFile(lastMoveDoublePawnPushFile);
 		setWhitesMove(isWhitesMove);
-		positionsCreated++;
 	}
 
 	/**
@@ -583,7 +530,6 @@ public class Position implements Cloneable, Serializable, Piece, Coordinates {
 		try {
 			Position result = (Position) super.clone();
 			result.board = getDeepCopyOfBoard();
-			positionsCloned++;
 			return result;
 		} catch (CloneNotSupportedException cnse) {
 			throw new RuntimeException(cnse.toString());
@@ -615,21 +561,9 @@ public class Position implements Cloneable, Serializable, Piece, Coordinates {
 	 */
 	public Move[] getLegalMoves() {
 
-		if (isCachingLegalMoves) {
-			synchronized (this) {
-				synchronized (this) {
-					if (legalMoves == null) {
-						legalMoves = PositionUtil.getLegalMoves(board,
-								getBoardState(),
-								isWhitesMove() ? getWhiteHoldings()
-										: getBlackHoldings());
-					}
-				}
-			}
-		} else {
 			legalMoves = PositionUtil.getLegalMoves(board, getBoardState(),
 					isWhitesMove() ? getWhiteHoldings() : getBlackHoldings());
-		}
+
 		return legalMoves;
 	}
 
@@ -705,11 +639,8 @@ public class Position implements Cloneable, Serializable, Piece, Coordinates {
 
 	public Position makeMove(Move move, boolean isValidating)
 			throws IllegalMoveException {
-		Position result = getHash(move);
-
-		if (result != null) {
-			return result;
-		}
+		Position result = null;
+		
 		if (isValidating) {
 			isValid(move);
 		}
@@ -718,9 +649,6 @@ public class Position implements Cloneable, Serializable, Piece, Coordinates {
 
 		result.setToBoardState(PositionUtil.makeMove(result.board, result
 				.getBoardState(), move, true));
-
-		hash(move, result);
-
 		return result;
 	}
 
@@ -911,22 +839,4 @@ public class Position implements Cloneable, Serializable, Piece, Coordinates {
 		this.isWhitesMove = isWhitesMove;
 	}
 
-	private void hash(Move move, Position position) {
-		// assert move != null : "Move cant be null.";
-		// assert position != null : "Position cant be null.";
-		if (isHashingMoveToPosition()) {
-			if (moveToPosition == null) {
-				moveToPosition = new WeakHashMap<Move, Position>();
-			}
-			moveToPosition.put(move, position);
-		}
-	}
-
-	private Position getHash(Move move) {
-		// assert move != null : "Move cant be null.";
-		if (isHashingMoveToPosition() && moveToPosition != null) {
-			return (Position) moveToPosition.get(move);
-		}
-		return null;
-	}
 }

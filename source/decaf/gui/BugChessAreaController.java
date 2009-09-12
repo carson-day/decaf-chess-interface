@@ -64,6 +64,7 @@ public class BugChessAreaController extends ChessAreaControllerBase implements
 	}
 
 	public void dispose() {
+		LOGGER.error("Disposing bug chess area");
 		super.dispose();
 	}
 

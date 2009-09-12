@@ -39,7 +39,7 @@ public class SoughtEventParser extends NonGameEventParser {
 
 	@Override
 	public IcsNonGameEvent parse(String text) {
-		if (text.endsWith(ADS_DISPLAYED)) {
+		if (text.endsWith(ADS_DISPLAYED) || text.endsWith(AD_DISPLAYED)) {
 			
 			//Make sure the first word is an integer this
 			//is to make sure events are not running together.
@@ -96,6 +96,7 @@ public class SoughtEventParser extends NonGameEventParser {
 		}
 	}
 
+	private static final String AD_DISPLAYED = "ad displayed.";
 	private static final String ADS_DISPLAYED = "ads displayed.";
 
 }
