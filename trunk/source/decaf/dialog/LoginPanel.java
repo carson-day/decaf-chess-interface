@@ -190,86 +190,6 @@ public class LoginPanel extends JPanel implements ActionListener {
 
 	}
 
-	public void addActionListener(ActionListener listener) {
-		this.listener = listener;
-	}
-
-	public void disableTimeseal() {
-		timesealEnabledCheckBox.setEnabled(false);
-		LOGGER.error("Timeseal");
-	}
-
-	public void disableServer() {
-		serverField.setEnabled(false);
-		serverLbl.setEnabled(false);
-		LOGGER.error("Disabled server");
-	}
-
-	public void disablePort() {
-		portField.setEnabled(false);
-		portLbl.setEnabled(false);
-		LOGGER.error("Disabled port");
-	}
-
-	public void disableAutoLogin() {
-		autoLoginCheckBox.setEnabled(false);
-		LOGGER.error("Disabled auto login");
-	}
-
-	private void saveOptions() {
-		preferences.getLoginPreferences().setDefaultUserName(
-				handleField.getText());
-		preferences.getLoginPreferences().setDefaultPassword(
-				new String(passwordField.getPassword()));
-		preferences.getLoginPreferences().setDefaultGuestEnabled(
-				guestLoginCheckBox.isSelected());
-		preferences.getLoginPreferences().setDefaultTimesealEnabled(
-				timesealEnabledCheckBox.isSelected());
-		preferences.getLoginPreferences().setServer(serverField.getText());
-		preferences.getLoginPreferences().setServerPort(
-				Integer.parseInt(portField.getText()));
-		preferences.getLoginPreferences().setAutoLogin(
-				autoLoginCheckBox.isSelected());
-		ResourceManagerFactory.getManager().savePerferences(preferences);
-	}
-
-	private void adjustToCheckBoxControls() {
-		if (guestLoginCheckBox.isSelected()) {
-			passwordField.setText("");
-			passwordField.setEnabled(false);
-			handleField.setEnabled(true);
-			passwordLbl.setEnabled(false);
-		} else {
-			passwordField.setEnabled(true);
-			passwordLbl.setEnabled(true);
-			handleField.setEnabled(true);
-		}
-	}
-
-	public String getServer() {
-		return serverField.getText();
-	}
-
-	public int getPort() {
-		return Integer.parseInt(portField.getText());
-	}
-
-	public String getUserName() {
-		return handleField.getText();
-	}
-
-	public String getPassword() {
-		return new String(passwordField.getPassword());
-	}
-
-	public boolean isLoggingInAsGuest() {
-		return guestLoginCheckBox.isSelected();
-	}
-
-	public boolean isTimesealEnabled() {
-		return timesealEnabledCheckBox.isSelected();
-	}
-
 	public void actionPerformed(ActionEvent event) {
 		Object source = event.getSource();
 
@@ -300,5 +220,85 @@ public class LoginPanel extends JPanel implements ActionListener {
 				listener.actionPerformed(event);
 			}
 		}
+	}
+
+	public void addActionListener(ActionListener listener) {
+		this.listener = listener;
+	}
+
+	private void adjustToCheckBoxControls() {
+		if (guestLoginCheckBox.isSelected()) {
+			passwordField.setText("");
+			passwordField.setEnabled(false);
+			handleField.setEnabled(true);
+			passwordLbl.setEnabled(false);
+		} else {
+			passwordField.setEnabled(true);
+			passwordLbl.setEnabled(true);
+			handleField.setEnabled(true);
+		}
+	}
+
+	public void disableAutoLogin() {
+		autoLoginCheckBox.setEnabled(false);
+		LOGGER.error("Disabled auto login");
+	}
+
+	public void disablePort() {
+		portField.setEnabled(false);
+		portLbl.setEnabled(false);
+		LOGGER.error("Disabled port");
+	}
+
+	public void disableServer() {
+		serverField.setEnabled(false);
+		serverLbl.setEnabled(false);
+		LOGGER.error("Disabled server");
+	}
+
+	public void disableTimeseal() {
+		timesealEnabledCheckBox.setEnabled(false);
+		LOGGER.error("Timeseal");
+	}
+
+	public String getPassword() {
+		return new String(passwordField.getPassword());
+	}
+
+	public int getPort() {
+		return Integer.parseInt(portField.getText());
+	}
+
+	public String getServer() {
+		return serverField.getText();
+	}
+
+	public String getUserName() {
+		return handleField.getText();
+	}
+
+	public boolean isLoggingInAsGuest() {
+		return guestLoginCheckBox.isSelected();
+	}
+
+	public boolean isTimesealEnabled() {
+		return timesealEnabledCheckBox.isSelected();
+	}
+
+	private void saveOptions() {
+		preferences.getLoginPreferences().setDefaultUserName(
+				handleField.getText());
+		preferences.getLoginPreferences().setDefaultPassword(
+				new String(passwordField.getPassword()));
+		preferences.getLoginPreferences().setDefaultGuestEnabled(
+				guestLoginCheckBox.isSelected());
+		preferences.getLoginPreferences().setDefaultTimesealEnabled(
+				timesealEnabledCheckBox.isSelected());
+		preferences.getLoginPreferences().setServer(serverField.getText());
+		preferences.getLoginPreferences().setServerPort(
+				Integer.parseInt(portField.getText()));
+		preferences.getLoginPreferences().setAutoLogin(
+				autoLoginCheckBox.isSelected());
+		ResourceManagerFactory.getManager().savePerferences(preferences);
 	}
 }

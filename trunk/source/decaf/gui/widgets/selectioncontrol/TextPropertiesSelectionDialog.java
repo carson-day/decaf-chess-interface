@@ -43,6 +43,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -52,84 +53,6 @@ import org.apache.log4j.Logger;
 import decaf.util.TextProperties;
 
 public class TextPropertiesSelectionDialog extends JDialog {
-	private static final Logger LOGGER = Logger
-			.getLogger(TextPropertiesSelectionDialog.class);
-
-	private static final GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment
-			.getLocalGraphicsEnvironment();
-
-	private TextProperties textProperties;
-
-	private JLabel fontFamilyLabel;
-
-	private JComboBox fontFamilyComboBox;
-
-	private JLabel fontSizeLabel;
-
-	private JLabel fontSizeValueLabel;
-
-	private JSlider fontSizeSlider;
-
-	private JLabel swatch;
-
-	private JCheckBox boldCheckBox;
-
-	private JCheckBox italicCheckBox;
-
-	private JButton changeForegroundButton;
-
-	private JButton changeBackgroundButton;
-
-	private JButton okButton;
-
-	private JButton cancelButton;
-
-	private JPanel swatchPanel;
-
-	private JPanel checkboxPanel;
-
-	private JPanel changeColorPanel;
-
-	private JPanel changeFontFamilyPanel;
-
-	private JPanel changeFontSizePanel;
-
-	private JPanel okCancelPanel;
-
-	private Color overrideBackgroundColor;
-
-	private class FontFamilyActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent actionEvent) {
-			TextProperties textProperties = getTextProperties();
-			String fontFamilySelected = (String) fontFamilyComboBox
-					.getSelectedItem();
-
-			if (!textProperties.getFont().getFamily()
-					.equals(fontFamilySelected)) {
-				setTextProperties(new TextProperties(new Font(
-						fontFamilySelected,
-						textProperties.getFont().getStyle(), textProperties
-								.getFont().getSize()), textProperties
-						.getForeground(), textProperties.getBackground()));
-			}
-		}
-	}
-
-	private class FontSizeChangeListener implements ChangeListener {
-		public void stateChanged(ChangeEvent event) {
-			TextProperties textProperties = getTextProperties();
-			int newSize = fontSizeSlider.getValue();
-
-			if (newSize != textProperties.getFont().getSize()) {
-				fontSizeValueLabel.setText("" + newSize);
-				setTextProperties(new TextProperties(new Font(textProperties
-						.getFont().getFamily(), textProperties.getFont()
-						.getStyle(), newSize), textProperties.getForeground(),
-						textProperties.getBackground()));
-			}
-		}
-	}
-
 	private class ButtonActionListener implements ActionListener {
 		private Component parent;
 
@@ -181,6 +104,132 @@ public class TextPropertiesSelectionDialog extends JDialog {
 		}
 	}
 
+	private class FontFamilyActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent actionEvent) {
+			TextProperties textProperties = getTextProperties();
+			String fontFamilySelected = (String) fontFamilyComboBox
+					.getSelectedItem();
+
+			if (!textProperties.getFont().getFamily()
+					.equals(fontFamilySelected)) {
+				setTextProperties(new TextProperties(new Font(
+						fontFamilySelected,
+						textProperties.getFont().getStyle(), textProperties
+								.getFont().getSize()), textProperties
+						.getForeground(), textProperties.getBackground()));
+			}
+		}
+	}
+
+	private class FontSizeChangeListener implements ChangeListener {
+		public void stateChanged(ChangeEvent event) {
+			TextProperties textProperties = getTextProperties();
+			int newSize = fontSizeSlider.getValue();
+
+			if (newSize != textProperties.getFont().getSize()) {
+				fontSizeValueLabel.setText("" + newSize);
+				setTextProperties(new TextProperties(new Font(textProperties
+						.getFont().getFamily(), textProperties.getFont()
+						.getStyle(), newSize), textProperties.getForeground(),
+						textProperties.getBackground()));
+			}
+		}
+	}
+
+	private static final Logger LOGGER = Logger
+			.getLogger(TextPropertiesSelectionDialog.class);
+
+	private static final GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment
+			.getLocalGraphicsEnvironment();
+
+	public static void main(String args[]) {
+		JFrame testFrame = new JFrame("Test Frame");
+		testFrame.setBounds(100, 100, 300, 300);
+		testFrame.setVisible(true);
+
+		showTextPropertiesDialog(testFrame, "Test TextProperties Dialog",
+				new TextProperties(new Font("Monospaced", Font.PLAIN, 12),
+						Color.black, Color.white));
+	}
+
+	public static TextProperties showTextPropertiesDialog(Component component,
+			String title, TextProperties properties) {
+
+		return showTextPropertiesDialog(component, title, properties, false,
+				false, null);
+	}
+
+	public static TextProperties showTextPropertiesDialog(Component component,
+			String title, TextProperties properties,
+			boolean isDisablingForegroundColorChange,
+			boolean isDisablingBackgroundColorChange, Color defaultColor) {
+
+		Component root = SwingUtilities.getRoot(component);
+		TextPropertiesSelectionDialog dialog = null;
+		if (root instanceof JFrame) {
+			dialog = new TextPropertiesSelectionDialog((JFrame) root, title,
+					true, properties);
+		} else if (root instanceof JDialog) {
+			dialog = new TextPropertiesSelectionDialog((JDialog) root, title,
+					true, properties);
+		} else {
+			throw new IllegalArgumentException(
+					"Component must have a JDialg or JFrame as its root.");
+		}
+
+		dialog.setOverrideBackgroundColor(defaultColor);
+
+		if (isDisablingBackgroundColorChange) {
+			dialog.disableSettingBackgroundColor();
+		}
+		if (isDisablingForegroundColorChange) {
+			dialog.disableSettingForegroundColor();
+		}
+		dialog.setVisible(true);
+		dialog.dispose();
+		return dialog.getTextProperties();
+	}
+
+	private TextProperties textProperties;
+
+	private JLabel fontFamilyLabel;
+
+	private JComboBox fontFamilyComboBox;
+
+	private JLabel fontSizeLabel;
+
+	private JLabel fontSizeValueLabel;
+
+	private JSlider fontSizeSlider;
+
+	private JLabel swatch;
+
+	private JCheckBox boldCheckBox;
+
+	private JCheckBox italicCheckBox;
+
+	private JButton changeForegroundButton;
+
+	private JButton changeBackgroundButton;
+
+	private JButton okButton;
+
+	private JButton cancelButton;
+
+	private JPanel swatchPanel;
+
+	private JPanel checkboxPanel;
+
+	private JPanel changeColorPanel;
+
+	private JPanel changeFontFamilyPanel;
+
+	private JPanel changeFontSizePanel;
+
+	private JPanel okCancelPanel;
+
+	private Color overrideBackgroundColor;
+
 	public TextPropertiesSelectionDialog(JDialog owner, String title,
 			boolean isModal, TextProperties properties) {
 		super(owner, title, isModal);
@@ -193,6 +242,18 @@ public class TextPropertiesSelectionDialog extends JDialog {
 		init(properties);
 	}
 
+	public void disableSettingBackgroundColor() {
+		changeBackgroundButton.setEnabled(false);
+	}
+
+	public void disableSettingForegroundColor() {
+		changeForegroundButton.setEnabled(false);
+	}
+
+	public TextProperties getTextProperties() {
+		return textProperties;
+	}
+
 	private void init(TextProperties properties) {
 		fontFamilyLabel = new JLabel("Font Family:");
 		fontSizeLabel = new JLabel("Font Size:");
@@ -202,8 +263,8 @@ public class TextPropertiesSelectionDialog extends JDialog {
 		fontFamilyComboBox.setSelectedItem(properties.getFont().getFamily());
 		fontFamilyComboBox.addActionListener(new FontFamilyActionListener());
 
-		fontSizeSlider = new JSlider(JSlider.HORIZONTAL, 5, 60, properties
-				.getFont().getSize());
+		fontSizeSlider = new JSlider(SwingConstants.HORIZONTAL, 5, 60,
+				properties.getFont().getSize());
 		fontSizeValueLabel = new JLabel("" + properties.getFont().getSize());
 		fontSizeSlider.addChangeListener(new FontSizeChangeListener());
 
@@ -211,7 +272,7 @@ public class TextPropertiesSelectionDialog extends JDialog {
 		italicCheckBox = new JCheckBox("Italic", properties.getFont()
 				.isItalic());
 
-		swatch = new JLabel("Test", JLabel.CENTER);
+		swatch = new JLabel("Test", SwingConstants.CENTER);
 
 		changeForegroundButton = new JButton("Change Text Color");
 		changeBackgroundButton = new JButton("Change Background Color");
@@ -322,8 +383,12 @@ public class TextPropertiesSelectionDialog extends JDialog {
 
 	}
 
-	public TextProperties getTextProperties() {
-		return textProperties;
+	public void setOverrideBackgroundColor(Color color) {
+		overrideBackgroundColor = color;
+		if (color != null) {
+			swatch.setBackground(overrideBackgroundColor);
+			swatchPanel.setBackground(overrideBackgroundColor);
+		}
 	}
 
 	public void setTextProperties(TextProperties textProperties) {
@@ -340,69 +405,5 @@ public class TextPropertiesSelectionDialog extends JDialog {
 				swatchPanel.setBackground(textProperties.getBackground());
 			}
 		}
-	}
-
-	public void setOverrideBackgroundColor(Color color) {
-		overrideBackgroundColor = color;
-		if (color != null) {
-			swatch.setBackground(overrideBackgroundColor);
-			swatchPanel.setBackground(overrideBackgroundColor);
-		}
-	}
-
-	public void disableSettingBackgroundColor() {
-		changeBackgroundButton.setEnabled(false);
-	}
-
-	public void disableSettingForegroundColor() {
-		changeForegroundButton.setEnabled(false);
-	}
-
-	public static TextProperties showTextPropertiesDialog(Component component,
-			String title, TextProperties properties,
-			boolean isDisablingForegroundColorChange,
-			boolean isDisablingBackgroundColorChange, Color defaultColor) {
-
-		Component root = SwingUtilities.getRoot(component);
-		TextPropertiesSelectionDialog dialog = null;
-		if (root instanceof JFrame) {
-			dialog = new TextPropertiesSelectionDialog((JFrame) root, title,
-					true, properties);
-		} else if (root instanceof JDialog) {
-			dialog = new TextPropertiesSelectionDialog((JDialog) root, title,
-					true, properties);
-		} else {
-			throw new IllegalArgumentException(
-					"Component must have a JDialg or JFrame as its root.");
-		}
-
-		dialog.setOverrideBackgroundColor(defaultColor);
-
-		if (isDisablingBackgroundColorChange) {
-			dialog.disableSettingBackgroundColor();
-		}
-		if (isDisablingForegroundColorChange) {
-			dialog.disableSettingForegroundColor();
-		}
-		dialog.setVisible(true);
-		dialog.dispose();
-		return dialog.getTextProperties();
-	}
-
-	public static TextProperties showTextPropertiesDialog(Component component,
-			String title, TextProperties properties) {
-
-		return showTextPropertiesDialog(component, title, properties, false,
-				false, null);
-	}
-
-	public static void main(String args[]) {
-		JFrame testFrame = new JFrame("Test Frame");
-		testFrame.setBounds(100, 100, 300, 300);
-		testFrame.setVisible(true);
-
-		showTextPropertiesDialog(testFrame, "Test TextProperties Dialog",
-				new TextProperties(new Font("Monospaced", Font.PLAIN, 12),
-						Color.black, Color.white));
 	}
 }

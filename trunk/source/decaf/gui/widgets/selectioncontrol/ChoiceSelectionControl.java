@@ -38,6 +38,12 @@ import decaf.gui.widgets.Disposable;
  */
 public class ChoiceSelectionControl extends SelectionControl implements
 		Disposable {
+	private class ComboBoxActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			setValue(descriptionToValue(comboBox.getSelectedItem()));
+		}
+	}
+
 	private JLabel label;
 
 	private JComboBox comboBox;
@@ -45,18 +51,6 @@ public class ChoiceSelectionControl extends SelectionControl implements
 	private Object[] descriptions;
 
 	private Object[] values;
-
-	public void dispose() {
-		super.dispose();
-		removeAll();
-		label = null;
-		if (comboBox != null) {
-			comboBox.removeAll();
-			comboBox = null;
-		}
-		descriptions = null;
-		values = null;
-	}
 
 	public ChoiceSelectionControl(String labelText, String helpText,
 			Object value, Object[] choiceDescriptions, Object[] choiceValues) {
@@ -89,11 +83,36 @@ public class ChoiceSelectionControl extends SelectionControl implements
 
 	}
 
+	private Object descriptionToValue(Object description) {
+		Object result = null;
+		for (int i = 0; result == null && i < values.length; i++) {
+			if (descriptions[i].equals(description)) {
+				result = values[i];
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		removeAll();
+		label = null;
+		if (comboBox != null) {
+			comboBox.removeAll();
+			comboBox = null;
+		}
+		descriptions = null;
+		values = null;
+	}
+
+	@Override
 	public void setEnabled(boolean isEnabled) {
 		comboBox.setEnabled(isEnabled);
 		super.setEnabled(isEnabled);
 	}
 
+	@Override
 	public void setValue(Object newValue) {
 		if (!newValue.equals(getValue())) {
 			Object description = valueToDescription(newValue);
@@ -110,16 +129,6 @@ public class ChoiceSelectionControl extends SelectionControl implements
 		}
 	}
 
-	private Object descriptionToValue(Object description) {
-		Object result = null;
-		for (int i = 0; result == null && i < values.length; i++) {
-			if (descriptions[i].equals(description)) {
-				result = values[i];
-			}
-		}
-		return result;
-	}
-
 	private Object valueToDescription(Object value) {
 		Object result = null;
 		for (int i = 0; result == null && i < values.length; i++) {
@@ -128,11 +137,5 @@ public class ChoiceSelectionControl extends SelectionControl implements
 			}
 		}
 		return result;
-	}
-
-	private class ComboBoxActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			setValue(descriptionToValue(comboBox.getSelectedItem()));
-		}
 	}
 }

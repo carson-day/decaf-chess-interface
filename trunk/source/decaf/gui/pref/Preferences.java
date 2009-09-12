@@ -40,6 +40,19 @@ public class Preferences implements Serializable, Cloneable {
 
 	public static final int REMEMBER_LAST_WINDOW_POSITION_STRATEGY = 1;
 
+	private static String getLookAndFeelDefault() {
+		String os = ResourceManagerFactory.getManager().getString("os", "os");
+		String result = null;
+
+		if (os.equals("osx")) {
+			result = UIManager.getSystemLookAndFeelClassName();
+		} else {
+			result = UIManager.getCrossPlatformLookAndFeelClassName();
+		}
+
+		return result;
+	}
+
 	private String lookAndFeelClassName = getLookAndFeelDefault();
 
 	private int windowLayoutStrategy = REMEMBER_LAST_WINDOW_POSITION_STRATEGY;
@@ -59,17 +72,17 @@ public class Preferences implements Serializable, Cloneable {
 	private Point rememberBugEarLocation = null;
 
 	private Dimension rememberBugEarDimension = null;
-	
+
 	private Point rememberBugSeekLocation = null;
 
 	private Dimension rememberBugSeekDimension = null;
-	
+
 	private Point rememberSeekLocation = null;
 
 	private Dimension rememberSeekDimension = null;
 
 	private int rememberBugSliderPosition = 0;
-	
+
 	private int rememberAvailablePartnersFilter = 0;
 
 	BughousePreferences bughousePreferences;
@@ -83,7 +96,7 @@ public class Preferences implements Serializable, Cloneable {
 	SpeechPreferences speechPreferences;
 
 	LoggingPreferences loggingPreferences;
-	
+
 	SeekGraphPreferences seekGraphPreferences;
 
 	Object growingRoom;
@@ -94,17 +107,16 @@ public class Preferences implements Serializable, Cloneable {
 
 	}
 
-	private static String getLookAndFeelDefault() {
-		String os = ResourceManagerFactory.getManager().getString("os", "os");
-		String result = null;
+	public BoardPreferences getBoardPreferences() {
+		return boardPreferences;
+	}
 
-		if (os.equals("osx")) {
-			result = UIManager.getSystemLookAndFeelClassName();
-		} else {
-			result = UIManager.getCrossPlatformLookAndFeelClassName();
-		}
+	public BughousePreferences getBughousePreferences() {
+		return bughousePreferences;
+	}
 
-		return result;
+	public ChatPreferences getChatPreferences() {
+		return chatPreferences;
 	}
 
 	public Preferences getDeepCopy() {
@@ -128,169 +140,112 @@ public class Preferences implements Serializable, Cloneable {
 		}
 	}
 
-	public BoardPreferences getBoardPreferences() {
-		return boardPreferences;
-	}
-
-	public void setBoardPreferences(BoardPreferences boardPreferences) {
-		this.boardPreferences = boardPreferences;
-	}
-
-	public BughousePreferences getBughousePreferences() {
-		return bughousePreferences;
-	}
-
-	public void setBughousePreferences(BughousePreferences bughousePreferences) {
-		this.bughousePreferences = bughousePreferences;
-	}
-
-	public ChatPreferences getChatPreferences() {
-		return chatPreferences;
-	}
-
-	public void setChatPreferences(ChatPreferences chatPreferences) {
-		this.chatPreferences = chatPreferences;
+	public LoggingPreferences getLoggingPreferences() {
+		return loggingPreferences;
 	}
 
 	public LoginPreferences getLoginPreferences() {
 		return loginPreferences;
 	}
 
-	public void setLoginPreferences(LoginPreferences loginPreferences) {
-		this.loginPreferences = loginPreferences;
-	}
-
 	public String getLookAndFeelClassName() {
 		return lookAndFeelClassName;
 	}
 
-	public void setLookAndFeelClassName(String lookAndFeelClassName) {
-		this.lookAndFeelClassName = lookAndFeelClassName;
-	}
-
-	public SpeechPreferences getSpeechPreferences() {
-		return speechPreferences;
-	}
-
-	public void setSpeechPreferences(SpeechPreferences speechPreferences) {
-		this.speechPreferences = speechPreferences;
-	}
-
-	public int getWindowLayoutStrategy() {
-		return windowLayoutStrategy;
-	}
-
-	public void setWindowLayoutStrategy(int windowLayoutStrategy) {
-		this.windowLayoutStrategy = windowLayoutStrategy;
+	public int getRememberAvailablePartnersFilter() {
+		return rememberAvailablePartnersFilter;
 	}
 
 	public Dimension getRememberBugDimension() {
 		return rememberBugDimension;
 	}
 
-	public void setRememberBugDimension(Dimension rememberBugDimension) {
-		this.rememberBugDimension = rememberBugDimension;
-	}
-
 	public Dimension getRememberBugEarDimension() {
 		return rememberBugEarDimension;
-	}
-
-	public void setRememberBugEarDimension(Dimension rememberBugEarDimension) {
-		this.rememberBugEarDimension = rememberBugEarDimension;
 	}
 
 	public Point getRememberBugEarLocation() {
 		return rememberBugEarLocation;
 	}
 
-	public void setRememberBugEarLocation(Point rememberBugEarLocation) {
-		this.rememberBugEarLocation = rememberBugEarLocation;
-	}
-
 	public Point getRememberBugLocation() {
 		return rememberBugLocation;
 	}
 
-	public void setRememberBugLocation(Point rememberBugLocation) {
-		this.rememberBugLocation = rememberBugLocation;
-	}
-
-	public Dimension getRememberChatDimension() {
-		return rememberChatDimension;
-	}
-
-	public void setRememberChatDimension(Dimension rememberChatDimension) {
-		this.rememberChatDimension = rememberChatDimension;
-	}
-
-	public Point getRememberChatLocation() {
-		return rememberChatLocation;
-	}
-
-	public void setRememberChatLocation(Point rememberChatLocation) {
-		this.rememberChatLocation = rememberChatLocation;
-	}
-
-	public Dimension getRememberChessDimension() {
-		return rememberChessDimension;
-	}
-
-	public void setRememberChessDimension(Dimension rememberChessDimension) {
-		this.rememberChessDimension = rememberChessDimension;
-	}
-
-	public Point getRememberChessLocation() {
-		return rememberChessLocation;
-	}
-
-	public void setRememberChessLocation(Point rememberChessLocation) {
-		this.rememberChessLocation = rememberChessLocation;
-	}
-
-	public int getRememberBugSliderPosition() {
-		return rememberBugSliderPosition;
-	}
-
-	public void setRememberBugSliderPosition(int rememberBugSliderPosition) {
-		this.rememberBugSliderPosition = rememberBugSliderPosition;
-	}
-
-	
 	public Dimension getRememberBugSeekDimension() {
 		return rememberBugSeekDimension;
-	}
-
-	public void setRememberBugSeekDimension(Dimension rememberBugSeekDimension) {
-		this.rememberBugSeekDimension = rememberBugSeekDimension;
 	}
 
 	public Point getRememberBugSeekLocation() {
 		return rememberBugSeekLocation;
 	}
 
-	public void setRememberBugSeekLocation(Point rememberBugSeekLocation) {
-		this.rememberBugSeekLocation = rememberBugSeekLocation;
+	public int getRememberBugSliderPosition() {
+		return rememberBugSliderPosition;
+	}
+
+	public Dimension getRememberChatDimension() {
+		return rememberChatDimension;
+	}
+
+	public Point getRememberChatLocation() {
+		return rememberChatLocation;
+	}
+
+	public Dimension getRememberChessDimension() {
+		return rememberChessDimension;
+	}
+
+	public Point getRememberChessLocation() {
+		return rememberChessLocation;
 	}
 
 	public Dimension getRememberSeekDimension() {
 		return rememberSeekDimension;
 	}
 
-	public void setRememberSeekDimension(Dimension rememberSeekDimension) {
-		this.rememberSeekDimension = rememberSeekDimension;
-	}
-
 	public Point getRememberSeekLocation() {
 		return rememberSeekLocation;
 	}
 
-	public void setRememberSeekLocation(Point rememberSeekLocation) {
-		this.rememberSeekLocation = rememberSeekLocation;
+	public SeekGraphPreferences getSeekGraphPreferences() {
+		return seekGraphPreferences;
 	}
 
-	public int getRememberAvailablePartnersFilter() {
-		return rememberAvailablePartnersFilter;
+	public SpeechPreferences getSpeechPreferences() {
+		return speechPreferences;
+	}
+
+	public int getWindowLayoutStrategy() {
+		return windowLayoutStrategy;
+	}
+
+	public boolean isSoundOn() {
+		return isSoundOn;
+	}
+
+	public void setBoardPreferences(BoardPreferences boardPreferences) {
+		this.boardPreferences = boardPreferences;
+	}
+
+	public void setBughousePreferences(BughousePreferences bughousePreferences) {
+		this.bughousePreferences = bughousePreferences;
+	}
+
+	public void setChatPreferences(ChatPreferences chatPreferences) {
+		this.chatPreferences = chatPreferences;
+	}
+
+	public void setLoggingPreferences(LoggingPreferences loggingPreferences) {
+		this.loggingPreferences = loggingPreferences;
+	}
+
+	public void setLoginPreferences(LoginPreferences loginPreferences) {
+		this.loginPreferences = loginPreferences;
+	}
+
+	public void setLookAndFeelClassName(String lookAndFeelClassName) {
+		this.lookAndFeelClassName = lookAndFeelClassName;
 	}
 
 	public void setRememberAvailablePartnersFilter(
@@ -298,29 +253,73 @@ public class Preferences implements Serializable, Cloneable {
 		this.rememberAvailablePartnersFilter = rememberAvailablePartnersFilter;
 	}
 
-	public LoggingPreferences getLoggingPreferences() {
-		return loggingPreferences;
+	public void setRememberBugDimension(Dimension rememberBugDimension) {
+		this.rememberBugDimension = rememberBugDimension;
 	}
 
-	public void setLoggingPreferences(LoggingPreferences loggingPreferences) {
-		this.loggingPreferences = loggingPreferences;
+	public void setRememberBugEarDimension(Dimension rememberBugEarDimension) {
+		this.rememberBugEarDimension = rememberBugEarDimension;
 	}
 
-	public boolean isSoundOn() {
-		return isSoundOn;
+	public void setRememberBugEarLocation(Point rememberBugEarLocation) {
+		this.rememberBugEarLocation = rememberBugEarLocation;
+	}
+
+	public void setRememberBugLocation(Point rememberBugLocation) {
+		this.rememberBugLocation = rememberBugLocation;
+	}
+
+	public void setRememberBugSeekDimension(Dimension rememberBugSeekDimension) {
+		this.rememberBugSeekDimension = rememberBugSeekDimension;
+	}
+
+	public void setRememberBugSeekLocation(Point rememberBugSeekLocation) {
+		this.rememberBugSeekLocation = rememberBugSeekLocation;
+	}
+
+	public void setRememberBugSliderPosition(int rememberBugSliderPosition) {
+		this.rememberBugSliderPosition = rememberBugSliderPosition;
+	}
+
+	public void setRememberChatDimension(Dimension rememberChatDimension) {
+		this.rememberChatDimension = rememberChatDimension;
+	}
+
+	public void setRememberChatLocation(Point rememberChatLocation) {
+		this.rememberChatLocation = rememberChatLocation;
+	}
+
+	public void setRememberChessDimension(Dimension rememberChessDimension) {
+		this.rememberChessDimension = rememberChessDimension;
+	}
+
+	public void setRememberChessLocation(Point rememberChessLocation) {
+		this.rememberChessLocation = rememberChessLocation;
+	}
+
+	public void setRememberSeekDimension(Dimension rememberSeekDimension) {
+		this.rememberSeekDimension = rememberSeekDimension;
+	}
+
+	public void setRememberSeekLocation(Point rememberSeekLocation) {
+		this.rememberSeekLocation = rememberSeekLocation;
+	}
+
+	public void setSeekGraphPreferences(
+			SeekGraphPreferences seekGraphPreferences) {
+		this.seekGraphPreferences = seekGraphPreferences;
 	}
 
 	public void setSoundOn(boolean isSoundOn) {
 		this.isSoundOn = isSoundOn;
 	}
-	
-	public void setSeekGraphPreferences(SeekGraphPreferences seekGraphPreferences) {
-		this.seekGraphPreferences = seekGraphPreferences;
+
+	public void setSpeechPreferences(SpeechPreferences speechPreferences) {
+		this.speechPreferences = speechPreferences;
 	}
-	
-	public SeekGraphPreferences getSeekGraphPreferences() {
-		return seekGraphPreferences;
+
+	public void setWindowLayoutStrategy(int windowLayoutStrategy) {
+		this.windowLayoutStrategy = windowLayoutStrategy;
 	}
-	
-	
+
 }

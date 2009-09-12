@@ -58,24 +58,18 @@ public class ConsoleTab extends PreferencesTab {
 	private JComboBox popupClick = new JComboBox(POPUP_CLICK.getItems());
 
 	private JComboBox channelsCombo = buildChannelsCombo();
-	
+
 	private JCheckBox isShowingSeekGraph = new JCheckBox("");
-	
+
 	private JCheckBox isShowingBugSeek = new JCheckBox("");
-	
+
 	private JCheckBox isShowingBugOpenCheckbox = new JCheckBox("");
 
 	private JLabel currentChannelsLabel = new JLabel();
 
 	private List<Integer> currentChannels = new LinkedList<Integer>();
-	
+
 	private JPanel channelPanel = null;
-	
-	public void dispose()
-	{
-		channelPanel.removeAll();
-		removeAll();
-	}
 
 	public ConsoleTab() {
 		super("Console");
@@ -85,11 +79,11 @@ public class ConsoleTab extends PreferencesTab {
 		add(new LabeledComponent("Prepend Tell X To Current Tab",
 				prependTellToTabs));
 		add(new LabeledComponent("Show Bug Open Checkbox (Requires Restart)",
-				isShowingBugOpenCheckbox));		
+				isShowingBugOpenCheckbox));
 		add(new LabeledComponent("Show Seek Graph Button (Requires Restart)",
 				isShowingSeekGraph));
 		add(new LabeledComponent("Show Bug Seek Button (Requires Restart)",
-				isShowingBugSeek));		
+				isShowingBugSeek));
 		add(new LabeledComponent("Tab Orientation", tabOrientation));
 		add(new LabeledComponent("Popup Click:", popupClick));
 		add(new LabeledComponent("Main Console Tab Buffer", consoleBuffer));
@@ -123,6 +117,20 @@ public class ConsoleTab extends PreferencesTab {
 
 	}
 
+	private JComboBox buildChannelsCombo() {
+		Integer[] channels = new Integer[256];
+		for (int i = 0; i < channels.length; i++) {
+			channels[i] = new Integer(i);
+		}
+		return new JComboBox(channels);
+	}
+
+	@Override
+	public void dispose() {
+		channelPanel.removeAll();
+		removeAll();
+	}
+
 	private String getChannels() {
 		Collections.sort(currentChannels);
 		String result = "";
@@ -134,6 +142,7 @@ public class ConsoleTab extends PreferencesTab {
 		return result;
 	}
 
+	@Override
 	public void load(Preferences preferences) {
 		isDisabled
 				.setSelected(preferences.getChatPreferences().isDisableTabs());
@@ -154,12 +163,16 @@ public class ConsoleTab extends PreferencesTab {
 		currentChannels = new LinkedList<Integer>(preferences
 				.getChatPreferences().getChannelTabs());
 		currentChannelsLabel.setText(getChannels());
-		
-		isShowingBugSeek.setSelected(preferences.getChatPreferences().isShowingBugSeekButton());
-		isShowingSeekGraph.setSelected(preferences.getChatPreferences().isShowingSeekGraphButton());
-		isShowingBugOpenCheckbox.setSelected(preferences.getChatPreferences().isShowingBugOpenCheckbox());
+
+		isShowingBugSeek.setSelected(preferences.getChatPreferences()
+				.isShowingBugSeekButton());
+		isShowingSeekGraph.setSelected(preferences.getChatPreferences()
+				.isShowingSeekGraphButton());
+		isShowingBugOpenCheckbox.setSelected(preferences.getChatPreferences()
+				.isShowingBugOpenCheckbox());
 	}
 
+	@Override
 	public void save(Preferences preferences) {
 		preferences.getChatPreferences()
 				.setDisableTabs(isDisabled.isSelected());
@@ -174,18 +187,13 @@ public class ConsoleTab extends PreferencesTab {
 		preferences.getChatPreferences().setPopupMenuClick(
 				((ComboBoxItem) popupClick.getSelectedItem()).toInt());
 		preferences.getChatPreferences().setChannelTabs(currentChannels);
-		
-		preferences.getChatPreferences().setShowingBugSeekButton(isShowingBugSeek.isSelected());
-		preferences.getChatPreferences().setShowingSeekGraphButton(isShowingSeekGraph.isSelected());
-		preferences.getChatPreferences().setShowingBugOpenCheckbox(isShowingBugOpenCheckbox.isSelected());
-	}
 
-	private JComboBox buildChannelsCombo() {
-		Integer[] channels = new Integer[256];
-		for (int i = 0; i < channels.length; i++) {
-			channels[i] = new Integer(i);
-		}
-		return new JComboBox(channels);
+		preferences.getChatPreferences().setShowingBugSeekButton(
+				isShowingBugSeek.isSelected());
+		preferences.getChatPreferences().setShowingSeekGraphButton(
+				isShowingSeekGraph.isSelected());
+		preferences.getChatPreferences().setShowingBugOpenCheckbox(
+				isShowingBugOpenCheckbox.isSelected());
 	}
 
 }

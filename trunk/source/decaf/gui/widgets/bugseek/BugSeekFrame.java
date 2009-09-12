@@ -27,6 +27,7 @@ import java.awt.event.ComponentEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
+import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -38,20 +39,48 @@ import decaf.gui.User;
 import decaf.resources.ResourceManagerFactory;
 
 public class BugSeekFrame extends JFrame implements GameNotificationListener {
+	private class RememberPositionFrameListener extends ComponentAdapter {
+
+		@Override
+		public void componentMoved(ComponentEvent arg0) {
+			saveSettings();
+		}
+
+		@Override
+		public void componentResized(ComponentEvent arg0) {
+
+			saveSettings();
+		}
+
+		private void saveSettings() {
+			Point location = thisFrame.getLocation();
+			Dimension dimension = thisFrame.getSize();
+
+			GUIManager.getInstance().getPreferences()
+					.setRememberBugSeekDimension(dimension);
+			GUIManager.getInstance().getPreferences()
+					.setRememberBugSeekLocation(location);
+
+			ResourceManagerFactory.getManager().savePerferences(
+					GUIManager.getInstance().getPreferences());
+		}
+
+	}
+
 	private AvailablePartnersPanel availablePartnersPanel;
 
 	private AvailableTeamsPanel teamsPanel;
-	
+
 	private GamesInProgressPanel gamesInProgress;
 
 	private BugWhoUEventAdapter bugWhoUEventAdapter;
 
 	private BugWhoPEventAdapter bugWhoPEventAdapter;
-	
+
 	private BugWhoGEventAdapter bugWhoGEventAdapter;
 
 	private BugSeekFrame thisFrame = this;
-	
+
 	private JTabbedPane tabbedPane = null;
 
 	public BugSeekFrame() {
@@ -61,13 +90,13 @@ public class BugSeekFrame extends JFrame implements GameNotificationListener {
 		setLocation(GUIManager.getInstance().getPreferences()
 				.getRememberBugSeekLocation());
 		setSize(750, 400);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setLayout(new GridLayout(1, 1));
-		
+
 		bugWhoGEventAdapter = new BugWhoGEventAdapter();
 		gamesInProgress = new GamesInProgressPanel(bugWhoGEventAdapter);
 		bugWhoGEventAdapter.setPanel(gamesInProgress);
-		
+
 		bugWhoPEventAdapter = new BugWhoPEventAdapter();
 		teamsPanel = new AvailableTeamsPanel(bugWhoPEventAdapter);
 		bugWhoPEventAdapter.setPanel(teamsPanel);
@@ -87,62 +116,51 @@ public class BugSeekFrame extends JFrame implements GameNotificationListener {
 					bugWhoUEventAdapter.stop();
 					bugWhoPEventAdapter.start();
 					bugWhoGEventAdapter.stop();
-				} else if (tabbedPane.getSelectedComponent() == availablePartnersPanel){
+				} else if (tabbedPane.getSelectedComponent() == availablePartnersPanel) {
 					bugWhoPEventAdapter.stop();
 					bugWhoUEventAdapter.start();
 					bugWhoGEventAdapter.stop();
-				}
-				else {
+				} else {
 					bugWhoPEventAdapter.stop();
 					bugWhoUEventAdapter.stop();
-					bugWhoGEventAdapter.start();			
+					bugWhoGEventAdapter.start();
 				}
 			}
 		});
-		
+
 		GUIManager.getInstance().addGameNotificationListener(this);
-		
+
 		add(tabbedPane);
 
 		addComponentListener(new RememberPositionFrameListener());
-		
-		if (User.getInstance().getBughousePartner() == null || "".equals(User.getInstance().getBughousePartner()))
-		{			
-			tabbedPane.setSelectedIndex(2);				
-		}
-		else
-		{
+
+		if (User.getInstance().getBughousePartner() == null
+				|| "".equals(User.getInstance().getBughousePartner())) {
+			tabbedPane.setSelectedIndex(2);
+		} else {
 			tabbedPane.setSelectedIndex(0);
 			tabbedPane.setSelectedIndex(1);
 		}
 	}
 
-	private class RememberPositionFrameListener extends ComponentAdapter {
-
-		@Override
-		public void componentResized(ComponentEvent arg0) {
-
-			saveSettings();
+	public void bugGameEnded(BugChessAreaController controller) {
+		if (controller.isPlaying()) {
+			if (tabbedPane.getSelectedComponent() == teamsPanel) {
+				bugWhoPEventAdapter.start();
+			} else if (tabbedPane.getSelectedComponent() == availablePartnersPanel) {
+				bugWhoUEventAdapter.start();
+			} else {
+				bugWhoGEventAdapter.start();
+			}
 		}
+	}
 
-		@Override
-		public void componentMoved(ComponentEvent arg0) {
-			saveSettings();
+	public void bugGameStarted(BugChessAreaController controller) {
+		if (controller.isPlaying()) {
+			bugWhoUEventAdapter.stop();
+			bugWhoPEventAdapter.stop();
+			bugWhoGEventAdapter.stop();
 		}
-
-		private void saveSettings() {
-			Point location = thisFrame.getLocation();
-			Dimension dimension = thisFrame.getSize();
-
-			GUIManager.getInstance().getPreferences()
-					.setRememberBugSeekDimension(dimension);
-			GUIManager.getInstance().getPreferences()
-					.setRememberBugSeekLocation(location);
-
-			ResourceManagerFactory.getManager().savePerferences(
-					GUIManager.getInstance().getPreferences());
-		}
-
 	}
 
 	@Override
@@ -153,52 +171,24 @@ public class BugSeekFrame extends JFrame implements GameNotificationListener {
 		GUIManager.getInstance().removeGameNotificationListener(this);
 		super.dispose();
 	}
-	
-	public void bugGameEnded(BugChessAreaController controller) {
-		if (controller.isPlaying())
-		{
-			if (tabbedPane.getSelectedComponent() == teamsPanel) {
-				bugWhoPEventAdapter.start();
-			} else if (tabbedPane.getSelectedComponent() == availablePartnersPanel){
-				bugWhoUEventAdapter.start();
-			}
-			else
-			{
-				bugWhoGEventAdapter.start();
-			}
-		}
-	}
-
-	public void bugGameStarted(BugChessAreaController controller) {
-		if (controller.isPlaying())
-		{
-			bugWhoUEventAdapter.stop();
-			bugWhoPEventAdapter.stop();
-			bugWhoGEventAdapter.stop();
-		}
-	}
 
 	public void gameEnded(ChessAreaController controller) {
-		if (controller.isPlaying())
-		{
+		if (controller.isPlaying()) {
 			if (tabbedPane.getSelectedComponent() == teamsPanel) {
 				bugWhoPEventAdapter.start();
-			} else if (tabbedPane.getSelectedComponent() == availablePartnersPanel){
+			} else if (tabbedPane.getSelectedComponent() == availablePartnersPanel) {
 				bugWhoUEventAdapter.start();
-			}
-			else
-			{
+			} else {
 				bugWhoGEventAdapter.start();
-			}			
+			}
 		}
 	}
 
 	public void gameStarted(ChessAreaController controller) {
-		if (controller.isPlaying())
-		{
+		if (controller.isPlaying()) {
 			bugWhoUEventAdapter.stop();
 			bugWhoPEventAdapter.stop();
-			bugWhoGEventAdapter.stop();			
+			bugWhoGEventAdapter.stop();
 		}
 	}
 }

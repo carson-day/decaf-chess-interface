@@ -22,13 +22,13 @@ package decaf.messaging.inboundevent.inform;
 
 import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 
-
 public class ClosedEvent extends IcsNonGameEvent {
 
 	public ClosedEvent(int icsId, String text) {
 		super(icsId, text);
 	}
 
+	@Override
 	public String toString() {
 		return "<ClosedEvent>" + super.toString() + "</ClosedEvent>";
 	}

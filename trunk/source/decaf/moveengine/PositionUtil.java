@@ -219,6 +219,95 @@ public class PositionUtil implements Piece, Coordinates {
 	private static final int[][] WHITE_LEVEL_2_CAPTURES = { BB_BQ, BR_BQ,
 			BB_BQ, BR_BQ, BR_BQ, BB_BQ, BR_BQ, BB_BQ };
 
+	private static final int addAllPromotions(Move[] moves, int lastMovesIndex,
+			int capturedPiece, int[] startCoordinates, int[] endCoordinates,
+			boolean isWhitesMove) {
+		moves[++lastMovesIndex] = new Move(isWhitesMove ? Piece.WHITE_KNIGHT
+				: Piece.BLACK_KNIGHT, startCoordinates, endCoordinates,
+				capturedPiece, isWhitesMove);
+		moves[++lastMovesIndex] = new Move(isWhitesMove ? Piece.WHITE_BISHOP
+				: Piece.BLACK_BISHOP, startCoordinates, endCoordinates,
+				capturedPiece, isWhitesMove);
+		moves[++lastMovesIndex] = new Move(isWhitesMove ? Piece.WHITE_ROOK
+				: Piece.BLACK_ROOK, startCoordinates, endCoordinates,
+				capturedPiece, isWhitesMove);
+		moves[++lastMovesIndex] = new Move(isWhitesMove ? Piece.WHITE_QUEEN
+				: Piece.BLACK_QUEEN, startCoordinates, endCoordinates,
+				capturedPiece, isWhitesMove);
+		return lastMovesIndex;
+	}
+
+	public static final int addPatternMoves(Move[] moves, int lastMovesIndex,
+			final int[][] board, final int boardState, int startRank,
+			int startFile, int pieceMoving,
+			boolean moveAlongPatternUtilBlocked,
+			int[] endCoordinatesLegalPieces, int[] addToRankPattern,
+			int[] addToFilePattern) {
+		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
+
+		// assert addToRankPattern != null : "Rank pattern cant be null.";
+		// / assert addToFilePattern != null : "File pattern cant be null.";
+		// assert addToRankPattern.length == addToFilePattern.length : "Rank
+		// pattern must be the same length as file pattern";
+		// assert addToRankPattern.length != 0 : "Rank pattern must contain
+		// atleast one int";
+
+		if (moveAlongPatternUtilBlocked) {
+			for (int i = 0; i < addToRankPattern.length; i++) {
+				boolean stopPatternSearch = false;
+
+				int endRank = startRank;
+				int endFile = startFile;
+
+				do {
+					endRank += addToRankPattern[i];
+					endFile += addToFilePattern[i];
+
+					if (CoordinatesUtil.isInBounds(endRank, endFile)) {
+						int candidateContents = board[endRank][endFile];
+						if (isPseudoLegal(board, boardState, endRank, endFile,
+								endCoordinatesLegalPieces)) {
+							moves[++lastMovesIndex] = new Move(startRank,
+									startFile, endRank, endFile, pieceMoving,
+									candidateContents, isWhitesMove);
+
+						}
+
+						stopPatternSearch = candidateContents != Piece.EMPTY;
+					} else {
+						stopPatternSearch = true;
+					}
+				} while (!stopPatternSearch);
+			}
+		} else {
+			for (int i = 0; i < addToRankPattern.length; i++) {
+				int endRank = startRank + addToRankPattern[i];
+				int endFile = startFile + addToFilePattern[i];
+
+				if (isPseudoLegal(board, boardState, endRank, endFile,
+						endCoordinatesLegalPieces)) {
+					moves[++lastMovesIndex] = new Move(startRank, startFile,
+							endRank, endFile, pieceMoving,
+							board[endRank][endFile], isWhitesMove);
+				}
+			}
+		}
+		return lastMovesIndex;
+	}
+
+	public static final boolean contains(int[] array, int integer) {
+		boolean result = false;
+		for (int i = 0; !result && i < array.length; i++) {
+			result = array[i] == integer;
+		}
+		return result;
+	}
+
+	public static final String dumpBoard(int[][] board) {
+		// assert board != null : "board cant be null.";
+		return Position.DEFAULT_ENCODER.encode(board);
+	}
+
 	public static final String dumpMoves(Move[] moves) {
 		String result = "";
 		for (int i = 0; i < moves.length; i++) {
@@ -295,51 +384,649 @@ public class PositionUtil implements Piece, Coordinates {
 		return result;// setMateStates(board,result);
 	}
 
-	/**
-	 * Rolls back the last move made. Since state can not be determined from the
-	 * information passed in boardState is not used in this method.
-	 */
-	public static final void rollbackMove(int[][] board, Move move) {
-		if (move.isCastling()) {
-			if (move.isCastleKingside() && move.isWhitesMove()) {
-				board[E1[0]][E1[1]] = WK;
-				board[F1[0]][F1[1]] = Piece.EMPTY;
-				board[G1[0]][G1[1]] = Piece.EMPTY;
-				board[H1[0]][H1[1]] = WR;
-			} else if (move.isCastleQueenside() && move.isWhitesMove()) {
-				board[A1[0]][E1[1]] = WR;
-				board[B1[0]][B1[1]] = Piece.EMPTY;
-				board[C1[0]][C1[1]] = Piece.EMPTY;
-				board[D1[0]][D1[1]] = Piece.EMPTY;
-				board[E1[0]][E1[1]] = WK;
-			} else if (move.isCastleKingside() && !move.isWhitesMove()) {
-				board[E8[0]][E8[1]] = BR;
-				board[F8[0]][F8[1]] = Piece.EMPTY;
-				board[G8[0]][G8[1]] = Piece.EMPTY;
-				board[H8[0]][H8[1]] = BK;
-			} else if (move.isCastleQueenside() && !move.isWhitesMove()) {
-				board[A8[0]][E8[1]] = BR;
-				board[B8[0]][B8[1]] = Piece.EMPTY;
-				board[C8[0]][C8[1]] = Piece.EMPTY;
-				board[D8[0]][D8[1]] = Piece.EMPTY;
-				board[E8[0]][E8[1]] = BK;
+	public static final int[] getKingCoordinates(boolean searchForWhiteKing,
+			int[][] board) {
+		int[] result = null;
+		if (searchForWhiteKing) {
+			for (int rank = 7; result == null && rank > -1; rank--) {
+				for (int file = 0; file < board.length; file++) {
+					if (board[rank][file] == WK) {
+						result = new int[] { rank, file };
+					}
+				}
 			}
-		} else if (move.isDropMove()) {
-			board[move.getEndRank()][move.getEndFile()] = Piece.EMPTY;
 		} else {
-			board[move.getStartRank()][move.getStartFile()] = move
-					.getPieceMoving();
-
-			if (move.isEnPassant()) {
-				board[move.getEnPassantPawnRank()][move.getEnPassantPawnFile()] = move
-						.getCapturedPiece();
-				board[move.getEndRank()][move.getEndFile()] = Piece.EMPTY;
-			} else {
-				board[move.getEndRank()][move.getEndFile()] = move
-						.getCapturedPiece(); // returns Piece.EMPTY if none
-				// captured.
+			for (int rank = 0; result == null && rank < board.length; rank++) {
+				for (int file = 0; file < board.length; file++) {
+					if (board[rank][file] == BK) {
+						result = new int[] { rank, file };
+					}
+				}
 			}
 		}
+
+		if (result == null) {
+			throw new IllegalArgumentException("Could not find "
+					+ (searchForWhiteKing ? "white" : "black") + " king. "
+					+ dumpBoard(board));
+		}
+		return result;
+	}
+
+	/**
+	 * Returns all of the legal moves in droppable chess (crazyhouse or
+	 * bughouse).
+	 * 
+	 * @param board
+	 * @param boardState
+	 * @param playersHoldings
+	 *            The pieces the player is holding that he/she can drop for a
+	 *            move.
+	 * @return
+	 */
+	public static final Move[] getLegalDroppableChessMoves(final int[][] board,
+			final int boardState, final int[] playersHoldings) {
+		boolean isDroppable = playersHoldings != null
+				|| playersHoldings.length != 0;
+		Move[] moves = new Move[isDroppable ? DROP_MAX_MOVES : MAXIMUM_MOVES];
+		int lastMovesIndex = -1;
+
+		// get psudo legal moves.
+		lastMovesIndex = getPsuedoLegalMoves(moves, lastMovesIndex, board,
+				boardState);
+
+		lastMovesIndex = getPseudoDropMoves(moves, lastMovesIndex, board,
+				boardState, playersHoldings);
+
+		Move[] trimmedMoves = new Move[isDroppable ? DROP_MAX_MOVES
+				: MAXIMUM_MOVES];
+		int lastUsedTrimmedIndex = -1;
+		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
+		int[] kingCoordinates = getKingCoordinates(isWhitesMove, board);
+
+		// now trim all illegals.
+		for (int i = 0; i <= lastMovesIndex; i++) {
+			Move move = moves[i];
+			boolean isLegal = false;
+
+			if (move.isCastling()) {
+				if (move.isCastleKingside()) {
+					isLegal = !isInCheck(board,
+							isWhitesMove ? WHITE_CASTLE_THRU_CHECK_KINGSIDE
+									: BLACK_CASTLE_THRU_CHECK_KINGSIDE,
+							isWhitesMove);
+				} else {
+					isLegal = !isInCheck(board,
+							isWhitesMove ? WHITE_CASTLE_THRU_CHECK_QUEENSIDE
+									: BLACK_CASTLE_THRU_CHECK_QUEENSIDE,
+							isWhitesMove);
+				}
+			} else {
+				// MAKE THE MOVE
+				makeMove(board, boardState, move, false);
+
+				// DETERMINE IF IN CHECK AFTER MOVE
+				//
+				// THE FOLLOWING CODE IS NOT THREAD SAFE AND ALTERS BOARD.
+				int pieceMoving = move.getPieceMoving();
+				if (isWhitesMove && pieceMoving == WK || !isWhitesMove
+						&& pieceMoving == BK) {
+					// The king moved so the kings coordinates are the end
+					// rank/file of the move.
+					// *Note - castling is already taken care of so no need to
+					// worry about what the end
+					// coordinate is if that is the case).
+					isLegal = !isInCheck(board, move.getEndCoordinates(),
+							isWhitesMove);
+				} else {
+					isLegal = !isInCheck(board, kingCoordinates, isWhitesMove);
+				}
+
+				// ROLL BACK THE MOVE PRESERVING THE BOARDS STATE.
+				rollbackMove(board, move);
+			}
+
+			if (isLegal) {
+				trimmedMoves[++lastUsedTrimmedIndex] = move;
+			}
+
+		}
+
+		// trim result and return it.
+		int resultSize = lastUsedTrimmedIndex + 1;
+		Move[] result = new Move[resultSize];
+		System.arraycopy(trimmedMoves, 0, result, 0, resultSize);
+
+		return result;
+	}
+
+	/**
+	 * Returns an array of all of the legal moves. ***WARNING*** This method
+	 * WILL alter board while it is executing. However when the method is
+	 * finished board should be in the same state as it was past in as. Thus it
+	 * is up to the invoker to handle all synchronization.
+	 */
+	public static final Move[] getLegalMoves(final int[][] board,
+			final int boardState, final int[] availableDropPieces) {
+		return getLegalDroppableChessMoves(board, boardState,
+				availableDropPieces == null ? new int[] {}
+						: availableDropPieces);
+	}
+
+	public static final int getPawnEPMoves(Move[] moves, int lastMovesIndex,
+			final int[][] board, int boardState, int startRank, int startFile) {
+		int epFile = stateToLastDPPush(boardState);
+		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
+
+		if (epFile != -1) {
+			if (isWhitesMove && startRank == RANK_5) {
+				int leftOne = startFile - 1;
+				int rightOne = startFile + 1;
+
+				if (leftOne == epFile
+						&& PieceUtil.isPawn(board[RANK_5][leftOne])
+						&& PieceUtil.isBlackPiece(board[RANK_5][leftOne])
+						&& PieceUtil.isEmpty(board[RANK_6][leftOne])) {
+					moves[++lastMovesIndex] = new Move(new int[] { startRank,
+							startFile }, leftOne, true);
+				} else if (rightOne == epFile
+						&& PieceUtil.isPawn(board[RANK_5][rightOne])
+						&& PieceUtil.isBlackPiece(board[RANK_5][rightOne])
+						&& PieceUtil.isEmpty(board[RANK_6][rightOne])) {
+					moves[++lastMovesIndex] = new Move(new int[] { startRank,
+							startFile }, rightOne, true);
+				}
+			} else if (!isWhitesMove && startRank == RANK_4) {
+				int leftOne = startFile + 1;
+				int rightOne = startFile - 1;
+				if (rightOne == epFile
+						&& PieceUtil.isPawn(board[RANK_4][rightOne])
+						&& PieceUtil.isWhitePiece(board[RANK_4][rightOne])
+						&& PieceUtil.isEmpty(board[RANK_3][rightOne])) {
+					moves[++lastMovesIndex] = new Move(new int[] { startRank,
+							startFile }, startFile - 1, false);
+				} else if (leftOne == epFile
+						&& PieceUtil.isPawn(board[RANK_4][leftOne])
+						&& PieceUtil.isWhitePiece(board[RANK_4][leftOne])
+						&& PieceUtil.isEmpty(board[RANK_3][leftOne])) {
+					moves[++lastMovesIndex] = new Move(new int[] { startRank,
+							startFile }, leftOne, false);
+				}
+			}
+		}
+		return lastMovesIndex;
+	}
+
+	public static final int getPseudoDoublePawnPushMoves(Move[] moves,
+			int lastMovesIndex, final int[][] board, int boardState,
+			int startRank, int startFile) {
+		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
+
+		if (isWhitesMove) {
+			if (startRank == Coordinates.RANK_2
+					&& PieceUtil.isEmpty(board[RANK_3][startFile])
+					&& PieceUtil.isEmpty(board[RANK_4][startFile])) {
+				moves[++lastMovesIndex] = new Move(startFile, true);
+			}
+		} else {
+			if (startRank == Coordinates.RANK_7
+					&& PieceUtil.isEmpty(board[Coordinates.RANK_6][startFile])
+					&& PieceUtil.isEmpty(board[Coordinates.RANK_5][startFile])) {
+				moves[++lastMovesIndex] = new Move(startFile, false);
+			}
+
+		}
+		return lastMovesIndex;
+	}
+
+	public static final int getPseudoDropMoves(Move[] moves,
+			int lastMovesIndex, int[][] board, int boardState,
+			int dropHoldings[]) {
+		if (dropHoldings != null && dropHoldings.length != 0) {
+			boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
+			boolean isPawnDroppable = false;
+			boolean isKnightDroppable = false;
+			boolean isBishopDroppable = false;
+			boolean isRookDroppable = false;
+			boolean isQueenDroppable = false;
+
+			for (int i = 0; i < dropHoldings.length; i++) {
+				switch (dropHoldings[i]) {
+				case WP:
+				case BP: {
+					isPawnDroppable = true;
+					break;
+				}
+				case WN:
+				case BN: {
+					isKnightDroppable = true;
+					break;
+				}
+				case WB:
+				case BB: {
+					isBishopDroppable = true;
+					break;
+				}
+				case WR:
+				case BR: {
+					isRookDroppable = true;
+					break;
+				}
+				case WQ:
+				case BQ: {
+					isQueenDroppable = true;
+					break;
+				}
+				default: {
+					throw new IllegalArgumentException(
+							"Invalid drop piece encountered: "
+									+ dropHoldings[i]);
+				}
+				}
+			}
+
+			for (int rank = 0; rank < 8; rank++) {
+				for (int file = 0; file < 8; file++) {
+					if (board[rank][file] == Piece.EMPTY) {
+						if (isPawnDroppable && rank != 0 && rank != 7) {
+							moves[++lastMovesIndex] = new Move(
+									isWhitesMove ? WP : BP, new int[] { rank,
+											file }, isWhitesMove);
+						}
+						if (isKnightDroppable) {
+							moves[++lastMovesIndex] = new Move(
+									isWhitesMove ? WN : BN, new int[] { rank,
+											file }, isWhitesMove);
+						}
+						if (isBishopDroppable) {
+							moves[++lastMovesIndex] = new Move(
+									isWhitesMove ? WB : BB, new int[] { rank,
+											file }, isWhitesMove);
+						}
+						if (isRookDroppable) {
+							moves[++lastMovesIndex] = new Move(
+									isWhitesMove ? WR : BR, new int[] { rank,
+											file }, isWhitesMove);
+						}
+						if (isQueenDroppable) {
+							moves[++lastMovesIndex] = new Move(
+									isWhitesMove ? WQ : BQ, new int[] { rank,
+											file }, isWhitesMove);
+						}
+					}
+				}
+			}
+		}
+		return lastMovesIndex;
+	}
+
+	public static final int getPseudoPawnCaptures(Move[] moves,
+			int lastMovesIndex, final int[][] board, int boardState,
+			int startRank, int startFile) {
+		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
+		int result = lastMovesIndex;
+		int[] filePattern = P_X_FILE_PATTERN;
+		int[] rankPattern = isWhitesMove ? WP_X_RANK_PATTERN
+				: BP_X_RANK_PATTERN;
+		int[] endCoordinatesLegalPieces = isWhitesMove ? WP_X_LEGAL_CONTENTS
+				: BP_X_LEGAL_CONTENTS;
+
+		for (int i = 0; i < rankPattern.length; i++) {
+			int endRank = startRank + rankPattern[i];
+			int endFile = startFile + filePattern[i];
+
+			if (isPseudoLegal(board, boardState, endRank, endFile,
+					endCoordinatesLegalPieces)) {
+				if ((isWhitesMove && endRank == RANK_8)
+						|| (!isWhitesMove && endRank == RANK_1)) {
+					result = addAllPromotions(moves, result,
+							board[endRank][endFile], new int[] { startRank,
+									startFile },
+							new int[] { endRank, endFile }, isWhitesMove);
+				} else {
+					moves[++result] = new Move(startRank, startFile, endRank,
+							endFile, isWhitesMove ? WHITE_PAWN : BLACK_PAWN,
+							board[endRank][endFile], isWhitesMove);
+				}
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Returns an Piece.EMPTY List if no moves are found. Illegal moves from
+	 * moving into check are not taken into consideration.
+	 * 
+	 * @return A list of chess.Move objects.
+	 * @see decaf.moveengine.Move
+	 */
+	public static final int getPsuedoBishopMoves(Move[] moves,
+			int lastMovesIndex, final int[][] board, int boardState,
+			int startRank, int startFile) {
+		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
+		return addPatternMoves(moves, lastMovesIndex, board, boardState,
+				startRank, startFile, isWhitesMove ? Piece.WB : Piece.BB, true,
+				isWhitesMove ? WHITE_LEGAL_CONTENTS : BLACK_LEGAL_CONTENTS,
+				B_RANK_PATTERN, B_FILE_PATTERN);
+	}
+
+	public static final int getPsuedoKingCastlingMoves(Move[] moves,
+			int lastMovesIndex, final int[][] board, int boardState,
+			int startRank, int startFile) {
+		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
+		boolean canCastleKingside = isWhitesMove ? (boardState & WHITE_CAN_CASTLE_KINGSIDE_STATE) != 0
+				: (boardState & BLACK_CAN_CASTLE_KINGSIDE_STATE) != 0;
+		boolean canCastleQueenside = isWhitesMove ? (boardState & WHITE_CAN_CASTLE_QUEENSIDE_STATE) != 0
+				: (boardState & BLACK_CAN_CASTLE_QUEENSIDE_STATE) != 0;
+
+		if (canCastleKingside) {
+			if (isWhitesMove && startFile == Coordinates.E
+					&& startRank == Coordinates.RANK_1
+					&& board[E1[0]][E1[1]] == Piece.WK
+					&& board[F1[0]][F1[1]] == Piece.EMPTY
+					&& board[G1[0]][G1[1]] == Piece.EMPTY
+					&& board[H1[0]][H1[1]] == Piece.WR) {
+				moves[++lastMovesIndex] = new Move(true, true);
+			} else if (!isWhitesMove && startFile == Coordinates.E
+					&& startRank == Coordinates.RANK_8
+					&& board[E8[0]][E8[1]] == Piece.BK
+					&& board[F8[0]][F8[1]] == Piece.EMPTY
+					&& board[G8[0]][G8[1]] == Piece.EMPTY
+					&& board[H8[0]][H8[1]] == Piece.BR) {
+
+				moves[++lastMovesIndex] = new Move(true, false);
+			}
+		}
+
+		if (canCastleQueenside) {
+			if (isWhitesMove && startFile == Coordinates.E
+					&& startRank == Coordinates.RANK_1
+					&& board[A1[0]][A1[1]] == Piece.WR
+					&& board[B1[0]][B1[1]] == Piece.EMPTY
+					&& board[C1[0]][C1[1]] == Piece.EMPTY
+					&& board[D1[0]][D1[1]] == Piece.EMPTY
+					&& board[E1[0]][E1[1]] == Piece.WK) {
+				moves[++lastMovesIndex] = new Move(false, true);
+			} else if (!isWhitesMove && startFile == Coordinates.E
+					&& startRank == Coordinates.RANK_8
+					&& board[A8[0]][A8[1]] == Piece.BR
+					&& board[B8[0]][B8[1]] == Piece.EMPTY
+					&& board[C8[0]][C8[1]] == Piece.EMPTY
+					&& board[D8[0]][D8[1]] == Piece.EMPTY
+					&& board[E8[0]][E8[1]] == Piece.BK) {
+				moves[++lastMovesIndex] = new Move(false, false);
+			}
+		}
+		return lastMovesIndex;
+	}
+
+	/**
+	 * Returns an Piece.EMPTY List if no moves are found. Illegal moves from
+	 * moving into check are not taken into consideration EXCEPT when castling
+	 * through check.
+	 * 
+	 * @return A list of chess.Move objects.
+	 * @see decaf.moveengine.Move
+	 */
+	public static final int getPsuedoKingMoves(Move[] moves,
+			int lastMovesIndex, final int[][] board, int boardState,
+			int startRank, int startFile) {
+		lastMovesIndex = getPsuedoKingCastlingMoves(moves, lastMovesIndex,
+				board, boardState, startRank, startFile);
+		return getPsuedoKingNonCastlingMoves(moves, lastMovesIndex, board,
+				boardState, startRank, startFile);
+	}
+
+	public static final int getPsuedoKingNonCastlingMoves(Move[] moves,
+			int lastMovesIndex, final int[][] board, int boardState,
+			int startRank, int startFile) {
+		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
+		return addPatternMoves(moves, lastMovesIndex, board, boardState,
+				startRank, startFile, isWhitesMove ? Piece.WK : Piece.BK,
+				false, isWhitesMove ? WHITE_LEGAL_CONTENTS
+						: BLACK_LEGAL_CONTENTS, K_RANK_PATTERN, K_FILE_PATTERN);
+
+	}
+
+	/**
+	 * Returns an Piece.EMPTY List if no moves are found. Illegal moves from
+	 * moving into check are not taken into consideration.
+	 * 
+	 * @return A list of chess.Move objects.
+	 * @see decaf.moveengine.Move
+	 */
+	public static final int getPsuedoKnightMoves(Move[] moves,
+			int lastMovesIndex, final int[][] board, int boardState,
+			int startRank, int startFile) {
+		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
+		return addPatternMoves(moves, lastMovesIndex, board, boardState,
+				startRank, startFile, isWhitesMove ? Piece.WN : Piece.BN,
+				false, isWhitesMove ? WHITE_LEGAL_CONTENTS
+						: BLACK_LEGAL_CONTENTS, N_RANK_PATTERN, N_FILE_PATTERN);
+	}
+
+	public static final int getPsuedoLegalMoves(Move[] moves,
+			int lastMovesIndex, final int[][] board, int boardState) {
+		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
+		for (int rank = 0; rank < 8; rank++) {
+			for (int file = 0; file < 8; file++) {
+				int contents = board[rank][file];
+				if (isWhitesMove ? PieceUtil.isWhitePiece(contents) : PieceUtil
+						.isBlackPiece(contents)) {
+					switch (contents) {
+					case WP:
+					case BP: {
+						lastMovesIndex = getPsuedoPawnMoves(moves,
+								lastMovesIndex, board, boardState, rank, file);
+						break;
+					}
+					case WR:
+					case BR: {
+						lastMovesIndex = getPsuedoRookMoves(moves,
+								lastMovesIndex, board, boardState, rank, file);
+						break;
+					}
+
+					case WN:
+					case BN: {
+						lastMovesIndex = getPsuedoKnightMoves(moves,
+								lastMovesIndex, board, boardState, rank, file);
+						break;
+
+					}
+					case WB:
+					case BB: {
+						lastMovesIndex = getPsuedoBishopMoves(moves,
+								lastMovesIndex, board, boardState, rank, file);
+						break;
+
+					}
+					case WQ:
+					case BQ: {
+						lastMovesIndex = getPsuedoQueenMoves(moves,
+								lastMovesIndex, board, boardState, rank, file);
+						break;
+
+					}
+					case WK:
+					case BK: {
+						lastMovesIndex = getPsuedoKingMoves(moves,
+								lastMovesIndex, board, boardState, rank, file);
+
+					}
+					}
+				}
+			}
+		}
+		return lastMovesIndex;
+	}
+
+	/**
+	 * Returns an Piece.EMPTY List if no moves are found. Illegal moves from
+	 * moving into check are not taken into consideration.
+	 * 
+	 * @return A list of chess.Move objects.
+	 * @see decaf.moveengine.Move
+	 */
+	public static final int getPsuedoPawnMoves(Move[] moves,
+			int lastMovesIndex, final int[][] board, int boardState,
+			int startRank, int startFile) {
+		// add move up 1 square moves.
+		int result = getPsuedoPawnUpOneMoves(moves, lastMovesIndex, board,
+				boardState, startRank, startFile);
+
+		// add move forward 2 squares on first move.
+		result = getPseudoDoublePawnPushMoves(moves, result, board, boardState,
+				startRank, startFile);
+
+		// add in captures right and left.
+		result = getPseudoPawnCaptures(moves, result, board, boardState,
+				startRank, startFile);
+
+		// add ep moves.
+		result = getPawnEPMoves(moves, result, board, boardState, startRank,
+				startFile);
+
+		return result;
+	}
+
+	/**
+	 * Returns all possible pawn moves moving up 1 square. Illegal moves from
+	 * moving into check are not taken into consideration.
+	 * 
+	 * @return The last entry of the movesArray populated.
+	 * @see decaf.moveengine.Move
+	 */
+	public static final int getPsuedoPawnUpOneMoves(Move[] moves,
+			int lastMovesIndex, final int[][] board, int boardState,
+			int startRank, int startFile) {
+		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
+		int result = lastMovesIndex;
+		int[] filePattern = P_UP_1_FILE_PATTERN;
+		int[] rankPattern = isWhitesMove ? WP_RANK_PATTERN : BP_RANK_PATTERN;
+		int[] endCoordinatesLegalPieces = new int[] { Piece.EMPTY };
+
+		for (int i = 0; i < rankPattern.length; i++) {
+			int endRank = startRank + rankPattern[i];
+			int endFile = startFile + filePattern[i];
+
+			if (isPseudoLegal(board, boardState, endRank, endFile,
+					endCoordinatesLegalPieces)) {
+				if ((isWhitesMove && endRank == RANK_8)
+						|| (!isWhitesMove && endRank == RANK_1)) {
+					result = addAllPromotions(moves, result,
+							board[endRank][endFile], new int[] { startRank,
+									startFile },
+							new int[] { endRank, endFile }, isWhitesMove);
+				} else {
+					moves[++result] = new Move(startRank, startFile, endRank,
+							endFile, isWhitesMove ? WHITE_PAWN : BLACK_PAWN,
+							board[endRank][endFile], isWhitesMove);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Returns an Piece.EMPTY List if no moves are found. Illegal moves from
+	 * moving into check are not taken into consideration.
+	 * 
+	 * @return A list of chess.Move objects.
+	 * @see decaf.moveengine.Move
+	 */
+	public static final int getPsuedoQueenMoves(Move[] moves,
+			int lastMovesIndex, final int[][] board, int boardState,
+			int startRank, int startFile) {
+		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
+		return addPatternMoves(moves, lastMovesIndex, board, boardState,
+				startRank, startFile, isWhitesMove ? Piece.WQ : Piece.BQ, true,
+				isWhitesMove ? WHITE_LEGAL_CONTENTS : BLACK_LEGAL_CONTENTS,
+				Q_RANK_PATTERN, Q_FILE_PATTERN);
+	}
+
+	/**
+	 * Returns an Piece.EMPTY List if no moves are found. Illegal moves from
+	 * moving into check are not taken into consideration.
+	 * 
+	 * @return A list of chess.Move objects.
+	 * @see decaf.moveengine.Move
+	 */
+	public static final int getPsuedoRookMoves(Move[] moves,
+			int lastMovesIndex, final int[][] board, int boardState,
+			int startRank, int startFile) {
+		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
+		return addPatternMoves(moves, lastMovesIndex, board, boardState,
+				startRank, startFile, isWhitesMove ? Piece.WR : Piece.BR, true,
+				isWhitesMove ? WHITE_LEGAL_CONTENTS : BLACK_LEGAL_CONTENTS,
+				R_RANK_PATTERN, R_FILE_PATTERN);
+	}
+
+	public static final boolean isInCheck(int[][] board, int[] coordinates,
+			boolean isWhite) {
+		boolean result = false;
+
+		// test knights first.
+		int knight = isWhite ? BN : WN;
+		for (int i = 0; !result && i < N_RANK_PATTERN.length; i++) {
+			int[] testCoordinates = { coordinates[0] + N_RANK_PATTERN[i],
+					coordinates[1] + N_FILE_PATTERN[i] };
+			if (CoordinatesUtil.isInBounds(testCoordinates)) {
+				result = board[testCoordinates[0]][testCoordinates[1]] == knight;
+			}
+
+		}
+
+		// Everything besides knights.
+		if (!result) {
+			int[][] level1 = isWhite ? WHITE_LEVEL_1_CAPTURES
+					: BLACK_LEVEL_1_CAPTURES;
+			int[][] level2 = isWhite ? WHITE_LEVEL_2_CAPTURES
+					: BLACK_LEVEL_2_CAPTURES;
+			for (int i = 0; !result && i < 8; i++) {
+				int[] testCoordinates = pivot(i, coordinates);
+				if (CoordinatesUtil.isInBounds(testCoordinates)) {
+					int contents = board[testCoordinates[0]][testCoordinates[1]];
+					result = contains(level1[i], contents);
+
+					while (!result && contents == Piece.EMPTY) {
+						testCoordinates = pivot(i, testCoordinates);
+						if (CoordinatesUtil.isInBounds(testCoordinates)) {
+							contents = board[testCoordinates[0]][testCoordinates[1]];
+							result = contains(level2[i], contents);
+						} else {
+							break;
+						}
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	public static final boolean isInCheck(final int[][] board,
+			int[][] coordinates, boolean isWhite) {
+		boolean result = false;
+		for (int i = 0; !result && i < coordinates.length; i++) {
+			result = isInCheck(board, coordinates[i], isWhite);
+		}
+		return result;
+	}
+
+	/**
+	 * Returns true if 0 <= endRank & endFile <=8, state.get(endRank,endFile) is
+	 * not a king, state.get(endRank,endFile) is Piece.EMPTY or opposite color
+	 * of whose move it is.
+	 */
+	public static final boolean isPseudoLegal(final int[][] board,
+			int boardState, int endRank, int endFile,
+			int[] possibleEndCoordContents) {
+		boolean result = false;
+		if (CoordinatesUtil.isInBounds(endRank, endFile)) {
+			result = contains(possibleEndCoordContents, board[endRank][endFile]);
+		}
+		return result;
 	}
 
 	/**
@@ -451,734 +1138,6 @@ public class PositionUtil implements Piece, Coordinates {
 	}
 
 	/**
-	 * Returns all of the legal moves in droppable chess (crazyhouse or
-	 * bughouse).
-	 * 
-	 * @param board
-	 * @param boardState
-	 * @param playersHoldings
-	 *            The pieces the player is holding that he/she can drop for a
-	 *            move.
-	 * @return
-	 */
-	public static final Move[] getLegalDroppableChessMoves(final int[][] board,
-			final int boardState, final int[] playersHoldings) {
-		boolean isDroppable = playersHoldings != null
-				|| playersHoldings.length != 0;
-		Move[] moves = new Move[isDroppable ? DROP_MAX_MOVES : MAXIMUM_MOVES];
-		int lastMovesIndex = -1;
-
-		// get psudo legal moves.
-		lastMovesIndex = getPsuedoLegalMoves(moves, lastMovesIndex, board,
-				boardState);
-
-		lastMovesIndex = getPseudoDropMoves(moves, lastMovesIndex, board,
-				boardState, playersHoldings);
-
-		Move[] trimmedMoves = new Move[isDroppable ? DROP_MAX_MOVES
-				: MAXIMUM_MOVES];
-		int lastUsedTrimmedIndex = -1;
-		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
-		int[] kingCoordinates = getKingCoordinates(isWhitesMove, board);
-
-		// now trim all illegals.
-		for (int i = 0; i <= lastMovesIndex; i++) {
-			Move move = moves[i];
-			boolean isLegal = false;
-
-			if (move.isCastling()) {
-				if (move.isCastleKingside()) {
-					isLegal = !isInCheck(board,
-							isWhitesMove ? WHITE_CASTLE_THRU_CHECK_KINGSIDE
-									: BLACK_CASTLE_THRU_CHECK_KINGSIDE,
-							isWhitesMove);
-				} else {
-					isLegal = !isInCheck(board,
-							isWhitesMove ? WHITE_CASTLE_THRU_CHECK_QUEENSIDE
-									: BLACK_CASTLE_THRU_CHECK_QUEENSIDE,
-							isWhitesMove);
-				}
-			} else {
-				// MAKE THE MOVE
-				makeMove(board, boardState, move, false);
-
-				// DETERMINE IF IN CHECK AFTER MOVE
-				//
-				// THE FOLLOWING CODE IS NOT THREAD SAFE AND ALTERS BOARD.
-				int pieceMoving = move.getPieceMoving();
-				if (isWhitesMove && pieceMoving == WK || !isWhitesMove
-						&& pieceMoving == BK) {
-					// The king moved so the kings coordinates are the end
-					// rank/file of the move.
-					// *Note - castling is already taken care of so no need to
-					// worry about what the end
-					// coordinate is if that is the case).
-					isLegal = !isInCheck(board, move.getEndCoordinates(),
-							isWhitesMove);
-				} else {
-					isLegal = !isInCheck(board, kingCoordinates, isWhitesMove);
-				}
-
-				// ROLL BACK THE MOVE PRESERVING THE BOARDS STATE.
-				rollbackMove(board, move);
-			}
-
-			if (isLegal) {
-				trimmedMoves[++lastUsedTrimmedIndex] = move;
-			}
-
-		}
-
-		// trim result and return it.
-		int resultSize = lastUsedTrimmedIndex + 1;
-		Move[] result = new Move[resultSize];
-		System.arraycopy(trimmedMoves, 0, result, 0, resultSize);
-
-		return result;
-	}
-
-	/**
-	 * Returns an array of all of the legal moves. ***WARNING*** This method
-	 * WILL alter board while it is executing. However when the method is
-	 * finished board should be in the same state as it was past in as. Thus it
-	 * is up to the invoker to handle all synchronization.
-	 */
-	public static final Move[] getLegalMoves(final int[][] board,
-			final int boardState, final int[] availableDropPieces) {
-		return getLegalDroppableChessMoves(board, boardState,
-				availableDropPieces == null ? new int[] {}
-						: availableDropPieces);
-	}
-
-	public static final boolean contains(int[] array, int integer) {
-		boolean result = false;
-		for (int i = 0; !result && i < array.length; i++) {
-			result = array[i] == integer;
-		}
-		return result;
-	}
-
-	/**
-	 * Returns true if 0 <= endRank & endFile <=8, state.get(endRank,endFile) is
-	 * not a king, state.get(endRank,endFile) is Piece.EMPTY or opposite color
-	 * of whose move it is.
-	 */
-	public static final boolean isPseudoLegal(final int[][] board,
-			int boardState, int endRank, int endFile,
-			int[] possibleEndCoordContents) {
-		boolean result = false;
-		if (CoordinatesUtil.isInBounds(endRank, endFile)) {
-			result = contains(possibleEndCoordContents, board[endRank][endFile]);
-		}
-		return result;
-	}
-
-	public static final int addPatternMoves(Move[] moves, int lastMovesIndex,
-			final int[][] board, final int boardState, int startRank,
-			int startFile, int pieceMoving,
-			boolean moveAlongPatternUtilBlocked,
-			int[] endCoordinatesLegalPieces, int[] addToRankPattern,
-			int[] addToFilePattern) {
-		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
-
-		// assert addToRankPattern != null : "Rank pattern cant be null.";
-		// / assert addToFilePattern != null : "File pattern cant be null.";
-		// assert addToRankPattern.length == addToFilePattern.length : "Rank
-		// pattern must be the same length as file pattern";
-		// assert addToRankPattern.length != 0 : "Rank pattern must contain
-		// atleast one int";
-
-		if (moveAlongPatternUtilBlocked) {
-			for (int i = 0; i < addToRankPattern.length; i++) {
-				boolean stopPatternSearch = false;
-
-				int endRank = startRank;
-				int endFile = startFile;
-
-				do {
-					endRank += addToRankPattern[i];
-					endFile += addToFilePattern[i];
-
-					if (CoordinatesUtil.isInBounds(endRank, endFile)) {
-						int candidateContents = board[endRank][endFile];
-						if (isPseudoLegal(board, boardState, endRank, endFile,
-								endCoordinatesLegalPieces)) {
-							moves[++lastMovesIndex] = new Move(startRank,
-									startFile, endRank, endFile, pieceMoving,
-									candidateContents, isWhitesMove);
-
-						}
-
-						stopPatternSearch = candidateContents != Piece.EMPTY;
-					} else {
-						stopPatternSearch = true;
-					}
-				} while (!stopPatternSearch);
-			}
-		} else {
-			for (int i = 0; i < addToRankPattern.length; i++) {
-				int endRank = startRank + addToRankPattern[i];
-				int endFile = startFile + addToFilePattern[i];
-
-				if (isPseudoLegal(board, boardState, endRank, endFile,
-						endCoordinatesLegalPieces)) {
-					moves[++lastMovesIndex] = new Move(startRank, startFile,
-							endRank, endFile, pieceMoving,
-							board[endRank][endFile], isWhitesMove);
-				}
-			}
-		}
-		return lastMovesIndex;
-	}
-
-	public static final int getPseudoDropMoves(Move[] moves,
-			int lastMovesIndex, int[][] board, int boardState,
-			int dropHoldings[]) {
-		if (dropHoldings != null && dropHoldings.length != 0) {
-			boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
-			boolean isPawnDroppable = false;
-			boolean isKnightDroppable = false;
-			boolean isBishopDroppable = false;
-			boolean isRookDroppable = false;
-			boolean isQueenDroppable = false;
-
-			for (int i = 0; i < dropHoldings.length; i++) {
-				switch (dropHoldings[i]) {
-				case WP:
-				case BP: {
-					isPawnDroppable = true;
-					break;
-				}
-				case WN:
-				case BN: {
-					isKnightDroppable = true;
-					break;
-				}
-				case WB:
-				case BB: {
-					isBishopDroppable = true;
-					break;
-				}
-				case WR:
-				case BR: {
-					isRookDroppable = true;
-					break;
-				}
-				case WQ:
-				case BQ: {
-					isQueenDroppable = true;
-					break;
-				}
-				default: {
-					throw new IllegalArgumentException(
-							"Invalid drop piece encountered: "
-									+ dropHoldings[i]);
-				}
-				}
-			}
-
-			for (int rank = 0; rank < 8; rank++) {
-				for (int file = 0; file < 8; file++) {
-					if (board[rank][file] == Piece.EMPTY) {
-						if (isPawnDroppable && rank != 0 && rank != 7) {
-							moves[++lastMovesIndex] = new Move(
-									isWhitesMove ? WP : BP, new int[] { rank,
-											file }, isWhitesMove);
-						}
-						if (isKnightDroppable) {
-							moves[++lastMovesIndex] = new Move(
-									isWhitesMove ? WN : BN, new int[] { rank,
-											file }, isWhitesMove);
-						}
-						if (isBishopDroppable) {
-							moves[++lastMovesIndex] = new Move(
-									isWhitesMove ? WB : BB, new int[] { rank,
-											file }, isWhitesMove);
-						}
-						if (isRookDroppable) {
-							moves[++lastMovesIndex] = new Move(
-									isWhitesMove ? WR : BR, new int[] { rank,
-											file }, isWhitesMove);
-						}
-						if (isQueenDroppable) {
-							moves[++lastMovesIndex] = new Move(
-									isWhitesMove ? WQ : BQ, new int[] { rank,
-											file }, isWhitesMove);
-						}
-					}
-				}
-			}
-		}
-		return lastMovesIndex;
-	}
-
-	/**
-	 * Returns an Piece.EMPTY List if no moves are found. Illegal moves from
-	 * moving into check are not taken into consideration.
-	 * 
-	 * @return A list of chess.Move objects.
-	 * @see decaf.moveengine.Move
-	 */
-	public static final int getPsuedoKnightMoves(Move[] moves,
-			int lastMovesIndex, final int[][] board, int boardState,
-			int startRank, int startFile) {
-		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
-		return addPatternMoves(moves, lastMovesIndex, board, boardState,
-				startRank, startFile, isWhitesMove ? PieceUtil.WN
-						: PieceUtil.BN, false,
-				isWhitesMove ? WHITE_LEGAL_CONTENTS : BLACK_LEGAL_CONTENTS,
-				N_RANK_PATTERN, N_FILE_PATTERN);
-	}
-
-	/**
-	 * Returns an Piece.EMPTY List if no moves are found. Illegal moves from
-	 * moving into check are not taken into consideration.
-	 * 
-	 * @return A list of chess.Move objects.
-	 * @see decaf.moveengine.Move
-	 */
-	public static final int getPsuedoBishopMoves(Move[] moves,
-			int lastMovesIndex, final int[][] board, int boardState,
-			int startRank, int startFile) {
-		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
-		return addPatternMoves(moves, lastMovesIndex, board, boardState,
-				startRank, startFile, isWhitesMove ? PieceUtil.WB
-						: PieceUtil.BB, true,
-				isWhitesMove ? WHITE_LEGAL_CONTENTS : BLACK_LEGAL_CONTENTS,
-				B_RANK_PATTERN, B_FILE_PATTERN);
-	}
-
-	/**
-	 * Returns an Piece.EMPTY List if no moves are found. Illegal moves from
-	 * moving into check are not taken into consideration.
-	 * 
-	 * @return A list of chess.Move objects.
-	 * @see decaf.moveengine.Move
-	 */
-	public static final int getPsuedoQueenMoves(Move[] moves,
-			int lastMovesIndex, final int[][] board, int boardState,
-			int startRank, int startFile) {
-		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
-		return addPatternMoves(moves, lastMovesIndex, board, boardState,
-				startRank, startFile, isWhitesMove ? PieceUtil.WQ
-						: PieceUtil.BQ, true,
-				isWhitesMove ? WHITE_LEGAL_CONTENTS : BLACK_LEGAL_CONTENTS,
-				Q_RANK_PATTERN, Q_FILE_PATTERN);
-	}
-
-	/**
-	 * Returns an Piece.EMPTY List if no moves are found. Illegal moves from
-	 * moving into check are not taken into consideration.
-	 * 
-	 * @return A list of chess.Move objects.
-	 * @see decaf.moveengine.Move
-	 */
-	public static final int getPsuedoRookMoves(Move[] moves,
-			int lastMovesIndex, final int[][] board, int boardState,
-			int startRank, int startFile) {
-		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
-		return addPatternMoves(moves, lastMovesIndex, board, boardState,
-				startRank, startFile, isWhitesMove ? PieceUtil.WR
-						: PieceUtil.BR, true,
-				isWhitesMove ? WHITE_LEGAL_CONTENTS : BLACK_LEGAL_CONTENTS,
-				R_RANK_PATTERN, R_FILE_PATTERN);
-	}
-
-	/**
-	 * Returns an Piece.EMPTY List if no moves are found. Illegal moves from
-	 * moving into check are not taken into consideration.
-	 * 
-	 * @return A list of chess.Move objects.
-	 * @see decaf.moveengine.Move
-	 */
-	public static final int getPsuedoPawnMoves(Move[] moves,
-			int lastMovesIndex, final int[][] board, int boardState,
-			int startRank, int startFile) {
-		// add move up 1 square moves.
-		int result = getPsuedoPawnUpOneMoves(moves, lastMovesIndex, board,
-				boardState, startRank, startFile);
-
-		// add move forward 2 squares on first move.
-		result = getPseudoDoublePawnPushMoves(moves, result, board, boardState,
-				startRank, startFile);
-
-		// add in captures right and left.
-		result = getPseudoPawnCaptures(moves, result, board, boardState,
-				startRank, startFile);
-
-		// add ep moves.
-		result = getPawnEPMoves(moves, result, board, boardState, startRank,
-				startFile);
-
-		return result;
-	}
-
-	/**
-	 * Returns all possible pawn moves moving up 1 square. Illegal moves from
-	 * moving into check are not taken into consideration.
-	 * 
-	 * @return The last entry of the movesArray populated.
-	 * @see decaf.moveengine.Move
-	 */
-	public static final int getPsuedoPawnUpOneMoves(Move[] moves,
-			int lastMovesIndex, final int[][] board, int boardState,
-			int startRank, int startFile) {
-		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
-		int result = lastMovesIndex;
-		int[] filePattern = P_UP_1_FILE_PATTERN;
-		int[] rankPattern = isWhitesMove ? WP_RANK_PATTERN : BP_RANK_PATTERN;
-		int[] endCoordinatesLegalPieces = new int[] { Piece.EMPTY };
-
-		for (int i = 0; i < rankPattern.length; i++) {
-			int endRank = startRank + rankPattern[i];
-			int endFile = startFile + filePattern[i];
-
-			if (isPseudoLegal(board, boardState, endRank, endFile,
-					endCoordinatesLegalPieces)) {
-				if ((isWhitesMove && endRank == RANK_8)
-						|| (!isWhitesMove && endRank == RANK_1)) {
-					result = addAllPromotions(moves, result,
-							board[endRank][endFile], new int[] { startRank,
-									startFile },
-							new int[] { endRank, endFile }, isWhitesMove);
-				} else {
-					moves[++result] = new Move(startRank, startFile, endRank,
-							endFile, isWhitesMove ? WHITE_PAWN : BLACK_PAWN,
-							board[endRank][endFile], isWhitesMove);
-				}
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Returns -1 if last move was not a double pawn push.
-	 */
-	public static final int stateToLastDPPush(int boardState) {
-		if ((boardState & A_FILE_STATE) != 0) {
-			return 0;
-		} else if ((boardState & B_FILE_STATE) != 0) {
-			return 1;
-		} else if ((boardState & C_FILE_STATE) != 0) {
-			return 2;
-		} else if ((boardState & D_FILE_STATE) != 0) {
-			return 3;
-		} else if ((boardState & E_FILE_STATE) != 0) {
-			return 4;
-		} else if ((boardState & F_FILE_STATE) != 0) {
-			return 5;
-		} else if ((boardState & G_FILE_STATE) != 0) {
-			return 6;
-		} else if ((boardState & H_FILE_STATE) != 0) {
-			return 7;
-		} else {
-			return -1;
-		}
-	}
-
-	public static final int getPawnEPMoves(Move[] moves, int lastMovesIndex,
-			final int[][] board, int boardState, int startRank, int startFile) {
-		int epFile = stateToLastDPPush(boardState);
-		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
-
-		if (epFile != -1) {
-			if (isWhitesMove && startRank == RANK_5) {
-				int leftOne = startFile - 1;
-				int rightOne = startFile + 1;
-
-				if (leftOne == epFile
-						&& PieceUtil.isPawn(board[RANK_5][leftOne])
-						&& PieceUtil.isBlackPiece(board[RANK_5][leftOne])
-						&& PieceUtil.isEmpty(board[RANK_6][leftOne])) {
-					moves[++lastMovesIndex] = new Move(new int[] { startRank,
-							startFile }, leftOne, true);
-				} else if (rightOne == epFile
-						&& PieceUtil.isPawn(board[RANK_5][rightOne])
-						&& PieceUtil.isBlackPiece(board[RANK_5][rightOne])
-						&& PieceUtil.isEmpty(board[RANK_6][rightOne])) {
-					moves[++lastMovesIndex] = new Move(new int[] { startRank,
-							startFile }, rightOne, true);
-				}
-			} else if (!isWhitesMove && startRank == RANK_4) {
-				int leftOne = startFile + 1;
-				int rightOne = startFile - 1;
-				if (rightOne == epFile
-						&& PieceUtil.isPawn(board[RANK_4][rightOne])
-						&& PieceUtil.isWhitePiece(board[RANK_4][rightOne])
-						&& PieceUtil.isEmpty(board[RANK_3][rightOne])) {
-					moves[++lastMovesIndex] = new Move(new int[] { startRank,
-							startFile }, startFile - 1, false);
-				} else if (leftOne == epFile
-						&& PieceUtil.isPawn(board[RANK_4][leftOne])
-						&& PieceUtil.isWhitePiece(board[RANK_4][leftOne])
-						&& PieceUtil.isEmpty(board[RANK_3][leftOne])) {
-					moves[++lastMovesIndex] = new Move(new int[] { startRank,
-							startFile }, leftOne, false);
-				}
-			}
-		}
-		return lastMovesIndex;
-	}
-
-	public static final int getPseudoPawnCaptures(Move[] moves,
-			int lastMovesIndex, final int[][] board, int boardState,
-			int startRank, int startFile) {
-		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
-		int result = lastMovesIndex;
-		int[] filePattern = P_X_FILE_PATTERN;
-		int[] rankPattern = isWhitesMove ? WP_X_RANK_PATTERN
-				: BP_X_RANK_PATTERN;
-		int[] endCoordinatesLegalPieces = isWhitesMove ? WP_X_LEGAL_CONTENTS
-				: BP_X_LEGAL_CONTENTS;
-
-		for (int i = 0; i < rankPattern.length; i++) {
-			int endRank = startRank + rankPattern[i];
-			int endFile = startFile + filePattern[i];
-
-			if (isPseudoLegal(board, boardState, endRank, endFile,
-					endCoordinatesLegalPieces)) {
-				if ((isWhitesMove && endRank == RANK_8)
-						|| (!isWhitesMove && endRank == RANK_1)) {
-					result = addAllPromotions(moves, result,
-							board[endRank][endFile], new int[] { startRank,
-									startFile },
-							new int[] { endRank, endFile }, isWhitesMove);
-				} else {
-					moves[++result] = new Move(startRank, startFile, endRank,
-							endFile, isWhitesMove ? WHITE_PAWN : BLACK_PAWN,
-							board[endRank][endFile], isWhitesMove);
-				}
-			}
-		}
-
-		return result;
-	}
-
-	private static final int addAllPromotions(Move[] moves, int lastMovesIndex,
-			int capturedPiece, int[] startCoordinates, int[] endCoordinates,
-			boolean isWhitesMove) {
-		moves[++lastMovesIndex] = new Move(isWhitesMove ? Piece.WHITE_KNIGHT
-				: Piece.BLACK_KNIGHT, startCoordinates, endCoordinates,
-				capturedPiece, isWhitesMove);
-		moves[++lastMovesIndex] = new Move(isWhitesMove ? Piece.WHITE_BISHOP
-				: Piece.BLACK_BISHOP, startCoordinates, endCoordinates,
-				capturedPiece, isWhitesMove);
-		moves[++lastMovesIndex] = new Move(isWhitesMove ? Piece.WHITE_ROOK
-				: Piece.BLACK_ROOK, startCoordinates, endCoordinates,
-				capturedPiece, isWhitesMove);
-		moves[++lastMovesIndex] = new Move(isWhitesMove ? Piece.WHITE_QUEEN
-				: Piece.BLACK_QUEEN, startCoordinates, endCoordinates,
-				capturedPiece, isWhitesMove);
-		return lastMovesIndex;
-	}
-
-	public static final int getPseudoDoublePawnPushMoves(Move[] moves,
-			int lastMovesIndex, final int[][] board, int boardState,
-			int startRank, int startFile) {
-		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
-
-		if (isWhitesMove) {
-			if (startRank == Move.RANK_2
-					&& PieceUtil.isEmpty(board[RANK_3][startFile])
-					&& PieceUtil.isEmpty(board[RANK_4][startFile])) {
-				moves[++lastMovesIndex] = new Move(startFile, true);
-			}
-		} else {
-			if (startRank == Move.RANK_7
-					&& PieceUtil.isEmpty(board[Move.RANK_6][startFile])
-					&& PieceUtil.isEmpty(board[Move.RANK_5][startFile])) {
-				moves[++lastMovesIndex] = new Move(startFile, false);
-			}
-
-		}
-		return lastMovesIndex;
-	}
-
-	public static final int getPsuedoKingNonCastlingMoves(Move[] moves,
-			int lastMovesIndex, final int[][] board, int boardState,
-			int startRank, int startFile) {
-		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
-		return addPatternMoves(moves, lastMovesIndex, board, boardState,
-				startRank, startFile, isWhitesMove ? PieceUtil.WK
-						: PieceUtil.BK, false,
-				isWhitesMove ? WHITE_LEGAL_CONTENTS : BLACK_LEGAL_CONTENTS,
-				K_RANK_PATTERN, K_FILE_PATTERN);
-
-	}
-
-	public static final int getPsuedoKingCastlingMoves(Move[] moves,
-			int lastMovesIndex, final int[][] board, int boardState,
-			int startRank, int startFile) {
-		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
-		boolean canCastleKingside = isWhitesMove ? (boardState & WHITE_CAN_CASTLE_KINGSIDE_STATE) != 0
-				: (boardState & BLACK_CAN_CASTLE_KINGSIDE_STATE) != 0;
-		boolean canCastleQueenside = isWhitesMove ? (boardState & WHITE_CAN_CASTLE_QUEENSIDE_STATE) != 0
-				: (boardState & BLACK_CAN_CASTLE_QUEENSIDE_STATE) != 0;
-
-		if (canCastleKingside) {
-			if (isWhitesMove && startFile == Move.E && startRank == Move.RANK_1
-					&& board[E1[0]][E1[1]] == PieceUtil.WK
-					&& board[F1[0]][F1[1]] == PieceUtil.EMPTY
-					&& board[G1[0]][G1[1]] == PieceUtil.EMPTY
-					&& board[H1[0]][H1[1]] == PieceUtil.WR) {
-				moves[++lastMovesIndex] = new Move(true, true);
-			} else if (!isWhitesMove && startFile == Move.E
-					&& startRank == Move.RANK_8
-					&& board[E8[0]][E8[1]] == PieceUtil.BK
-					&& board[F8[0]][F8[1]] == PieceUtil.EMPTY
-					&& board[G8[0]][G8[1]] == PieceUtil.EMPTY
-					&& board[H8[0]][H8[1]] == PieceUtil.BR) {
-
-				moves[++lastMovesIndex] = new Move(true, false);
-			}
-		}
-
-		if (canCastleQueenside) {
-			if (isWhitesMove && startFile == Move.E && startRank == Move.RANK_1
-					&& board[A1[0]][A1[1]] == PieceUtil.WR
-					&& board[B1[0]][B1[1]] == PieceUtil.EMPTY
-					&& board[C1[0]][C1[1]] == PieceUtil.EMPTY
-					&& board[D1[0]][D1[1]] == PieceUtil.EMPTY
-					&& board[E1[0]][E1[1]] == PieceUtil.WK) {
-				moves[++lastMovesIndex] = new Move(false, true);
-			} else if (!isWhitesMove && startFile == Move.E
-					&& startRank == Move.RANK_8
-					&& board[A8[0]][A8[1]] == PieceUtil.BR
-					&& board[B8[0]][B8[1]] == PieceUtil.EMPTY
-					&& board[C8[0]][C8[1]] == PieceUtil.EMPTY
-					&& board[D8[0]][D8[1]] == PieceUtil.EMPTY
-					&& board[E8[0]][E8[1]] == PieceUtil.BK) {
-				moves[++lastMovesIndex] = new Move(false, false);
-			}
-		}
-		return lastMovesIndex;
-	}
-
-	/**
-	 * Returns an Piece.EMPTY List if no moves are found. Illegal moves from
-	 * moving into check are not taken into consideration EXCEPT when castling
-	 * through check.
-	 * 
-	 * @return A list of chess.Move objects.
-	 * @see decaf.moveengine.Move
-	 */
-	public static final int getPsuedoKingMoves(Move[] moves,
-			int lastMovesIndex, final int[][] board, int boardState,
-			int startRank, int startFile) {
-		lastMovesIndex = getPsuedoKingCastlingMoves(moves, lastMovesIndex,
-				board, boardState, startRank, startFile);
-		return getPsuedoKingNonCastlingMoves(moves, lastMovesIndex, board,
-				boardState, startRank, startFile);
-	}
-
-	public static final int getPsuedoLegalMoves(Move[] moves,
-			int lastMovesIndex, final int[][] board, int boardState) {
-		boolean isWhitesMove = (boardState & IS_WHITES_MOVE_STATE) != 0;
-		for (int rank = 0; rank < 8; rank++) {
-			for (int file = 0; file < 8; file++) {
-				int contents = board[rank][file];
-				if (isWhitesMove ? PieceUtil.isWhitePiece(contents) : PieceUtil
-						.isBlackPiece(contents)) {
-					switch (contents) {
-					case WP:
-					case BP: {
-						lastMovesIndex = getPsuedoPawnMoves(moves,
-								lastMovesIndex, board, boardState, rank, file);
-						break;
-					}
-					case WR:
-					case BR: {
-						lastMovesIndex = getPsuedoRookMoves(moves,
-								lastMovesIndex, board, boardState, rank, file);
-						break;
-					}
-
-					case WN:
-					case BN: {
-						lastMovesIndex = getPsuedoKnightMoves(moves,
-								lastMovesIndex, board, boardState, rank, file);
-						break;
-
-					}
-					case WB:
-					case BB: {
-						lastMovesIndex = getPsuedoBishopMoves(moves,
-								lastMovesIndex, board, boardState, rank, file);
-						break;
-
-					}
-					case WQ:
-					case BQ: {
-						lastMovesIndex = getPsuedoQueenMoves(moves,
-								lastMovesIndex, board, boardState, rank, file);
-						break;
-
-					}
-					case WK:
-					case BK: {
-						lastMovesIndex = getPsuedoKingMoves(moves,
-								lastMovesIndex, board, boardState, rank, file);
-
-					}
-					}
-				}
-			}
-		}
-		return lastMovesIndex;
-	}
-
-	public static final boolean isInCheck(final int[][] board,
-			int[][] coordinates, boolean isWhite) {
-		boolean result = false;
-		for (int i = 0; !result && i < coordinates.length; i++) {
-			result = isInCheck(board, coordinates[i], isWhite);
-		}
-		return result;
-	}
-
-	public static final boolean isInCheck(int[][] board, int[] coordinates,
-			boolean isWhite) {
-		boolean result = false;
-
-		// test knights first.
-		int knight = isWhite ? BN : WN;
-		for (int i = 0; !result && i < N_RANK_PATTERN.length; i++) {
-			int[] testCoordinates = { coordinates[0] + N_RANK_PATTERN[i],
-					coordinates[1] + N_FILE_PATTERN[i] };
-			if (CoordinatesUtil.isInBounds(testCoordinates)) {
-				result = board[testCoordinates[0]][testCoordinates[1]] == knight;
-			}
-
-		}
-
-		// Everything besides knights.
-		if (!result) {
-			int[][] level1 = isWhite ? WHITE_LEVEL_1_CAPTURES
-					: BLACK_LEVEL_1_CAPTURES;
-			int[][] level2 = isWhite ? WHITE_LEVEL_2_CAPTURES
-					: BLACK_LEVEL_2_CAPTURES;
-			for (int i = 0; !result && i < 8; i++) {
-				int[] testCoordinates = pivot(i, coordinates);
-				if (CoordinatesUtil.isInBounds(testCoordinates)) {
-					int contents = board[testCoordinates[0]][testCoordinates[1]];
-					result = contains(level1[i], contents);
-
-					while (!result && contents == Piece.EMPTY) {
-						testCoordinates = pivot(i, testCoordinates);
-						if (CoordinatesUtil.isInBounds(testCoordinates)) {
-							contents = board[testCoordinates[0]][testCoordinates[1]];
-							result = contains(level2[i], contents);
-						} else {
-							break;
-						}
-					}
-				}
-			}
-		}
-		return result;
-	}
-
-	/**
 	 * 0 top left 1 top center 2 top right 3 left 4 right 5 bottom left 6 bottom
 	 * center 7 bottom right
 	 */
@@ -1233,37 +1192,75 @@ public class PositionUtil implements Piece, Coordinates {
 		return result;
 	}
 
-	public static final int[] getKingCoordinates(boolean searchForWhiteKing,
-			int[][] board) {
-		int[] result = null;
-		if (searchForWhiteKing) {
-			for (int rank = 7; result == null && rank > -1; rank--) {
-				for (int file = 0; file < board.length; file++) {
-					if (board[rank][file] == WK) {
-						result = new int[] { rank, file };
-					}
-				}
+	/**
+	 * Rolls back the last move made. Since state can not be determined from the
+	 * information passed in boardState is not used in this method.
+	 */
+	public static final void rollbackMove(int[][] board, Move move) {
+		if (move.isCastling()) {
+			if (move.isCastleKingside() && move.isWhitesMove()) {
+				board[E1[0]][E1[1]] = WK;
+				board[F1[0]][F1[1]] = Piece.EMPTY;
+				board[G1[0]][G1[1]] = Piece.EMPTY;
+				board[H1[0]][H1[1]] = WR;
+			} else if (move.isCastleQueenside() && move.isWhitesMove()) {
+				board[A1[0]][E1[1]] = WR;
+				board[B1[0]][B1[1]] = Piece.EMPTY;
+				board[C1[0]][C1[1]] = Piece.EMPTY;
+				board[D1[0]][D1[1]] = Piece.EMPTY;
+				board[E1[0]][E1[1]] = WK;
+			} else if (move.isCastleKingside() && !move.isWhitesMove()) {
+				board[E8[0]][E8[1]] = BR;
+				board[F8[0]][F8[1]] = Piece.EMPTY;
+				board[G8[0]][G8[1]] = Piece.EMPTY;
+				board[H8[0]][H8[1]] = BK;
+			} else if (move.isCastleQueenside() && !move.isWhitesMove()) {
+				board[A8[0]][E8[1]] = BR;
+				board[B8[0]][B8[1]] = Piece.EMPTY;
+				board[C8[0]][C8[1]] = Piece.EMPTY;
+				board[D8[0]][D8[1]] = Piece.EMPTY;
+				board[E8[0]][E8[1]] = BK;
 			}
+		} else if (move.isDropMove()) {
+			board[move.getEndRank()][move.getEndFile()] = Piece.EMPTY;
 		} else {
-			for (int rank = 0; result == null && rank < board.length; rank++) {
-				for (int file = 0; file < board.length; file++) {
-					if (board[rank][file] == BK) {
-						result = new int[] { rank, file };
-					}
-				}
+			board[move.getStartRank()][move.getStartFile()] = move
+					.getPieceMoving();
+
+			if (move.isEnPassant()) {
+				board[move.getEnPassantPawnRank()][move.getEnPassantPawnFile()] = move
+						.getCapturedPiece();
+				board[move.getEndRank()][move.getEndFile()] = Piece.EMPTY;
+			} else {
+				board[move.getEndRank()][move.getEndFile()] = move
+						.getCapturedPiece(); // returns Piece.EMPTY if none
+				// captured.
 			}
 		}
-
-		if (result == null) {
-			throw new IllegalArgumentException("Could not find "
-					+ (searchForWhiteKing ? "white" : "black") + " king. "
-					+ dumpBoard(board));
-		}
-		return result;
 	}
 
-	public static final String dumpBoard(int[][] board) {
-		// assert board != null : "board cant be null.";
-		return Position.DEFAULT_ENCODER.encode(board);
+	/**
+	 * Returns -1 if last move was not a double pawn push.
+	 */
+	public static final int stateToLastDPPush(int boardState) {
+		if ((boardState & A_FILE_STATE) != 0) {
+			return 0;
+		} else if ((boardState & B_FILE_STATE) != 0) {
+			return 1;
+		} else if ((boardState & C_FILE_STATE) != 0) {
+			return 2;
+		} else if ((boardState & D_FILE_STATE) != 0) {
+			return 3;
+		} else if ((boardState & E_FILE_STATE) != 0) {
+			return 4;
+		} else if ((boardState & F_FILE_STATE) != 0) {
+			return 5;
+		} else if ((boardState & G_FILE_STATE) != 0) {
+			return 6;
+		} else if ((boardState & H_FILE_STATE) != 0) {
+			return 7;
+		} else {
+			return -1;
+		}
 	}
 }

@@ -33,18 +33,19 @@ public class MoveListEvent extends IcsNonGameEvent {
 		this.gameId = gameId;
 	}
 
-	public MoveListModel getMoveList() {
-		return moveList;
-	}
-
 	public int getGameId() {
 		return gameId;
+	}
+
+	public MoveListModel getMoveList() {
+		return moveList;
 	}
 
 	public void setGameId(int gameId) {
 		this.gameId = gameId;
 	}
 
+	@Override
 	public String toString() {
 		return "MoveListEvent gameId=" + gameId;
 	}

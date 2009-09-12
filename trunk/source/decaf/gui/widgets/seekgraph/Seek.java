@@ -21,6 +21,14 @@ package decaf.gui.widgets.seekgraph;
 
 public class Seek {
 
+	public enum GameColor {
+		white, black, na
+	}
+
+	public enum GameType {
+		standard, blitz, lightning, wild, crazyhouse, suicide
+	}
+
 	private static final int USUAL_GAME = 40;
 
 	int ad;
@@ -35,15 +43,7 @@ public class Seek {
 
 	boolean rated;
 
-	public enum GameType {
-		standard, blitz, lightning, wild, crazyhouse, suicide
-	}
-
 	String type;
-
-	public enum GameColor {
-		white, black, na
-	}
 
 	GameColor color;
 
@@ -60,44 +60,32 @@ public class Seek {
 		this.type = GameType.blitz.name();
 	}
 
-	public int getRating() {
-		return rating;
+	public int getAdNumber() {
+		return ad;
 	}
 
-	public void setRating(int rating) {
-		this.rating = rating;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public int getMins() {
-		return mins;
-	}
-
-	public void setMins(int mins) {
-		this.mins = mins;
+	public GameColor getColor() {
+		return color;
 	}
 
 	public int getIncr() {
 		return incr;
 	}
 
-	public void setIncr(int incr) {
-		this.incr = incr;
+	public int getMins() {
+		return mins;
 	}
 
-	public boolean isRated() {
-		return rated;
+	public String getName() {
+		return name;
 	}
 
-	public void setRated(boolean rated) {
-		this.rated = rated;
+	public int getRating() {
+		return rating;
+	}
+
+	public String getType() {
+		return type;
 	}
 
 	public int getX() {
@@ -108,20 +96,8 @@ public class Seek {
 		return getRating();
 	}
 
-	public int getAdNumber() {
-		return ad;
-	}
-
-	public void setAdNumber(int number) {
-		ad = number;
-	}
-
-	public GameColor getColor() {
-		return color;
-	}
-
-	public void setType(String type) {
-		this.type = type;
+	public boolean isComputer() {
+		return getName().endsWith("(C)");
 	}
 
 	public boolean isInterestingType() {
@@ -130,14 +106,39 @@ public class Seek {
 				|| type.startsWith(GameType.suicide.name());
 	}
 
-	public String getType() {
-		return type;
-	}
-	
-	public boolean isComputer() {
-		return getName().endsWith("(C)");
+	public boolean isRated() {
+		return rated;
 	}
 
+	public void setAdNumber(int number) {
+		ad = number;
+	}
+
+	public void setIncr(int incr) {
+		this.incr = incr;
+	}
+
+	public void setMins(int mins) {
+		this.mins = mins;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setRated(boolean rated) {
+		this.rated = rated;
+	}
+
+	public void setRating(int rating) {
+		this.rating = rating;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	@Override
 	public String toString() {
 		return ad + " " + rating + " " + name + " " + mins + " " + incr;
 	}

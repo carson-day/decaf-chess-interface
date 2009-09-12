@@ -39,11 +39,6 @@ public class LayoutTab extends PreferencesTab {
 
 	private JComboBox adjustmentStrategy = new JComboBox(LAYOUT_STRATEGY
 			.getItems());
-	
-	public void dispose()
-	{
-		removeAll();
-	}
 
 	public LayoutTab() {
 		super("Window Layouts");
@@ -59,6 +54,12 @@ public class LayoutTab extends PreferencesTab {
 				adjustmentStrategy));
 	}
 
+	@Override
+	public void dispose() {
+		removeAll();
+	}
+
+	@Override
 	public void load(Preferences preferences) {
 		isClosingAllWindowsOnGameStart.setSelected(preferences
 				.getBoardPreferences().isClosingAllWindowsOnGameStart());
@@ -74,6 +75,7 @@ public class LayoutTab extends PreferencesTab {
 
 	}
 
+	@Override
 	public void save(Preferences preferences) {
 		preferences.getBoardPreferences().setClosingAllWindowsOnGameStart(
 				isClosingAllWindowsOnGameStart.isSelected());

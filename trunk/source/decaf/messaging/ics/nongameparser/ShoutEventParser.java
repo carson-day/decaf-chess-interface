@@ -26,6 +26,10 @@ import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 import decaf.messaging.inboundevent.chat.ShoutEvent;
 
 public class ShoutEventParser extends NonGameEventParser {
+	private static final String SHOUT_1 = "-->";
+
+	private static final String SHOUT_2 = "shouts:";
+
 	public ShoutEventParser(int icsId) {
 		super(icsId);
 	}
@@ -33,6 +37,7 @@ public class ShoutEventParser extends NonGameEventParser {
 	/**
 	 * Returns null if text does not match the event this class produces.
 	 */
+	@Override
 	public IcsNonGameEvent parse(String text) {
 		if (text.length() < 1500) {
 			if (text.startsWith(SHOUT_1)) {
@@ -58,8 +63,4 @@ public class ShoutEventParser extends NonGameEventParser {
 		}
 		return null;
 	}
-
-	private static final String SHOUT_1 = "-->";
-
-	private static final String SHOUT_2 = "shouts:";
 }

@@ -21,6 +21,8 @@
 package decaf.messaging.outboundevent;
 
 public class BugOpenRequestEvent extends OutboundEvent {
+	private boolean isBugOpen;
+
 	public BugOpenRequestEvent(boolean isBugOpen, boolean isHidingFromUser) {
 		super(isHidingFromUser);
 		this.isBugOpen = isBugOpen;
@@ -29,6 +31,4 @@ public class BugOpenRequestEvent extends OutboundEvent {
 	public boolean isBugOpen() {
 		return isBugOpen;
 	}
-
-	private boolean isBugOpen;
 }

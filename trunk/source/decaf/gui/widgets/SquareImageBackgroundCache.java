@@ -26,8 +26,6 @@ import java.util.WeakHashMap;
 
 public class SquareImageBackgroundCache {
 
-	private Map<SquareImageCacheKey, BufferedImage> keyToImageMap = new WeakHashMap<SquareImageCacheKey, BufferedImage>();
-
 	private class SquareImageCacheKey {
 		private int file;
 
@@ -37,6 +35,7 @@ public class SquareImageBackgroundCache {
 
 		private int hash;
 
+		@Override
 		public boolean equals(Object object) {
 			SquareImageCacheKey compare = (SquareImageCacheKey) object;
 			if (compare == null) {
@@ -47,6 +46,7 @@ public class SquareImageBackgroundCache {
 			}
 		}
 
+		@Override
 		public int hashCode() {
 			if (hash == 0) {
 				hash = file * rank + dimension.width + dimension.height;
@@ -55,6 +55,8 @@ public class SquareImageBackgroundCache {
 			return hash;
 		}
 	}
+
+	private Map<SquareImageCacheKey, BufferedImage> keyToImageMap = new WeakHashMap<SquareImageCacheKey, BufferedImage>();
 
 	public BufferedImage getSquareBackgroundImage(
 			SquareImageBackground squareImageBackground, int width, int height,

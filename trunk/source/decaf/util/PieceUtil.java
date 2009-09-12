@@ -30,13 +30,6 @@ public class PieceUtil implements Piece {
 
 	private static final PositionEncoder DEFAULT_POSITION_ENCODER = new AsciiPositionEncoder();
 
-	private PieceUtil() {
-	}
-
-	public static boolean isValid(int piece) {
-		return piece >= 0 && piece < 13;
-	}
-
 	public static void assertValid(int piece) {
 		if (!isValid(piece)) {
 			throw new IllegalArgumentException("Invalid piece: " + piece);
@@ -54,18 +47,36 @@ public class PieceUtil implements Piece {
 	 * Returns true if the piece specified is a valid drop piece in droppable
 	 * chess (bughouse or crazyhouse).
 	 */
-	public static boolean assertValidWhiteDropPiece(int piece) {
-		return piece == WP || piece == WN || piece == WB || piece == WR
-				|| piece == WQ;
+	public static boolean assertValidBlackDropPiece(int piece) {
+		return piece == BP || piece == BN || piece == BB || piece == BR
+				|| piece == BQ;
 	}
 
 	/**
 	 * Returns true if the piece specified is a valid drop piece in droppable
 	 * chess (bughouse or crazyhouse).
 	 */
-	public static boolean assertValidBlackDropPiece(int piece) {
-		return piece == BP || piece == BN || piece == BB || piece == BR
-				|| piece == BQ;
+	public static boolean assertValidWhiteDropPiece(int piece) {
+		return piece == WP || piece == WN || piece == WB || piece == WR
+				|| piece == WQ;
+	}
+
+	public static boolean containsBishop(int[] pieces) {
+		boolean result = false;
+		for (int i = 0; !result && i < pieces.length; i++) {
+			result = isBishop(pieces[i]);
+		}
+		return result;
+
+	}
+
+	public static boolean containsKnight(int[] pieces) {
+		boolean result = false;
+		for (int i = 0; !result && i < pieces.length; i++) {
+			result = isKnight(pieces[i]);
+		}
+		return result;
+
 	}
 
 	public static boolean containsPawn(int[] pieces) {
@@ -76,10 +87,10 @@ public class PieceUtil implements Piece {
 		return result;
 	}
 
-	public static boolean containsKnight(int[] pieces) {
+	public static boolean containsQueen(int[] pieces) {
 		boolean result = false;
 		for (int i = 0; !result && i < pieces.length; i++) {
-			result = isKnight(pieces[i]);
+			result = isQueen(pieces[i]);
 		}
 		return result;
 
@@ -94,84 +105,11 @@ public class PieceUtil implements Piece {
 
 	}
 
-	public static boolean containsBishop(int[] pieces) {
-		boolean result = false;
-		for (int i = 0; !result && i < pieces.length; i++) {
-			result = isBishop(pieces[i]);
-		}
-		return result;
-
-	}
-
-	public static boolean containsQueen(int[] pieces) {
-		boolean result = false;
-		for (int i = 0; !result && i < pieces.length; i++) {
-			result = isQueen(pieces[i]);
-		}
-		return result;
-
-	}
-
-	public static boolean isWhitePiece(int piece) {
-		assertValid(piece);
-		return piece > 0 && piece < 7;
-	}
-
-	public static boolean isEmpty(int piece) {
-		assertValid(piece);
-		return piece == EMPTY;
-	}
-
-	public static boolean isBlackPiece(int piece) {
-		assertValid(piece);
-		return piece < 13 && piece > 6;
-	}
-
-	public static boolean isBishop(int piece) {
-		assertValid(piece);
-		return piece == WHITE_BISHOP || piece == BLACK_BISHOP;
-	}
-
-	public static boolean isPawn(int piece) {
-		assertValid(piece);
-		return piece == WHITE_PAWN || piece == BLACK_PAWN;
-	}
-
-	public static boolean isKnight(int piece) {
-		assertValid(piece);
-		return piece == WHITE_KNIGHT || piece == BLACK_KNIGHT;
-	}
-
-	public static boolean isRook(int piece) {
-		assertValid(piece);
-		return piece == WHITE_ROOK || piece == BLACK_ROOK;
-	}
-
-	public static boolean isQueen(int piece) {
-		assertValid(piece);
-		return piece == WHITE_QUEEN || piece == BLACK_QUEEN;
-	}
-
-	public static boolean isKing(int piece) {
-		assertValid(piece);
-		return piece == WHITE_KING || piece == BLACK_KING;
-	}
-
-	/**
-	 * Returns true if piece is empty or the opposite color of isColorWhite.
-	 */
-	public static boolean isEmptyOrOpposite(int piece, boolean isColorWhite) {
-		assertValid(piece);
-		return isEmpty(piece) || isOpposite(piece, isColorWhite);
-	}
-
-	/**
-	 * Returns true if piece is the opposite color of isColorWhite.
-	 */
-	public static boolean isOpposite(int piece, boolean isColorWhite) {
-		assertValid(piece);
-		return !isEmpty(piece) && (isColorWhite && isBlackPiece(piece))
-				|| (!isColorWhite && isWhitePiece(piece));
+	public static String getDefaultPiece(int piece) {
+		if (isValid(piece))
+			return DEFAULT_POSITION_ENCODER.encode(piece);
+		else
+			return "" + piece;
 	}
 
 	/**
@@ -183,10 +121,72 @@ public class PieceUtil implements Piece {
 				: piece - 6;
 	}
 
-	public static String getDefaultPiece(int piece) {
-		if (isValid(piece))
-			return DEFAULT_POSITION_ENCODER.encode(piece);
-		else
-			return "" + piece;
+	public static boolean isBishop(int piece) {
+		assertValid(piece);
+		return piece == WHITE_BISHOP || piece == BLACK_BISHOP;
+	}
+
+	public static boolean isBlackPiece(int piece) {
+		assertValid(piece);
+		return piece < 13 && piece > 6;
+	}
+
+	public static boolean isEmpty(int piece) {
+		assertValid(piece);
+		return piece == EMPTY;
+	}
+
+	/**
+	 * Returns true if piece is empty or the opposite color of isColorWhite.
+	 */
+	public static boolean isEmptyOrOpposite(int piece, boolean isColorWhite) {
+		assertValid(piece);
+		return isEmpty(piece) || isOpposite(piece, isColorWhite);
+	}
+
+	public static boolean isKing(int piece) {
+		assertValid(piece);
+		return piece == WHITE_KING || piece == BLACK_KING;
+	}
+
+	public static boolean isKnight(int piece) {
+		assertValid(piece);
+		return piece == WHITE_KNIGHT || piece == BLACK_KNIGHT;
+	}
+
+	/**
+	 * Returns true if piece is the opposite color of isColorWhite.
+	 */
+	public static boolean isOpposite(int piece, boolean isColorWhite) {
+		assertValid(piece);
+		return !isEmpty(piece) && (isColorWhite && isBlackPiece(piece))
+				|| (!isColorWhite && isWhitePiece(piece));
+	}
+
+	public static boolean isPawn(int piece) {
+		assertValid(piece);
+		return piece == WHITE_PAWN || piece == BLACK_PAWN;
+	}
+
+	public static boolean isQueen(int piece) {
+		assertValid(piece);
+		return piece == WHITE_QUEEN || piece == BLACK_QUEEN;
+	}
+
+	public static boolean isRook(int piece) {
+		assertValid(piece);
+		return piece == WHITE_ROOK || piece == BLACK_ROOK;
+	}
+
+	public static boolean isValid(int piece) {
+		return piece >= 0 && piece < 13;
+	}
+
+	public static boolean isWhitePiece(int piece) {
+		assertValid(piece);
+		return piece > 0 && piece < 7;
+	}
+
+	private PieceUtil() {
 	}
 }

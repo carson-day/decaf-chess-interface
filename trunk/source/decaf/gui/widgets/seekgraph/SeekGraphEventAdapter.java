@@ -32,11 +32,11 @@ import decaf.gui.ChessAreaController;
 import decaf.gui.GUIManager;
 import decaf.gui.GameNotificationListener;
 import decaf.gui.widgets.Disposable;
-import decaf.messaging.inboundevent.inform.BugWhoPEvent;
 import decaf.messaging.inboundevent.inform.SoughtEvent;
 import decaf.messaging.outboundevent.OutboundEvent;
 
-public class SeekGraphEventAdapter implements Subscriber, GameNotificationListener,AcceptSeekListener,Disposable {
+public class SeekGraphEventAdapter implements Subscriber,
+		GameNotificationListener, AcceptSeekListener, Disposable {
 
 	private SeekGraph graph;
 
@@ -58,14 +58,48 @@ public class SeekGraphEventAdapter implements Subscriber, GameNotificationListen
 		GUIManager.getInstance().addGameNotificationListener(this);
 	}
 
-	protected void refresh() {
-		EventService.getInstance().publish(new OutboundEvent("sought", true,SoughtEvent.class));
+	public void acceptedSeek(int adNumber) {
+		EventService.getInstance().publish(
+				new OutboundEvent("play " + adNumber, false));
 	}
-	
-	public void dispose()
-	{
+
+	public void bugGameEnded(BugChessAreaController controller) {
+		if (controller.isPlaying()) {
+			start();
+		}
+	}
+
+	public void bugGameStarted(BugChessAreaController controller) {
+		if (controller.isPlaying()) {
+			stop();
+		}
+	}
+
+	public void dispose() {
 		GUIManager.getInstance().removeGameNotificationListener(this);
 		stop();
+	}
+
+	public void gameEnded(ChessAreaController controller) {
+		if (controller.isPlaying()) {
+			start();
+		}
+	}
+
+	public void gameStarted(ChessAreaController controller) {
+		if (controller.isPlaying()) {
+			stop();
+		}
+	}
+
+	public void inform(SoughtEvent event) {
+		// System.err.println("inform called");
+		graph.replaceBy(event.getSeeks());
+	}
+
+	protected void refresh() {
+		EventService.getInstance().publish(
+				new OutboundEvent("sought", true, SoughtEvent.class));
 	}
 
 	public void start() {
@@ -86,44 +120,6 @@ public class SeekGraphEventAdapter implements Subscriber, GameNotificationListen
 			EventService.getInstance().unsubscribe(subscription);
 			graph.removeAcceptSeekListener(this);
 			running = false;
-		}
-	}
-
-	public void inform(SoughtEvent event) {
-		// System.err.println("inform called");
-		graph.replaceBy(event.getSeeks());
-	}
-
-	public void acceptedSeek(int adNumber) {
-		EventService.getInstance().publish(
-				new OutboundEvent("play " + adNumber, false));
-	}
-	
-	public void bugGameEnded(BugChessAreaController controller) {
-		if (controller.isPlaying())
-		{
-			start();
-		}
-	}
-
-	public void bugGameStarted(BugChessAreaController controller) {
-		if (controller.isPlaying())
-		{
-			stop();
-		}
-	}
-
-	public void gameEnded(ChessAreaController controller) {	
-		if (controller.isPlaying())
-		{
-			start();
-		}
-	}
-
-	public void gameStarted(ChessAreaController controller) {
-		if (controller.isPlaying())
-		{
-			stop();
 		}
 	}
 }

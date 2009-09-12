@@ -33,6 +33,18 @@ public class G1Parser {
 		style12Parser = new Style12Parser(icsId);
 	}
 
+	private HashMap<String, String> g1ToHashMap(String g1) {
+		String[] params = g1.split(" ");
+		HashMap<String, String> result = new HashMap<String, String>();
+		result.put("gn", params[1]);
+
+		for (int i = 2; i < params.length; i++) {
+			String[] param = params[i].split("=");
+			result.put(param[0], param[1]);
+		}
+		return result;
+	}
+
 	/**
 	 * Orphaned case.
 	 */
@@ -84,17 +96,5 @@ public class G1Parser {
 		} catch (NumberFormatException nfe) {
 			throw new RuntimeException(nfe);
 		}
-	}
-
-	private HashMap<String, String> g1ToHashMap(String g1) {
-		String[] params = g1.split(" ");
-		HashMap<String, String> result = new HashMap<String, String>();
-		result.put("gn", params[1]);
-
-		for (int i = 2; i < params.length; i++) {
-			String[] param = params[i].split("=");
-			result.put(param[0], param[1]);
-		}
-		return result;
 	}
 }

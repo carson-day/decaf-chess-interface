@@ -27,8 +27,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
 import java.util.Properties;
 
 import javax.swing.JDialog;
@@ -51,14 +49,30 @@ import decaf.util.PropertiesConstants;
 public class Decaf {
 	private static final Logger LOGGER = Logger.getLogger(Decaf.class);
 
+	public static void main(String[] args) throws Throwable {
+		try {
+			// in 1.6 all swing calls must be from the Swing Thread so:
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					Decaf caffeine = new Decaf();
+				}
+			});
+		} catch (Throwable t) {
+			t.printStackTrace();
+			LOGGER.error(t);
+			throw t;
+		}
+	}
+
 	private boolean userClickedLogin = false;
 
 	public Decaf() {
 		ResourceManagerFactory.init(new AppResourceManager());
-		
-		//Added to fix some lockup problems between swing dnd and awt dnd in ChessBoardSquare.
-		System.setProperty("suppressSwingDropSupport","true");
-		
+
+		// Added to fix some lockup problems between swing dnd and awt dnd in
+		// ChessBoardSquare.
+		System.setProperty("suppressSwingDropSupport", "true");
+
 		initLog4j();
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Executing Decaffinate "
@@ -69,6 +83,7 @@ public class Decaf {
 
 		// force load of all singleton classes
 		EventService.getInstance();
+		@SuppressWarnings("unused")
 		User user = User.getInstance();
 		final Preferences preferences = ResourceManagerFactory.getManager()
 				.loadPreferences();
@@ -124,59 +139,20 @@ public class Decaf {
 					throw new RuntimeException("Communications dirver error:",
 							e);
 				}
-				
-				Runtime.getRuntime().addShutdownHook(new Thread () {
+
+				Runtime.getRuntime().addShutdownHook(new Thread() {
+					@Override
 					public void run() {
-						try
-						{
+						try {
 							driver.disconnect();
+						} catch (Exception e) {
 						}
-						catch (Exception e)
-						{}
-						
+
 						Runtime.getRuntime().halt(0);
 					}
 				});
 			}
 		});
-	}
-
-	private LoginPanel showLoginDialog(Preferences preferences) {
-		final JDialog dialog = new JDialog((Frame) null, "Decaf Login");
-		dialog.setModal(true);
-		LoginPanel panel = new LoginPanel(preferences);
-		dialog.getContentPane().setLayout(new BorderLayout());
-		dialog.getContentPane().add(panel, BorderLayout.CENTER);
-		dialog.setLocation(new Point(250, 150));
-
-		panel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				userClickedLogin = true;
-				dialog.setVisible(false);
-			}
-		});
-		dialog.pack();
-		dialog.setVisible(true);
-
-		if (!userClickedLogin) {
-			System.exit(1);
-		}
-		return panel;
-	}
-
-	public static void main(String[] args) throws Throwable {
-		try {
-			// in 1.6 all swing calls must be from the Swing Thread so:
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					Decaf caffeine = new Decaf();
-				}
-			});
-		} catch (Throwable t) {
-			t.printStackTrace();
-			LOGGER.error(t);
-			throw t;
-		}
 	}
 
 	private void initLog4j() {
@@ -203,5 +179,28 @@ public class Decaf {
 			} catch (IOException ioe) {
 			}
 		}
+	}
+
+	private LoginPanel showLoginDialog(Preferences preferences) {
+		final JDialog dialog = new JDialog((Frame) null, "Decaf Login");
+		dialog.setModal(true);
+		LoginPanel panel = new LoginPanel(preferences);
+		dialog.getContentPane().setLayout(new BorderLayout());
+		dialog.getContentPane().add(panel, BorderLayout.CENTER);
+		dialog.setLocation(new Point(250, 150));
+
+		panel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				userClickedLogin = true;
+				dialog.setVisible(false);
+			}
+		});
+		dialog.pack();
+		dialog.setVisible(true);
+
+		if (!userClickedLogin) {
+			System.exit(1);
+		}
+		return panel;
 	}
 }

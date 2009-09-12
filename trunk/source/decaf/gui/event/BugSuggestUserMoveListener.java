@@ -27,6 +27,7 @@ import javax.swing.JPopupMenu;
 import decaf.gui.ChessAreaControllerBase;
 import decaf.gui.widgets.ChessBoardSquare;
 import decaf.gui.widgets.Disposable;
+import decaf.moveengine.Coordinates;
 import decaf.moveengine.Piece;
 import decaf.moveengine.Position;
 import decaf.util.CoordinatesUtil;
@@ -54,7 +55,31 @@ public class BugSuggestUserMoveListener implements UserMoveInputListener,
 		return controller;
 	}
 
-	public void userClicked(ChessBoardSquare square) {
+	private String getSuggestMovePrefix() {
+		return "I suggest ";
+	}
+
+	private String getWatchoutMovePrefix() {
+		return "Watch out for ";
+	}
+
+	private String getWatchoutSquarePrefix() {
+		return "Watch ";
+	}
+
+	private boolean isPromotion(UserMoveEvent event) {
+		if (event.getStartCoordinates() == null) // is piece drop
+		{
+			return false;
+		} else {
+			Position partnersPosition = controller.getPartnersPosition();
+			return (controller.isPartnerWhite()
+					&& event.getEndCoordinates()[0] == Coordinates.RANK_8 && partnersPosition
+					.get(event.getStartCoordinates()) == Piece.WHITE_PAWN)
+					|| (!controller.isPartnerWhite()
+							&& event.getEndCoordinates()[0] == Coordinates.RANK_1 && partnersPosition
+							.get(event.getStartCoordinates()) == Piece.BLACK_PAWN);
+		}
 	}
 
 	/**
@@ -65,107 +90,17 @@ public class BugSuggestUserMoveListener implements UserMoveInputListener,
 		this.controller = controller;
 	}
 
+	public void userClicked(ChessBoardSquare square) {
+	}
+
 	public void userMadeIncompleteMove(UserIncompleteMoveEvent event) {
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see caffeine.gui.event.GUIMoveListener#rightClickOccured(caffeine.gui.widgets.ChessBoardSquare)
-	 */
-	public void userRightClicked(UserRightClickSquareEvent event) {
-		final ChessBoardSquare source = event.getSource();
-		if (controller.isActive() && !source.isDropSquare()) {
-			JPopupMenu popupMenu = new JPopupMenu();
-			String suggestPrefix = getSuggestMovePrefix();
-			String watchSquarePrefix = getWatchoutSquarePrefix();
-			String watchOutPrefix = getWatchoutMovePrefix();
-			String suffix = CoordinatesUtil.getDefaultCoordinates(source
-					.getCoordinates());
-
-			final String watchSquare = watchSquarePrefix + suffix;
-			popupMenu.add(new AbstractAction(watchSquare) {
-				public void actionPerformed(ActionEvent event) {
-					controller.givePartnerAdvice(watchSquare);
-				}
-			});
-			popupMenu.addSeparator();
-			if (CoordinatesUtil.RANK_1 != source.getRank()
-					&& CoordinatesUtil.RANK_8 != source.getRank()) {
-				final String pawnSuggest = suggestPrefix + "p@" + suffix;
-				popupMenu.add(new AbstractAction(pawnSuggest) {
-					public void actionPerformed(ActionEvent event) {
-						controller.givePartnerAdvice(pawnSuggest);
-					}
-				});
-			}
-			final String knightSuggest = suggestPrefix + "n@" + suffix;
-			popupMenu.add(new AbstractAction(knightSuggest) {
-				public void actionPerformed(ActionEvent event) {
-					controller.givePartnerAdvice(knightSuggest);
-				}
-			});
-			final String bishopSuggest = suggestPrefix + "b@" + suffix;
-			popupMenu.add(new AbstractAction(bishopSuggest) {
-				public void actionPerformed(ActionEvent event) {
-					controller.givePartnerAdvice(bishopSuggest);
-				}
-			});
-			final String rookSuggest = suggestPrefix + "r@" + suffix;
-			popupMenu.add(new AbstractAction(rookSuggest) {
-				public void actionPerformed(ActionEvent event) {
-					controller.givePartnerAdvice(rookSuggest);
-				}
-			});
-			final String queenSuggest = suggestPrefix + "q@" + suffix;
-			popupMenu.add(new AbstractAction(queenSuggest) {
-				public void actionPerformed(ActionEvent event) {
-					controller.givePartnerAdvice(queenSuggest);
-				}
-			});
-			popupMenu.addSeparator();
-			if (CoordinatesUtil.RANK_1 != source.getRank()
-					&& CoordinatesUtil.RANK_8 != source.getRank()) {
-				final String pawnWatch = watchOutPrefix + "p@" + suffix;
-				popupMenu.add(new AbstractAction(pawnWatch) {
-					public void actionPerformed(ActionEvent event) {
-						controller.givePartnerAdvice(pawnWatch);
-					}
-				});
-			}
-			final String knightWatch = watchOutPrefix + "n@" + suffix;
-			popupMenu.add(new AbstractAction(knightWatch) {
-				public void actionPerformed(ActionEvent event) {
-					controller.givePartnerAdvice(knightWatch);
-				}
-			});
-			final String bishopWatch = watchOutPrefix + "b@" + suffix;
-			popupMenu.add(new AbstractAction(bishopWatch) {
-				public void actionPerformed(ActionEvent event) {
-					controller.givePartnerAdvice(bishopWatch);
-				}
-			});
-			final String rookWatch = watchOutPrefix + "r@" + suffix;
-			popupMenu.add(new AbstractAction(rookWatch) {
-				public void actionPerformed(ActionEvent event) {
-					controller.givePartnerAdvice(rookWatch);
-				}
-			});
-			final String queenWatch = watchOutPrefix + "q@" + suffix;
-			popupMenu.add(new AbstractAction(queenWatch) {
-				public void actionPerformed(ActionEvent event) {
-					controller.givePartnerAdvice(queenWatch);
-				}
-			});
-			popupMenu.show(source, 10, 10);
-		}
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see caffeine.gui.event.GUIMoveListener#moveOccured(caffeine.gui.event.GUIMoveEvent)
+	 * @seecaffeine.gui.event.GUIMoveListener#moveOccured(caffeine.gui.event.
+	 * GUIMoveEvent)
 	 */
 	public boolean userMoved(UserMoveEvent event) {
 		synchronized (controller) {
@@ -179,9 +114,9 @@ public class BugSuggestUserMoveListener implements UserMoveInputListener,
 					return false;
 				}
 
-				boolean isPartnersMove = (event.getEndCoordinates()[0] == CoordinatesUtil.RANK_8 && controller
+				boolean isPartnersMove = (event.getEndCoordinates()[0] == Coordinates.RANK_8 && controller
 						.isPartnerWhite())
-						|| (event.getEndCoordinates()[0] == CoordinatesUtil.RANK_1 && controller
+						|| (event.getEndCoordinates()[0] == Coordinates.RANK_1 && controller
 								.isPartnerWhite());
 
 				moveString = (isPartnersMove ? getSuggestMovePrefix()
@@ -240,30 +175,99 @@ public class BugSuggestUserMoveListener implements UserMoveInputListener,
 		}
 	}
 
-	private String getSuggestMovePrefix() {
-		return "I suggest ";
-	}
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * caffeine.gui.event.GUIMoveListener#rightClickOccured(caffeine.gui.widgets
+	 * .ChessBoardSquare)
+	 */
+	public void userRightClicked(UserRightClickSquareEvent event) {
+		final ChessBoardSquare source = event.getSource();
+		if (controller.isActive() && !source.isDropSquare()) {
+			JPopupMenu popupMenu = new JPopupMenu();
+			String suggestPrefix = getSuggestMovePrefix();
+			String watchSquarePrefix = getWatchoutSquarePrefix();
+			String watchOutPrefix = getWatchoutMovePrefix();
+			String suffix = CoordinatesUtil.getDefaultCoordinates(source
+					.getCoordinates());
 
-	private String getWatchoutSquarePrefix() {
-		return "Watch ";
-	}
-
-	private String getWatchoutMovePrefix() {
-		return "Watch out for ";
-	}
-
-	private boolean isPromotion(UserMoveEvent event) {
-		if (event.getStartCoordinates() == null) // is piece drop
-		{
-			return false;
-		} else {
-			Position partnersPosition = controller.getPartnersPosition();
-			return (controller.isPartnerWhite()
-					&& event.getEndCoordinates()[0] == CoordinatesUtil.RANK_8 && partnersPosition
-					.get(event.getStartCoordinates()) == Piece.WHITE_PAWN)
-					|| (!controller.isPartnerWhite()
-							&& event.getEndCoordinates()[0] == CoordinatesUtil.RANK_1 && partnersPosition
-							.get(event.getStartCoordinates()) == Piece.BLACK_PAWN);
+			final String watchSquare = watchSquarePrefix + suffix;
+			popupMenu.add(new AbstractAction(watchSquare) {
+				public void actionPerformed(ActionEvent event) {
+					controller.givePartnerAdvice(watchSquare);
+				}
+			});
+			popupMenu.addSeparator();
+			if (Coordinates.RANK_1 != source.getRank()
+					&& Coordinates.RANK_8 != source.getRank()) {
+				final String pawnSuggest = suggestPrefix + "p@" + suffix;
+				popupMenu.add(new AbstractAction(pawnSuggest) {
+					public void actionPerformed(ActionEvent event) {
+						controller.givePartnerAdvice(pawnSuggest);
+					}
+				});
+			}
+			final String knightSuggest = suggestPrefix + "n@" + suffix;
+			popupMenu.add(new AbstractAction(knightSuggest) {
+				public void actionPerformed(ActionEvent event) {
+					controller.givePartnerAdvice(knightSuggest);
+				}
+			});
+			final String bishopSuggest = suggestPrefix + "b@" + suffix;
+			popupMenu.add(new AbstractAction(bishopSuggest) {
+				public void actionPerformed(ActionEvent event) {
+					controller.givePartnerAdvice(bishopSuggest);
+				}
+			});
+			final String rookSuggest = suggestPrefix + "r@" + suffix;
+			popupMenu.add(new AbstractAction(rookSuggest) {
+				public void actionPerformed(ActionEvent event) {
+					controller.givePartnerAdvice(rookSuggest);
+				}
+			});
+			final String queenSuggest = suggestPrefix + "q@" + suffix;
+			popupMenu.add(new AbstractAction(queenSuggest) {
+				public void actionPerformed(ActionEvent event) {
+					controller.givePartnerAdvice(queenSuggest);
+				}
+			});
+			popupMenu.addSeparator();
+			if (Coordinates.RANK_1 != source.getRank()
+					&& Coordinates.RANK_8 != source.getRank()) {
+				final String pawnWatch = watchOutPrefix + "p@" + suffix;
+				popupMenu.add(new AbstractAction(pawnWatch) {
+					public void actionPerformed(ActionEvent event) {
+						controller.givePartnerAdvice(pawnWatch);
+					}
+				});
+			}
+			final String knightWatch = watchOutPrefix + "n@" + suffix;
+			popupMenu.add(new AbstractAction(knightWatch) {
+				public void actionPerformed(ActionEvent event) {
+					controller.givePartnerAdvice(knightWatch);
+				}
+			});
+			final String bishopWatch = watchOutPrefix + "b@" + suffix;
+			popupMenu.add(new AbstractAction(bishopWatch) {
+				public void actionPerformed(ActionEvent event) {
+					controller.givePartnerAdvice(bishopWatch);
+				}
+			});
+			final String rookWatch = watchOutPrefix + "r@" + suffix;
+			popupMenu.add(new AbstractAction(rookWatch) {
+				public void actionPerformed(ActionEvent event) {
+					controller.givePartnerAdvice(rookWatch);
+				}
+			});
+			final String queenWatch = watchOutPrefix + "q@" + suffix;
+			popupMenu.add(new AbstractAction(queenWatch) {
+				public void actionPerformed(ActionEvent event) {
+					controller.givePartnerAdvice(queenWatch);
+				}
+			});
+			popupMenu.show(source, 10, 10);
 		}
+
 	}
 }

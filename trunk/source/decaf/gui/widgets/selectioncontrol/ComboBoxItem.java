@@ -29,28 +29,29 @@ public class ComboBoxItem {
 		this.value = value;
 	}
 
-	public int toInt() {
-		return ((Integer) value).intValue();
-	}
-
-	public String toString() {
-		return description;
-	}
-
 	public String getDescription() {
 		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
 	}
 
 	public Object getValue() {
 		return value;
 	}
 
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public void setValue(Object value) {
 		this.value = value;
+	}
+
+	public int toInt() {
+		return ((Integer) value).intValue();
+	}
+
+	@Override
+	public String toString() {
+		return description;
 	}
 
 }

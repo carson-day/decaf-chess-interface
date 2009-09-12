@@ -23,8 +23,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.LayoutManager2;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -43,31 +41,28 @@ import decaf.util.CoordinatesUtil;
 
 public class ChessBoard extends JPanel implements Piece, Preferenceable,
 		Disposable {
-	private static final Logger LOGGER = Logger.getLogger(ChessBoard.class);
-
-	private boolean isWhiteOnTop;
-
-	private String id;
-
-	private ChessBoardSquare squares[][] = new ChessBoardSquare[8][8];
-
-	private Preferences preferences;
-
-	private Position position;
-
-	private int squareSide;
-	
-	private int coordinatesHeight;
-
-	private JLabel[] rankLabels = new JLabel[] { new JLabel("8"),
-			new JLabel("7"), new JLabel("6"), new JLabel("5"), new JLabel("4"),
-			new JLabel("3"), new JLabel("2"), new JLabel("1") };
-
-	private JLabel[] fileLabels = new JLabel[] { new JLabel("a"),
-			new JLabel("b"), new JLabel("c"), new JLabel("d"), new JLabel("e"),
-			new JLabel("f"), new JLabel("g"), new JLabel("h") };
-
 	private class BoardLayout implements LayoutManager2 {
+		public void addLayoutComponent(Component arg0, Object arg1) {
+
+		}
+
+		public void addLayoutComponent(String arg0, Component arg1) {
+
+		}
+
+		public float getLayoutAlignmentX(Container arg0) {
+
+			return 0.5F;
+		}
+
+		public float getLayoutAlignmentY(Container arg0) {
+			return 0.5F;
+		}
+
+		public void invalidateLayout(Container arg0) {
+
+		}
+
 		public void layoutContainer(Container arg0) {
 
 			int width = arg0.getSize().width;
@@ -100,10 +95,10 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 					int multiplier = (isWhiteOnTop ? 7 - i : i);
 					fileLabels[i].setLocation((int) (charHeight * .4
 							+ squareSide * multiplier + squareSide / 2),
-							(int) (squareSide * 8));
+							(squareSide * 8));
 					fileLabels[i].setSize(fileLabels[i].getPreferredSize());
 				}
-				
+
 				coordinatesHeight = charHeight;
 
 			} else {
@@ -138,30 +133,9 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 
 		}
 
-		public void addLayoutComponent(Component arg0, Object arg1) {
-
-		}
-
-		public float getLayoutAlignmentX(Container arg0) {
-
-			return 0.5F;
-		}
-
-		public float getLayoutAlignmentY(Container arg0) {
-			return 0.5F;
-		}
-
-		public void invalidateLayout(Container arg0) {
-
-		}
-
 		public Dimension maximumLayoutSize(Container arg0) {
 
 			return new Dimension(10000, 10000);
-		}
-
-		public void addLayoutComponent(String arg0, Component arg1) {
-
 		}
 
 		public Dimension minimumLayoutSize(Container arg0) {
@@ -176,36 +150,35 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 		}
 	}
 
+	private static final Logger LOGGER = Logger.getLogger(ChessBoard.class);
+
+	private boolean isWhiteOnTop;
+
+	private String id;
+
+	private ChessBoardSquare squares[][] = new ChessBoardSquare[8][8];
+
+	private Preferences preferences;
+
+	private Position position;
+
+	private int squareSide;
+
+	private int coordinatesHeight;
+
+	private JLabel[] rankLabels = new JLabel[] { new JLabel("8"),
+			new JLabel("7"), new JLabel("6"), new JLabel("5"), new JLabel("4"),
+			new JLabel("3"), new JLabel("2"), new JLabel("1") };
+
+	private JLabel[] fileLabels = new JLabel[] { new JLabel("a"),
+			new JLabel("b"), new JLabel("c"), new JLabel("d"), new JLabel("e"),
+			new JLabel("f"), new JLabel("g"), new JLabel("h") };
+
 	public ChessBoard() {
 		this.isWhiteOnTop = false;
 		setupChessBoardSquares();
 		setupLayout();
 		setFocusable(false);
-	}
-
-	public void setUserMoveInputListener(UserMoveInputListener listener) {
-		for (int i = 0; i < squares.length; i++) {
-			for (int j = 0; j < squares[i].length; j++) {
-				squares[i][j].setUserMoveInputListener(listener);
-			}
-		}
-	}
-
-	public boolean isMoveable() {
-		return squares[0][0].isMoveable();
-
-	}
-
-	public void setMoveable(boolean isMoveable) {
-		for (int i = 0; i < squares.length; i++) {
-			for (int j = 0; j < squares[i].length; j++) {
-				squares[i][j].setMoveable(isMoveable);
-			}
-		}
-	}
-
-	public int getSquareSide() {
-		return squareSide;
 	}
 
 	public void dispose() {
@@ -223,6 +196,63 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 		position = null;
 	}
 
+	public void flip() {
+		isWhiteOnTop = !isWhiteOnTop;
+	}
+
+	public ChessBoardSquare get(int rank, int file) {
+		return squares[rank][file];
+	}
+
+	public ChessBoardSquare get(int[] coordinates) {
+		return squares[coordinates[0]][coordinates[1]];
+	}
+
+	public Dimension getChessBoardSquareSize() {
+		return squares[0][0].getSize();
+	}
+
+	public int getCoordinatesHeight() {
+		return coordinatesHeight;
+	}
+
+	public Position getPosition() {
+		return (Position) position.clone();
+	}
+
+	public Preferences getPreferences() {
+		return preferences;
+	}
+
+	public int getSquareSide() {
+		return squareSide;
+	}
+
+	public boolean isMoveable() {
+		return squares[0][0].isMoveable();
+
+	}
+
+	public boolean isWhiteOnTop() {
+		return isWhiteOnTop;
+	}
+
+	public void preSelectSquare(int[] coordinates, int index) {
+		if (CoordinatesUtil.isInBounds(coordinates)) {
+			ChessBoardSquare square = squares[coordinates[0]][coordinates[1]];
+			square.preSelect(index);
+		} else {
+		}
+	}
+
+	public void selectSquare(int[] coordinates) {
+		if (CoordinatesUtil.isInBounds(coordinates)) {
+			ChessBoardSquare square = squares[coordinates[0]][coordinates[1]];
+			square.select();
+		} else {
+		}
+	}
+
 	public void setBoardId(String id) {
 		this.id = id;
 		for (int i = 0; i < 8; i++) {
@@ -233,8 +263,25 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 		}
 	}
 
-	public Dimension getChessBoardSquareSize() {
-		return squares[0][0].getSize();
+	public void setCoordinatesHeight(int coordinatesHeight) {
+		this.coordinatesHeight = coordinatesHeight;
+	}
+
+	public void setMoveable(boolean isMoveable) {
+		for (int i = 0; i < squares.length; i++) {
+			for (int j = 0; j < squares[i].length; j++) {
+				squares[i][j].setMoveable(isMoveable);
+			}
+		}
+	}
+
+	public void setPosition(Position position) {
+		for (int i = 0; i < squares.length; i++) {
+			for (int j = 0; j < squares[i].length; j++) {
+				get(i, j).setPiece(position.get(i, j));
+			}
+		}
+		this.position = position;
 	}
 
 	public void setPreferences(Preferences preferences) {
@@ -267,31 +314,20 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 
 	}
 
-	public Preferences getPreferences() {
-		return preferences;
-	}
+	private void setupChessBoardSquares() {
+		boolean isWhiteSquare = false;
+		for (int i = 0; i < 8; i++) {
+			squares[i] = new ChessBoardSquare[8];
+			isWhiteSquare = !isWhiteSquare;
 
-	public Position getPosition() {
-		return (Position) position.clone();
-	}
-
-	public void setPosition(Position position) {
-		for (int i = 0; i < squares.length; i++) {
 			for (int j = 0; j < squares[i].length; j++) {
-				get(i, j).setPiece(position.get(i, j));
+				squares[i][j] = new ChessBoardSquare(preferences, "<EMPTY>",
+						isWhiteSquare, i, j);
+				squares[i][j].setFocusable(true);
+				isWhiteSquare = !isWhiteSquare;
 			}
 		}
-		this.position = position;
-	}
 
-	public void flip() {
-		isWhiteOnTop = !isWhiteOnTop;
-	}
-
-	public void setWhiteOnTop(boolean isWhiteOnTop) {
-		if (!this.isWhiteOnTop == isWhiteOnTop) {
-			flip();
-		}
 	}
 
 	protected void setupLayout() {
@@ -312,41 +348,18 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 		}
 	}
 
-	public boolean isWhiteOnTop() {
-		return isWhiteOnTop;
-	}
-
-	public ChessBoardSquare get(int rank, int file) {
-		return squares[rank][file];
-	}
-
-	public ChessBoardSquare get(int[] coordinates) {
-		return squares[coordinates[0]][coordinates[1]];
-	}
-
-	public void selectSquare(int[] coordinates) {
-		if (CoordinatesUtil.isInBounds(coordinates)) {
-			ChessBoardSquare square = squares[coordinates[0]][coordinates[1]];
-			square.select();
-		} else {
-		}
-	}
-	
-	public void preSelectSquare(int[] coordinates, int index) {
-		if (CoordinatesUtil.isInBounds(coordinates)) {
-			ChessBoardSquare square = squares[coordinates[0]][coordinates[1]];
-			square.preSelect(index);
-		} else {
+	public void setUserMoveInputListener(UserMoveInputListener listener) {
+		for (int i = 0; i < squares.length; i++) {
+			for (int j = 0; j < squares[i].length; j++) {
+				squares[i][j].setUserMoveInputListener(listener);
+			}
 		}
 	}
 
-	public void unselectSquare(int[] coordinates) {
-		if (CoordinatesUtil.isInBounds(coordinates)) {
-			ChessBoardSquare square = squares[coordinates[0]][coordinates[1]];
-   		    square.unselect();
-		} else {
+	public void setWhiteOnTop(boolean isWhiteOnTop) {
+		if (!this.isWhiteOnTop == isWhiteOnTop) {
+			flip();
 		}
-
 	}
 
 	public void unselectAllSquares() {
@@ -356,29 +369,12 @@ public class ChessBoard extends JPanel implements Piece, Preferenceable,
 			}
 		}
 	}
-	
-	
 
-	public int getCoordinatesHeight() {
-		return coordinatesHeight;
-	}
-
-	public void setCoordinatesHeight(int coordinatesHeight) {
-		this.coordinatesHeight = coordinatesHeight;
-	}
-
-	private void setupChessBoardSquares() {
-		boolean isWhiteSquare = false;
-		for (int i = 0; i < 8; i++) {
-			squares[i] = new ChessBoardSquare[8];
-			isWhiteSquare = !isWhiteSquare;
-
-			for (int j = 0; j < squares[i].length; j++) {
-				squares[i][j] = new ChessBoardSquare(preferences, "<EMPTY>",
-						isWhiteSquare, i, j);
-				squares[i][j].setFocusable(true);
-				isWhiteSquare = !isWhiteSquare;
-			}
+	public void unselectSquare(int[] coordinates) {
+		if (CoordinatesUtil.isInBounds(coordinates)) {
+			ChessBoardSquare square = squares[coordinates[0]][coordinates[1]];
+			square.unselect();
+		} else {
 		}
 
 	}

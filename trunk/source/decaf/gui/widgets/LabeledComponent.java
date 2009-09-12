@@ -19,6 +19,7 @@
  */
 package decaf.gui.widgets;
 
+import java.awt.Component;
 import java.awt.FlowLayout;
 
 import javax.swing.JComponent;
@@ -26,6 +27,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class LabeledComponent extends JPanel {
+	public LabeledComponent(String label, JComponent component) {
+		this(label, null, component);
+	}
+
 	public LabeledComponent(String label, String toolTip, JComponent component) {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JLabel jlabel = new JLabel(label);
@@ -33,10 +38,6 @@ public class LabeledComponent extends JPanel {
 		add(component);
 		jlabel.setToolTipText(toolTip);
 		component.setToolTipText(toolTip);
-		setAlignmentY(JComponent.TOP_ALIGNMENT);
-	}
-
-	public LabeledComponent(String label, JComponent component) {
-		this(label, null, component);
+		setAlignmentY(Component.TOP_ALIGNMENT);
 	}
 }

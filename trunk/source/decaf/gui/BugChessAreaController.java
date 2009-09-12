@@ -23,7 +23,7 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.WindowListener;
 
-import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 
 import org.apache.log4j.Logger;
 
@@ -49,7 +49,8 @@ public class BugChessAreaController extends ChessAreaControllerBase implements
 
 	public BugChessAreaController() {
 		setFrame(new ChessAreaFrame());
-		getFrame().setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		getFrame()
+				.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		getFrame().setIconImage(GUIManager.DECAF_ICON);
 		setBughouse(true);
 		setChessArea(new ChessArea());
@@ -63,6 +64,7 @@ public class BugChessAreaController extends ChessAreaControllerBase implements
 		contentPane.add(getBughouseChessArea(), BorderLayout.CENTER);
 	}
 
+	@Override
 	public void dispose() {
 		LOGGER.error("Disposing bug chess area");
 		super.dispose();
@@ -86,6 +88,40 @@ public class BugChessAreaController extends ChessAreaControllerBase implements
 			WindowListener[] listeners = getFrame().getWindowListeners();
 			for (int i = 0; i < listeners.length; i++) {
 				getFrame().removeWindowListener(listeners[i]);
+			}
+		}
+	}
+
+	public void setObservingGameStartEvent(GameStartEvent bugStartEvent) {
+
+		if (isActive()) {
+			MoveEvent moveEvent = bugStartEvent
+					.getInitialInboundChessMoveEvent();
+			ChessArea partnersArea = getPartnersChessArea();
+			setPartnersGameId(bugStartEvent.getGameId());
+			partnersArea.setBoardId("" + bugStartEvent.getGameId());
+			partnersArea.setWhiteInfo(bugStartEvent.getWhiteName(),
+					bugStartEvent.getWhiteRating());
+			partnersArea.setBlackInfo(bugStartEvent.getBlackName(),
+					bugStartEvent.getBlackRating());
+			partnersArea.setPosition(moveEvent.getPosition());
+			partnersArea.setWhiteTime(moveEvent.getWhiteRemainingTime());
+			partnersArea.setBlackTime(moveEvent.getBlackRemainingTime());
+			partnersArea.setWhiteDropPieces(moveEvent.getHoldingsChangedEvent()
+					.getWhiteHoldings());
+			partnersArea.setBlackDropPieces(moveEvent.getHoldingsChangedEvent()
+					.getBlackHoldings());
+
+			if (!moveEvent.isClockTicking()) {
+				partnersArea.startOrStopClocksWithoutTicking();
+			}
+
+			subscribePartner();
+
+			if ((isObserving() || isExamining())) {
+				EventService.getInstance().publish(
+						new OutboundEvent("moves " + getPartnersGameId(), true,
+								MoveListEvent.class));
 			}
 		}
 	}
@@ -284,40 +320,6 @@ public class BugChessAreaController extends ChessAreaControllerBase implements
 						+ " isUserPlayingGame=" + isPlaying());
 			}
 			getFrame().invalidate();
-		}
-	}
-
-	public void setObservingGameStartEvent(GameStartEvent bugStartEvent) {
-
-		if (isActive()) {
-			MoveEvent moveEvent = bugStartEvent
-					.getInitialInboundChessMoveEvent();
-			ChessArea partnersArea = getPartnersChessArea();
-			setPartnersGameId(bugStartEvent.getGameId());
-			partnersArea.setBoardId("" + bugStartEvent.getGameId());
-			partnersArea.setWhiteInfo(bugStartEvent.getWhiteName(),
-					bugStartEvent.getWhiteRating());
-			partnersArea.setBlackInfo(bugStartEvent.getBlackName(),
-					bugStartEvent.getBlackRating());
-			partnersArea.setPosition(moveEvent.getPosition());
-			partnersArea.setWhiteTime(moveEvent.getWhiteRemainingTime());
-			partnersArea.setBlackTime(moveEvent.getBlackRemainingTime());
-			partnersArea.setWhiteDropPieces(moveEvent.getHoldingsChangedEvent()
-					.getWhiteHoldings());
-			partnersArea.setBlackDropPieces(moveEvent.getHoldingsChangedEvent()
-					.getBlackHoldings());
-
-			if (!moveEvent.isClockTicking()) {
-				partnersArea.startOrStopClocksWithoutTicking();
-			}
-
-			subscribePartner();
-
-			if ((isObserving() || isExamining())) {
-				EventService.getInstance().publish(
-						new OutboundEvent("moves " + getPartnersGameId(), true,
-								MoveListEvent.class));
-			}
 		}
 	}
 }

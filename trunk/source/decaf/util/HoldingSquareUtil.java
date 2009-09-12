@@ -23,22 +23,6 @@ import decaf.moveengine.Piece;
 
 public class HoldingSquareUtil implements HoldingSquares, Piece {
 
-	public HoldingSquareUtil() {
-	}
-
-	public static boolean isLightHoldingSquare(int i) {
-		return i == 100 || i == 101 || i == 102 || i == 103 || i == 104;
-	}
-
-	public static boolean isDarkHoldingSquare(int i) {
-		return i == 201 || i == 202 || i == 203 || i == 204 || i == 205;
-	}
-
-	public static boolean isHoldingSquare(int i) {
-		return i == 100 || i == 101 || i == 102 || i == 103 || i == 104
-				|| i == 201 || i == 202 || i == 203 || i == 204 || i == 205;
-	}
-
 	public static int getHoldingSquareForPiece(int i) {
 		char c = '\uFFFF';
 		switch (i) {
@@ -87,5 +71,21 @@ public class HoldingSquareUtil implements HoldingSquares, Piece {
 					"Piece does not represent holding square : " + i);
 		}
 		return c;
+	}
+
+	public static boolean isDarkHoldingSquare(int i) {
+		return i == 201 || i == 202 || i == 203 || i == 204 || i == 205;
+	}
+
+	public static boolean isHoldingSquare(int i) {
+		return i == 100 || i == 101 || i == 102 || i == 103 || i == 104
+				|| i == 201 || i == 202 || i == 203 || i == 204 || i == 205;
+	}
+
+	public static boolean isLightHoldingSquare(int i) {
+		return i == 100 || i == 101 || i == 102 || i == 103 || i == 104;
+	}
+
+	public HoldingSquareUtil() {
 	}
 }

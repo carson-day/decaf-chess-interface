@@ -21,6 +21,8 @@
 package decaf.messaging.outboundevent;
 
 public class ExamineBackRequestEvent extends GameOutboundEvent {
+	private int halfMovesBack;
+
 	public ExamineBackRequestEvent(int gameId, int halfMovesBack,
 			boolean isHidingFromUser) {
 		super(gameId, isHidingFromUser);
@@ -30,6 +32,4 @@ public class ExamineBackRequestEvent extends GameOutboundEvent {
 	public int getHalfMovesBack() {
 		return halfMovesBack;
 	}
-
-	private int halfMovesBack;
 }

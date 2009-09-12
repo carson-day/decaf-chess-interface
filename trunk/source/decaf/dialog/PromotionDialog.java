@@ -59,6 +59,19 @@ public class PromotionDialog extends JDialog {
 	private static final ImageIcon BLACK_ROOK = new ImageIcon(ChessSet
 			.getChessPieceImage("SET.BOOK.BROOK.BMP"));
 
+	public static int showPromotionDialog(JFrame jframe, boolean isWhitesMove,
+			Color background) {
+
+		PromotionDialog promotiondialog = new PromotionDialog(jframe,
+				isWhitesMove, background);
+		promotiondialog.setVisible(true);
+		return promotiondialog.pieceSelected;
+	}
+
+	private int pieceSelected = Piece.EMPTY;
+
+	private boolean isWhitePromotion;
+
 	public PromotionDialog(JFrame jframe, final boolean isWhitePromotion,
 			Color background) {
 		super(jframe, "Promote to piece:", true);
@@ -104,17 +117,4 @@ public class PromotionDialog extends JDialog {
 
 		pack();
 	}
-
-	public static int showPromotionDialog(JFrame jframe, boolean isWhitesMove,
-			Color background) {
-
-		PromotionDialog promotiondialog = new PromotionDialog(jframe,
-				isWhitesMove, background);
-		promotiondialog.setVisible(true);
-		return promotiondialog.pieceSelected;
-	}
-
-	private int pieceSelected = Piece.EMPTY;
-
-	private boolean isWhitePromotion;
 }

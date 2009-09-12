@@ -27,6 +27,8 @@ import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 
 public class FollowingEvent extends IcsNonGameEvent {
 
+	private String name;
+
 	public FollowingEvent(int icsId, String name, String text) {
 		super(icsId, text);
 		this.name = name;
@@ -40,9 +42,8 @@ public class FollowingEvent extends IcsNonGameEvent {
 		this.name = name;
 	}
 
+	@Override
 	public String toString() {
 		return "<FollowingEvent>" + getText() + "</FollowingEvent>";
 	}
-
-	private String name;
 }

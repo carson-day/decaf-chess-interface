@@ -34,6 +34,18 @@ public class BugWhoUEventParser extends NonGameEventParser {
 	private static final Logger LOGGER = Logger
 			.getLogger(BugWhoUEventParser.class);
 
+	private static final String UNPARTNERED_PLAYERS = "Unpartnered players with bugopen on";
+
+	private static final String END = "(*) indicates system administrator.";
+
+	/*
+	 * ^ involved in a game ~ running a simul match : not open for a match #
+	 * examining a game . inactive for 5 minutes or longer, or if "busy" is set
+	 * 
+	 * not busy & involved in a tournament
+	 */
+	private static final String MODIFIERS = "^~:#.&";
+
 	/**
 	 * Unpartnered players with bugopen on
 	 * 
@@ -59,6 +71,16 @@ public class BugWhoUEventParser extends NonGameEventParser {
 
 	public BugWhoUEventParser(int icsId) {
 		super(icsId);
+	}
+
+	private char getModifier(String name) {
+		int modifiersIndex = MODIFIERS.indexOf(name.charAt(0));
+
+		if (modifiersIndex != -1) {
+			return MODIFIERS.charAt(modifiersIndex);
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
@@ -117,25 +139,23 @@ public class BugWhoUEventParser extends NonGameEventParser {
 				UnpartneredBugger unpartneredBugger = new UnpartneredBugger();
 				String rating = lineTokenizer.nextToken();
 				String name = lineTokenizer.nextToken();
-				populateBugger(unpartneredBugger,name,rating);
+				populateBugger(unpartneredBugger, name, rating);
 				buggers.add(unpartneredBugger);
-				
-				if (lineTokenizer.countTokens() >= 2)
-				{
+
+				if (lineTokenizer.countTokens() >= 2) {
 					UnpartneredBugger unpartneredBugger2 = new UnpartneredBugger();
-					 rating = lineTokenizer.nextToken();
-					 name = lineTokenizer.nextToken();
-					populateBugger(unpartneredBugger2,name,rating);
-					buggers.add(unpartneredBugger2);					
+					rating = lineTokenizer.nextToken();
+					name = lineTokenizer.nextToken();
+					populateBugger(unpartneredBugger2, name, rating);
+					buggers.add(unpartneredBugger2);
 				}
-				if (lineTokenizer.countTokens() >= 2)
-				{
+				if (lineTokenizer.countTokens() >= 2) {
 					UnpartneredBugger unpartneredBugger3 = new UnpartneredBugger();
-					 rating = lineTokenizer.nextToken();
-					 name = lineTokenizer.nextToken();
-					populateBugger(unpartneredBugger3,name,rating);	
+					rating = lineTokenizer.nextToken();
+					name = lineTokenizer.nextToken();
+					populateBugger(unpartneredBugger3, name, rating);
 					buggers.add(unpartneredBugger3);
-					
+
 				}
 			}
 
@@ -166,27 +186,5 @@ public class BugWhoUEventParser extends NonGameEventParser {
 			bugger.setHandleModifier(name.charAt(0));
 		}
 	}
-
-	private char getModifier(String name) {
-		int modifiersIndex = MODIFIERS.indexOf(name.charAt(0));
-
-		if (modifiersIndex != -1) {
-			return MODIFIERS.charAt(modifiersIndex);
-		} else {
-			return 0;
-		}
-	}
-
-	private static final String UNPARTNERED_PLAYERS = "Unpartnered players with bugopen on";
-
-	private static final String END = "(*) indicates system administrator.";
-
-	/*
-	 * ^ involved in a game ~ running a simul match : not open for a match #
-	 * examining a game . inactive for 5 minutes or longer, or if "busy" is set
-	 * 
-	 * not busy & involved in a tournament
-	 */
-	private static final String MODIFIERS = "^~:#.&";
 
 }

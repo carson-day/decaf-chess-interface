@@ -24,10 +24,13 @@ import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 import decaf.messaging.inboundevent.inform.NotificationEvent;
 
 public class NotificationEventParser extends NonGameEventParser {
+	private static final String NOTIFICATION_ID = "Notification:";
+
 	public NotificationEventParser(int icsId) {
 		super(icsId);
 	}
 
+	@Override
 	public IcsNonGameEvent parse(String text) {
 		if (text.length() < 100) {
 			int notificationIndex = text.indexOf(NOTIFICATION_ID);
@@ -41,6 +44,4 @@ public class NotificationEventParser extends NonGameEventParser {
 		return null;
 
 	}
-
-	private static final String NOTIFICATION_ID = "Notification:";
 }

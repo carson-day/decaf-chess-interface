@@ -41,20 +41,20 @@ public class UserRightClickSquareEvent implements Event {
 		return boardId;
 	}
 
-	public void setBoardId(String boardId) {
-		this.boardId = boardId;
+	public ChessBoardSquare getSource() {
+		return source;
 	}
 
 	public boolean isEmpty() {
 		return isEmpty;
 	}
 
-	public void setEmpty(boolean isEmpty) {
-		this.isEmpty = isEmpty;
+	public void setBoardId(String boardId) {
+		this.boardId = boardId;
 	}
 
-	public ChessBoardSquare getSource() {
-		return source;
+	public void setEmpty(boolean isEmpty) {
+		this.isEmpty = isEmpty;
 	}
 
 	public void setSource(ChessBoardSquare source) {

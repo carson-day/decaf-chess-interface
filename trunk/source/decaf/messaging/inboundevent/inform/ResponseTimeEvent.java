@@ -35,6 +35,7 @@ public class ResponseTimeEvent extends IcsNonGameEvent {
 		return responseTimeMillis;
 	}
 
+	@Override
 	public String toString() {
 		return "<ResponseTimeEvent>" + getResponseTimeMillis()
 				+ "</ResponseTimeEvent>";

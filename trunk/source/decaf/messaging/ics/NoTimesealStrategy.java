@@ -38,15 +38,6 @@ public class NoTimesealStrategy implements TimesealStrategy {
 		outputStream.flush();
 	}
 
-	public InputStream getInputStream() {
-		return inputStream;
-	}
-
-	public void sendMsg(String message) throws IOException {
-		outputStream.write(message.getBytes(), 0, message.length());
-		outputStream.flush();
-	}
-
 	public void disconnect() {
 		try {
 			socket.close();
@@ -54,7 +45,16 @@ public class NoTimesealStrategy implements TimesealStrategy {
 		}
 	}
 
+	public InputStream getInputStream() {
+		return inputStream;
+	}
+
 	public void sendAck() throws IOException {
+	}
+
+	public void sendMsg(String message) throws IOException {
+		outputStream.write(message.getBytes(), 0, message.length());
+		outputStream.flush();
 	}
 
 }

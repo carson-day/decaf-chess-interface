@@ -46,10 +46,262 @@ import decaf.messaging.outboundevent.OutboundEvent;
 import decaf.resources.ResourceManager;
 import decaf.resources.ResourceManagerFactory;
 import decaf.thread.ThreadManager;
-import decaf.util.ExtendedListUtil;
 import decaf.util.PropertiesConstants;
 
 public class ICSCommunicationsDriver implements Subscriber, Preferenceable {
+
+	private class InboundMessageHandler implements Runnable {
+
+		public InboundMessageHandler() {
+
+		}
+
+		private boolean endsWithPrompt(StringBuffer message) {
+			boolean endsWithPrompt = true;
+			String stringMessage = message.toString();
+			// A hack to fix what happens when your partner moves first before
+			// you receive the position.
+			if (message.length() < 600 && stringMessage.startsWith("Creating")
+					&& stringMessage.indexOf("bughouse") != -1
+					&& stringMessage.indexOf("<g1>") != -1
+					&& stringMessage.indexOf("<12>") == -1) {
+				endsWithPrompt = false;
+			} else {
+				int bufferIndex = message.length() - 1;
+				for (int i = PROMPT.length() - 1; endsWithPrompt && i > -1; i--) {
+					endsWithPrompt = message.charAt(bufferIndex--) == PROMPT
+							.charAt(i);
+				}
+			}
+			return endsWithPrompt;
+		}
+
+		public void run() {
+			StringBuffer buffer = new StringBuffer(READ_BUFFER_SIZE);
+			int chars = 0;
+			try {
+				try {
+					boolean ignoreWhiteSpace = false;
+					// handle all other messages
+					do {
+						char currentChar = (char) inputStream.read();
+
+						if (lastMessageSentMillis != -1) {
+							handleResponseTime(System.currentTimeMillis()
+									- lastMessageSentMillis);
+							lastMessageSentMillis = -1;
+						}
+
+						chars++;
+						if (currentChar == 65535) {
+							break;
+						} else {
+							if (ignoreWhiteSpace
+									&& Character.isWhitespace(currentChar)) {
+								// eat it
+							} else {
+								ignoreWhiteSpace = false;
+								buffer.append(currentChar);
+							}
+						}
+
+						// For future socket timeseal.
+						if (buffer.length() > 2
+								&& buffer.charAt(buffer.length() - 3) == '['
+								&& buffer.charAt(buffer.length() - 2) == 'G'
+								&& buffer.charAt(buffer.length() - 1) == ']') {
+							timesealSource.sendAck();
+							buffer.delete(buffer.length() - 3, buffer.length());
+							continue;
+						}
+
+						if (buffer.length() >= PROMPT.length()) {
+							if (endsWithPrompt(buffer)) {
+								trimPrompt(buffer);
+								trimTail(buffer);
+								messageArrived(buffer.toString());
+								buffer.delete(0, buffer.length());
+								ignoreWhiteSpace = true;
+								chars = 0;
+							} else if (buffer.length() == buffer.capacity()) {
+								sendEvent(new IcsNonGameEvent(ICS_ID, buffer
+										.toString()));
+								buffer.delete(0, buffer.length());
+								chars = 0;
+
+							}
+						}
+					} while (true);
+				} catch (Throwable exception) {
+					LOGGER.error(exception);
+					throw new RuntimeException(exception);
+				}
+				messageArrived(buffer.toString());
+				connectionLost();
+			} catch (Throwable throwable) {
+				throwable.printStackTrace();
+			} finally {
+				disconnect();
+			}
+		}
+
+		private void trimPrompt(StringBuffer message) {
+			/*
+			 * iv_defprompt
+			 * 
+			 * Setting ivariable defprompt forces the user's prompt to 'fics% '
+			 * or if the user has ptime set to 'hh:mm_fics% '. This is to make
+			 * it possible to parse data if the user has changed the prompt.
+			 * 
+			 * See Also: iset ivariables
+			 */
+
+			if (message.length() >= PROMPT.length()) {
+				if (message.charAt(message.length() - PROMPT.length()) == '_') {
+					message.delete(message.length() - PROMPT.length() + 6,
+							message.length());
+				} else {
+					message.delete(message.length() - PROMPT.length(), message
+							.length());
+				}
+			}
+		}
+
+		private void trimTail(StringBuffer message) {
+			while (message.length() > 0
+					&& (message.charAt(message.length() - 1) == '\n'
+							|| message.charAt(message.length() - 1) == '\r' || message
+							.charAt(message.length() - 1) == ' ')) {
+				message.deleteCharAt(message.length() - 1);
+			}
+		}
+	}
+
+	private class LoginHandler implements Runnable {
+		private String userName;
+
+		private String password;
+
+		private boolean isUnnamedGuest;
+
+		public boolean isLoggedIn = false;
+
+		private boolean isGuest;
+
+		public LoginHandler(String userName, String password) {
+			this.userName = userName;
+			this.password = password;
+
+			if (userName == null || userName.equals("")) {
+				this.userName = "g";
+			}
+			isUnnamedGuest = this.userName.equalsIgnoreCase("g");
+			isGuest = password == null || password.trim().equals("");
+		}
+
+		public boolean isLoggedIn() {
+			return isLoggedIn;
+		}
+
+		public void run() {
+			StringBuffer buffer = new StringBuffer(READ_BUFFER_SIZE);
+			boolean hasSeenLoginPrompt = false;
+			boolean hasSentUserName = false;
+			try {
+				// handle log in messages
+				while (true) {
+					char currentChar = (char) inputStream.read();
+
+					if (currentChar == 65535) {
+						break;
+					} else {
+						buffer.append(currentChar);
+					}
+
+					// For future socket timeseal.
+					if (buffer.length() > 2
+							&& buffer.charAt(buffer.length() - 3) == '['
+							&& buffer.charAt(buffer.length() - 2) == 'G'
+							&& buffer.charAt(buffer.length() - 1) == ']') {
+						LOGGER.error("Sent ack");
+						timesealSource.sendAck();
+						buffer.delete(buffer.length() - 3, buffer.length());
+						continue;
+					}
+
+					if (buffer.length() >= LOGIN_PROMPT.length()
+							&& buffer.substring(
+									buffer.length() - LOGIN_PROMPT.length())
+									.equals(LOGIN_PROMPT)) {
+						if (hasSeenLoginPrompt) {
+							beginingMessageArrived(buffer.toString());
+							buffer = new StringBuffer(READ_BUFFER_SIZE);
+							break;
+						}
+						if (userName != null && !userName.equals("")) {
+							sendNonBlockedMessage(userName);
+							beginingMessageArrived(buffer.toString());
+							buffer = new StringBuffer(READ_BUFFER_SIZE);
+							hasSeenLoginPrompt = true;
+							hasSentUserName = true;
+						}
+					} else if ((isGuest || isUnnamedGuest) && hasSentUserName
+							&& (currentChar == ';' || currentChar == ':')) {
+						if (isUnnamedGuest && currentChar == ';') {
+							int lastSpace = buffer.lastIndexOf(" ");
+
+							userName = buffer.substring(lastSpace + 2, buffer
+									.length() - 2);
+
+							LOGGER.debug("Set user name to " + userName);
+							isUnnamedGuest = false;
+							beginingMessageArrived(buffer.toString());
+							buffer = new StringBuffer(READ_BUFFER_SIZE);
+						} else if (currentChar == ':') {
+							sendNonBlockedMessage("");
+							beginingMessageArrived(buffer.toString());
+							buffer = new StringBuffer(READ_BUFFER_SIZE);
+							isUnnamedGuest = false;
+							isGuest = false;
+						}
+					} else if (buffer.length() >= PASSWORD_PROMPT.length()
+							&& buffer.substring(
+									buffer.length() - PASSWORD_PROMPT.length())
+									.equals(PASSWORD_PROMPT)) {
+						if (password != null && !(password.equals(""))) {
+							sendNonBlockedMessage(password);
+							beginingMessageArrived(buffer.toString());
+							buffer = new StringBuffer(READ_BUFFER_SIZE);
+						}
+					} else if (buffer.length() == buffer.capacity()) {
+						beginingMessageArrived(buffer.substring(0, buffer
+								.length() - 1)
+								+ "\r");
+						buffer = new StringBuffer(READ_BUFFER_SIZE);
+					} else if (buffer.length() >= PROMPT.length()
+							&& buffer
+									.substring(buffer.length() - PROMPT_LENGTH)
+									.equals(PROMPT)) {
+						beginingMessageArrived(buffer.substring(0,
+								buffer.length() - PROMPT_LENGTH).trim());
+						isLoggedIn = true;
+						break;
+					}
+				}
+
+				if (!isLoggedIn) {
+					beginingMessageArrived(buffer.toString());
+					throw new IOException("Error logging in");
+				}
+
+			} catch (IOException ioe) {
+				isLoggedIn = false;
+				beginingMessageArrived(buffer.toString());
+				ioe.printStackTrace();
+				// disconnect();
+			}
+		}
+	}
 
 	private static final Logger LOGGER = Logger
 			.getLogger(ICSCommunicationsDriver.class);
@@ -100,81 +352,29 @@ public class ICSCommunicationsDriver implements Subscriber, Preferenceable {
 	private String url;
 
 	private Timer delayTimer;
-	
+
 	public String TIMER_DEFAULT_COMMAND = "date";
 
 	public ICSCommunicationsDriver(Preferences preferences) {
 
 		this.preferences = preferences;
 
-		/*if (preferences.getChatPreferences().isPreventingIdleLogout()) {
-			delayTimer = new Timer();
-			delayTimer.schedule(new TimerTask() {
-				public void run() {
-					EventService.getInstance().publish(
-							new OutboundEvent("date"));
-				}
-			}, 60000 * 50, 60000 * 50);
-		}*/
-		
+		/*
+		 * if (preferences.getChatPreferences().isPreventingIdleLogout()) {
+		 * delayTimer = new Timer(); delayTimer.schedule(new TimerTask() {
+		 * public void run() { EventService.getInstance().publish( new
+		 * OutboundEvent("date")); } }, 60000 * 50, 60000 * 50); }
+		 */
+
 		startTimerCommand(TIMER_DEFAULT_COMMAND);
-		
+
 		outboundMessageHandler = new ICSOutboundMessageHandler(this);
 		messageLog.setPreferences(preferences);
 	}
 
-	public void startTimerCommand(final String command) {
-		if (!preferences.getChatPreferences().isPreventingIdleLogout()) { stopTimerCommand(); } else {
-			if (delayTimer != null) return;
-			delayTimer = new Timer();
-			delayTimer.schedule(new TimerTask() {
-				public void run() {
-					EventService.getInstance().publish(
-							new OutboundEvent(command));
-				}
-			}, 60000 * 50, 60000 * 50);
-			// Timer Command Enabled.
-		}
-		
-	}
-	public void stopTimerCommand() {
-		if (delayTimer == null || delayTimer.equals(null)) return;
-		delayTimer.cancel();
-		// Timer Command Disabled.
-	}
-	
-	public Preferences getPreferences() {
-		return preferences;
-	}
-
-	public void setPreferences(Preferences preferences) {
-		this.preferences = preferences;
-		messageLog.setPreferences(preferences);
-	}
-
-	public String getDriverDescription() {
-		return "ICS Driver";
-	}
-
-	public void disconnect() {
-		try {
-			outboundMessageHandler.dispose();
-		} catch (Exception e) {
-		}
-
-		try {
-			if (timesealSource != null) {
-				timesealSource.disconnect();
-				inputStream = null;
-			}
-		} catch (Exception e) {
-		}
-
-		if (delayTimer != null) {
-			delayTimer.cancel();
-		}
-
-		timesealSource = null;
+	private void beginingMessageArrived(String text) {
+		IcsInboundEvent textReceivedEvent = new IcsNonGameEvent(ICS_ID, text);
+		sendEvent(textReceivedEvent);
 	}
 
 	public void connect(String url, int port, String userName, String password,
@@ -309,59 +509,31 @@ public class ICSCommunicationsDriver implements Subscriber, Preferenceable {
 		}
 	}
 
-	private void sendLoginScript() {
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new FileReader(
-					"properties/LoginScript.txt"));
-			String line = reader.readLine();
-
-			while (line != null && !line.equals("")) {
-				line = line.trim();
-				if (!line.startsWith("#")) {
-					sendNonBlockedMessage(line);
-				}
-				line = reader.readLine();
-			}
-		} catch (IOException ioe) {
-			try {
-				reader = new BufferedReader(new FileReader(new File(
-						ResourceManagerFactory.getManager().getDecafUserHome()
-								.getAbsolutePath()
-								+ "/properties/LoginScript.txt")));
-
-				String line = reader.readLine();
-
-				while (line != null && !line.equals("")) {
-					line = line.trim();
-					if (!line.startsWith("#")) {
-						sendNonBlockedMessage(line);
-					}
-					line = reader.readLine();
-				}
-
-			} catch (IOException ioe2) {
-				LOGGER.error("Could not find properties/LoginScript.txt");
-			}
-
-		} finally {
-			try {
-				reader.close();
-			} catch (IOException ioe) {
-			}
-		}
+	private void connectionLost() {
+		EventService.getInstance().publish(
+				new NotificationEvent(ICS_ID, "Connection " + url + ":" + port
+						+ " has been lost."));
 	}
 
-	void handlePublishingEventAndLogging(OutboundEvent event) {
-		if (event.getText() != null && !event.getText().equals("")) {
-			if (event.getResponseEventTypeToHideFromUser() != null) {
-				ficsParser.hideNextClassFromUser(event
-						.getResponseEventTypeToHideFromUser());
-			}
-			if (!event.isHidingFromUser()) {
-				messageArrived(event.getText());
-			}
+	public void disconnect() {
+		try {
+			outboundMessageHandler.dispose();
+		} catch (Exception e) {
 		}
+
+		try {
+			if (timesealSource != null) {
+				timesealSource.disconnect();
+				inputStream = null;
+			}
+		} catch (Exception e) {
+		}
+
+		if (delayTimer != null) {
+			delayTimer.cancel();
+		}
+
+		timesealSource = null;
 	}
 
 	/**
@@ -387,7 +559,11 @@ public class ICSCommunicationsDriver implements Subscriber, Preferenceable {
 
 		if ((firstWord != null && secondWord != null && thirdWord != null
 				&& firstWord.equalsIgnoreCase("SET")
-				&& ( secondWord.equalsIgnoreCase("STYLE") /*|| (secondWord.toUpperCase().startsWith("ST"))*/ ) && !thirdWord
+				&& (secondWord.equalsIgnoreCase("STYLE") /*
+														 * ||
+														 * (secondWord.toUpperCase
+														 * ().startsWith("ST"))
+														 */) && !thirdWord
 				.equals("12"))
 				|| (firstWord != null && secondWord != null
 						&& firstWord.equalsIgnoreCase("SET") && secondWord
@@ -431,36 +607,106 @@ public class ICSCommunicationsDriver implements Subscriber, Preferenceable {
 		return message;
 	}
 
-	private void logCommunication(String message) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(message);
-		}
+	public String getDriverDescription() {
+		return "ICS Driver";
+	}
+
+	public Preferences getPreferences() {
+		return preferences;
 	}
 
 	private String getTimesealSystemProp() {
 		return System.getProperty("decaf.gui.ics.timeseal");
 	}
 
-	private void sendNonBlockedMessage(final String message) throws IOException {
-
-		// This method does not handle timeseal ack messages.
-		// That code has been moved to SocketReader.
-		String filteredMessage = filterOutboundMessage(message);
-
-		if (filteredMessage == null) {
-			LOGGER.warn("Attempted to send null message");
-			return;
+	void handlePublishingEventAndLogging(OutboundEvent event) {
+		if (event.getText() != null && !event.getText().equals("")) {
+			if (event.getResponseEventTypeToHideFromUser() != null) {
+				ficsParser.hideNextClassFromUser(event
+						.getResponseEventTypeToHideFromUser());
+			}
+			if (!event.isHidingFromUser()) {
+				messageArrived(event.getText());
+			}
 		}
-		filteredMessage += "\n";
+	}
 
-		lastMessageSentMillis = System.currentTimeMillis();
-		timesealSource.sendMsg(filteredMessage);
+	private void handleResponseTime(long responseTime) {
+		EventService.getInstance().publish(
+				new ResponseTimeEvent(ICS_ID, responseTime));
+	}
 
+	private void logCommunication(String message) {
 		if (LOGGER.isDebugEnabled()) {
-			logCommunication("out: " + filteredMessage);
+			LOGGER.debug(message);
 		}
-		if (preferences.getLoggingPreferences().isLoggingEnabled()) {
-			messageLog.logOutbound(message);
+	}
+
+	private void messageArrived(String text) {
+
+		publishInboundEvents(text);
+	}
+
+	private void publishInboundEvents(String text) {
+		IcsInboundEvent[] events = ficsParser.parse(new StringBuffer(text));
+
+		for (int i = 0; i < events.length; i++) {
+			sendEvent(events[i]);
+			if (preferences.getLoggingPreferences().isLoggingEnabled()) {
+				messageLog.log(events[i]);
+			}
+		}
+	}
+
+	/**
+	 * First calls handleMessageTransformation. If it returns true does nothing.
+	 * Otherwise, sends the event to the event service.
+	 */
+	private void sendEvent(IcsInboundEvent event) {
+		EventService.getInstance().publish(event);
+
+	}
+
+	private void sendLoginScript() {
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(
+					"properties/LoginScript.txt"));
+			String line = reader.readLine();
+
+			while (line != null && !line.equals("")) {
+				line = line.trim();
+				if (!line.startsWith("#")) {
+					sendNonBlockedMessage(line);
+				}
+				line = reader.readLine();
+			}
+		} catch (IOException ioe) {
+			try {
+				reader = new BufferedReader(new FileReader(new File(
+						ResourceManagerFactory.getManager().getDecafUserHome()
+								.getAbsolutePath()
+								+ "/properties/LoginScript.txt")));
+
+				String line = reader.readLine();
+
+				while (line != null && !line.equals("")) {
+					line = line.trim();
+					if (!line.startsWith("#")) {
+						sendNonBlockedMessage(line);
+					}
+					line = reader.readLine();
+				}
+
+			} catch (IOException ioe2) {
+				LOGGER.error("Could not find properties/LoginScript.txt");
+			}
+
+		} finally {
+			try {
+				reader.close();
+			} catch (IOException ioe) {
+			}
 		}
 	}
 
@@ -489,297 +735,57 @@ public class ICSCommunicationsDriver implements Subscriber, Preferenceable {
 		}
 	}
 
-	/**
-	 * First calls handleMessageTransformation. If it returns true does nothing.
-	 * Otherwise, sends the event to the event service.
-	 */
-	private void sendEvent(IcsInboundEvent event) {
-		EventService.getInstance().publish(event);
+	private void sendNonBlockedMessage(final String message) throws IOException {
 
-	}
+		// This method does not handle timeseal ack messages.
+		// That code has been moved to SocketReader.
+		String filteredMessage = filterOutboundMessage(message);
 
-	private void beginingMessageArrived(String text) {
-		IcsInboundEvent textReceivedEvent = new IcsNonGameEvent(ICS_ID, text);
-		sendEvent(textReceivedEvent);
-	}
+		if (filteredMessage == null) {
+			LOGGER.warn("Attempted to send null message");
+			return;
+		}
+		filteredMessage += "\n";
 
-	private void messageArrived(String text) {
+		lastMessageSentMillis = System.currentTimeMillis();
+		timesealSource.sendMsg(filteredMessage);
 
-		publishInboundEvents(text);
-	}
-
-	private void publishInboundEvents(String text) {
-		IcsInboundEvent[] events = ficsParser.parse(new StringBuffer(text));
-
-		for (int i = 0; i < events.length; i++) {
-			sendEvent(events[i]);
-			if (preferences.getLoggingPreferences().isLoggingEnabled()) {
-				messageLog.log(events[i]);
-			}
+		if (LOGGER.isDebugEnabled()) {
+			logCommunication("out: " + filteredMessage);
+		}
+		if (preferences.getLoggingPreferences().isLoggingEnabled()) {
+			messageLog.logOutbound(message);
 		}
 	}
 
-	private void connectionLost() {
-		EventService.getInstance().publish(
-				new NotificationEvent(ICS_ID, "Connection " + url + ":" + port
-						+ " has been lost."));
+	public void setPreferences(Preferences preferences) {
+		this.preferences = preferences;
+		messageLog.setPreferences(preferences);
 	}
 
-	private void handleResponseTime(long responseTime) {
-		EventService.getInstance().publish(
-				new ResponseTimeEvent(ICS_ID, responseTime));
-	}
-
-	private class LoginHandler implements Runnable {
-		private String userName;
-
-		private String password;
-
-		private boolean isUnnamedGuest;
-
-		public boolean isLoggedIn = false;
-
-		private boolean isGuest;
-
-		public LoginHandler(String userName, String password) {
-			this.userName = userName;
-			this.password = password;
-
-			if (userName == null || userName.equals("")) {
-				this.userName = "g";
-			}
-			isUnnamedGuest = this.userName.equalsIgnoreCase("g");
-			isGuest = password == null || password.trim().equals("");
-		}
-
-		public boolean isLoggedIn() {
-			return isLoggedIn;
-		}
-
-		public void run() {
-			StringBuffer buffer = new StringBuffer(READ_BUFFER_SIZE);
-			boolean hasSeenLoginPrompt = false;
-			boolean hasSentUserName = false;
-			try {
-				// handle log in messages
-				while (true) {
-					char currentChar = (char) inputStream.read();
-
-					if (currentChar == 65535) {
-						break;
-					} else {
-						buffer.append(currentChar);
-					}
-
-					// For future socket timeseal.
-					if (buffer.length() > 2
-							&& buffer.charAt(buffer.length() - 3) == '['
-							&& buffer.charAt(buffer.length() - 2) == 'G'
-							&& buffer.charAt(buffer.length() - 1) == ']') {
-						LOGGER.error("Sent ack");
-						timesealSource.sendAck();
-						buffer.delete(buffer.length() - 3, buffer.length());
-						continue;
-					}
-
-					if (buffer.length() >= LOGIN_PROMPT.length()
-							&& buffer.substring(
-									buffer.length() - LOGIN_PROMPT.length())
-									.equals(LOGIN_PROMPT)) {
-						if (hasSeenLoginPrompt) {
-							beginingMessageArrived(buffer.toString());
-							buffer = new StringBuffer(READ_BUFFER_SIZE);
-							break;
-						}
-						if (userName != null && !userName.equals("")) {
-							sendNonBlockedMessage(userName);
-							beginingMessageArrived(buffer.toString());
-							buffer = new StringBuffer(READ_BUFFER_SIZE);
-							hasSeenLoginPrompt = true;
-							hasSentUserName = true;
-						}
-					} else if ((isGuest || isUnnamedGuest) && hasSentUserName
-							&& (currentChar == ';' || currentChar == ':')) {
-						if (isUnnamedGuest && currentChar == ';') {
-							int lastSpace = buffer.lastIndexOf(" ");
-
-							userName = buffer.substring(lastSpace + 2, buffer
-									.length() - 2);
-
-							LOGGER.debug("Set user name to " + userName);
-							isUnnamedGuest = false;
-							beginingMessageArrived(buffer.toString());
-							buffer = new StringBuffer(READ_BUFFER_SIZE);
-						} else if (currentChar == ':') {
-							sendNonBlockedMessage("");
-							beginingMessageArrived(buffer.toString());
-							buffer = new StringBuffer(READ_BUFFER_SIZE);
-							isUnnamedGuest = false;
-							isGuest = false;
-						}
-					} else if (buffer.length() >= PASSWORD_PROMPT.length()
-							&& buffer.substring(
-									buffer.length() - PASSWORD_PROMPT.length())
-									.equals(PASSWORD_PROMPT)) {
-						if (password != null && !(password.equals(""))) {
-							sendNonBlockedMessage(password);
-							beginingMessageArrived(buffer.toString());
-							buffer = new StringBuffer(READ_BUFFER_SIZE);
-						}
-					} else if (buffer.length() == buffer.capacity()) {
-						beginingMessageArrived(buffer.substring(0, buffer
-								.length() - 1)
-								+ "\r");
-						buffer = new StringBuffer(READ_BUFFER_SIZE);
-					} else if (buffer.length() >= PROMPT.length()
-							&& buffer
-									.substring(buffer.length() - PROMPT_LENGTH)
-									.equals(PROMPT)) {
-						beginingMessageArrived(buffer.substring(0,
-								buffer.length() - PROMPT_LENGTH).trim());
-						isLoggedIn = true;
-						break;
-					}
+	public void startTimerCommand(final String command) {
+		if (!preferences.getChatPreferences().isPreventingIdleLogout()) {
+			stopTimerCommand();
+		} else {
+			if (delayTimer != null)
+				return;
+			delayTimer = new Timer();
+			delayTimer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					EventService.getInstance().publish(
+							new OutboundEvent(command));
 				}
-
-				if (!isLoggedIn) {
-					beginingMessageArrived(buffer.toString());
-					throw new IOException("Error logging in");
-				}
-
-			} catch (IOException ioe) {
-				isLoggedIn = false;
-				beginingMessageArrived(buffer.toString());
-				ioe.printStackTrace();
-				// disconnect();
-			}
+			}, 60000 * 50, 60000 * 50);
+			// Timer Command Enabled.
 		}
+
 	}
 
-	private class InboundMessageHandler implements Runnable {
-
-		public InboundMessageHandler() {
-
-		}
-
-		private void trimPrompt(StringBuffer message) {
-			/*
-			 * iv_defprompt
-			 * 
-			 * Setting ivariable defprompt forces the user's prompt to 'fics% '
-			 * or if the user has ptime set to 'hh:mm_fics% '. This is to make
-			 * it possible to parse data if the user has changed the prompt.
-			 * 
-			 * See Also: iset ivariables
-			 */
-
-			if (message.length() >= PROMPT.length()) {
-				if (message.charAt(message.length() - PROMPT.length()) == '_') {
-					message.delete(message.length() - PROMPT.length() + 6,
-							message.length());
-				} else {
-					message.delete(message.length() - PROMPT.length(), message
-							.length());
-				}
-			}
-		}
-
-		private void trimTail(StringBuffer message) {
-			while (message.length() > 0
-					&& (message.charAt(message.length() - 1) == '\n'
-							|| message.charAt(message.length() - 1) == '\r' || message
-							.charAt(message.length() - 1) == ' ')) {
-				message.deleteCharAt(message.length() - 1);
-			}
-		}
-
-		private boolean endsWithPrompt(StringBuffer message) {
-			boolean endsWithPrompt = true;
-			String stringMessage = message.toString();
-			// A hack to fix what happens when your partner moves first before
-			// you receive the position.
-			if (message.length() < 600 && stringMessage.startsWith("Creating")
-					&& stringMessage.indexOf("bughouse") != -1
-					&& stringMessage.indexOf("<g1>") != -1
-					&& stringMessage.indexOf("<12>") == -1) {
-				endsWithPrompt = false;
-			} else {
-				int bufferIndex = message.length() - 1;
-				for (int i = PROMPT.length() - 1; endsWithPrompt && i > -1; i--) {
-					endsWithPrompt = message.charAt(bufferIndex--) == PROMPT
-							.charAt(i);
-				}
-			}
-			return endsWithPrompt;
-		}
-
-		public void run() {
-			StringBuffer buffer = new StringBuffer(READ_BUFFER_SIZE);
-			int chars = 0;
-			try {
-				try {
-					boolean ignoreWhiteSpace = false;
-					// handle all other messages
-					do {
-						char currentChar = (char) inputStream.read();
-
-						if (lastMessageSentMillis != -1) {
-							handleResponseTime(System.currentTimeMillis()
-									- lastMessageSentMillis);
-							lastMessageSentMillis = -1;
-						}
-
-						chars++;
-						if (currentChar == 65535) {
-							break;
-						} else {
-							if (ignoreWhiteSpace
-									&& Character.isWhitespace(currentChar)) {
-								// eat it
-							} else {
-								ignoreWhiteSpace = false;
-								buffer.append(currentChar);
-							}
-						}
-
-						// For future socket timeseal.
-						if (buffer.length() > 2
-								&& buffer.charAt(buffer.length() - 3) == '['
-								&& buffer.charAt(buffer.length() - 2) == 'G'
-								&& buffer.charAt(buffer.length() - 1) == ']') {
-							timesealSource.sendAck();
-							buffer.delete(buffer.length() - 3, buffer.length());
-							continue;
-						}
-
-						if (buffer.length() >= PROMPT.length()) {
-							if (endsWithPrompt(buffer)) {
-								trimPrompt(buffer);
-								trimTail(buffer);
-								messageArrived(buffer.toString());
-								buffer.delete(0, buffer.length());
-								ignoreWhiteSpace = true;
-								chars = 0;
-							} else if (buffer.length() == buffer.capacity()) {
-								sendEvent(new IcsNonGameEvent(ICS_ID, buffer
-										.toString()));
-								buffer.delete(0, buffer.length());
-								chars = 0;
-
-							}
-						}
-					} while (true);
-				} catch (Throwable exception) {
-					LOGGER.error(exception);
-					throw new RuntimeException(exception);
-				}
-				messageArrived(buffer.toString());
-				connectionLost();
-			} catch (Throwable throwable) {
-				throwable.printStackTrace();
-			} finally {
-				disconnect();
-			}
-		}
+	public void stopTimerCommand() {
+		if (delayTimer == null || delayTimer.equals(null))
+			return;
+		delayTimer.cancel();
+		// Timer Command Disabled.
 	}
 }

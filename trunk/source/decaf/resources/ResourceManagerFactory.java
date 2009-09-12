@@ -20,13 +20,13 @@
 package decaf.resources;
 
 public class ResourceManagerFactory {
-	public static void init(ResourceManager initManager) {
-		manager = initManager;
-	}
+	private static ResourceManager manager;
 
 	public static ResourceManager getManager() {
 		return manager;
 	}
 
-	private static ResourceManager manager;
+	public static void init(ResourceManager initManager) {
+		manager = initManager;
+	}
 }

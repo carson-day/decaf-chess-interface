@@ -20,8 +20,11 @@
 package decaf.gui;
 
 public interface GameNotificationListener {
-    public void gameStarted(ChessAreaController controller);
-    public void gameEnded(ChessAreaController controller);
-    public void bugGameStarted(BugChessAreaController controller);
-    public void bugGameEnded(BugChessAreaController controller);
+	public void bugGameEnded(BugChessAreaController controller);
+
+	public void bugGameStarted(BugChessAreaController controller);
+
+	public void gameEnded(ChessAreaController controller);
+
+	public void gameStarted(ChessAreaController controller);
 }

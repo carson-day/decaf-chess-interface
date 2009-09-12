@@ -40,6 +40,11 @@ public class IllegalMoveException extends Exception {
 		this.position = position;
 	}
 
+	@Override
+	public String getMessage() {
+		return reason;
+	}
+
 	public Move getMove() {
 		return move;
 	}
@@ -48,10 +53,7 @@ public class IllegalMoveException extends Exception {
 		return position;
 	}
 
-	public String getMessage() {
-		return reason;
-	}
-
+	@Override
 	public String toString() {
 		return getClass().getName() + ": " + reason;
 	}

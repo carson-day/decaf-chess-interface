@@ -29,15 +29,27 @@ import decaf.gui.widgets.ChessBoardSquare;
 
 public class LeftRightHoldingsPanel extends HoldingsPanelBase {
 
-	public static final int LEFT_ORIENTATION = 1;
-
-	public static final int RIGHT_ORIENTATION = 2;
-
-	private int orientation;
-
-	private ChessBoard board;
-
 	private class LeftRightLayout implements LayoutManager2 {
+		public void addLayoutComponent(Component arg0, Object arg1) {
+
+		}
+
+		public void addLayoutComponent(String arg0, Component arg1) {
+
+		}
+
+		public float getLayoutAlignmentX(Container arg0) {
+			return 0.5F;
+		}
+
+		public float getLayoutAlignmentY(Container arg0) {
+			return 0.5F;
+		}
+
+		public void invalidateLayout(Container arg0) {
+
+		}
+
 		public void layoutContainer(Container container) {
 
 			int height = container.getSize().height;
@@ -92,29 +104,9 @@ public class LeftRightHoldingsPanel extends HoldingsPanelBase {
 			}
 		}
 
-		public void addLayoutComponent(Component arg0, Object arg1) {
-
-		}
-
-		public float getLayoutAlignmentX(Container arg0) {
-			return 0.5F;
-		}
-
-		public float getLayoutAlignmentY(Container arg0) {
-			return 0.5F;
-		}
-
-		public void invalidateLayout(Container arg0) {
-
-		}
-
 		public Dimension maximumLayoutSize(Container arg0) {
 
 			return new Dimension(10000, 10000);
-		}
-
-		public void addLayoutComponent(String arg0, Component arg1) {
-
 		}
 
 		public Dimension minimumLayoutSize(Container arg0) {
@@ -133,15 +125,20 @@ public class LeftRightHoldingsPanel extends HoldingsPanelBase {
 		}
 	}
 
-	public Dimension getPreferredSize() {
-		if (board != null) {
-			return (new Dimension(board.getSquareSide(),
-					board.getSquareSide() * 4));
-		} else {
-			return super.getPreferredSize();
-		}
+	public static final int LEFT_ORIENTATION = 1;
+
+	public static final int RIGHT_ORIENTATION = 2;
+
+	private int orientation;
+
+	private ChessBoard board;
+
+	public LeftRightHoldingsPanel(ChessBoard board, boolean isWhiteDropPanel) {
+		super(isWhiteDropPanel);
+		this.board = board;
 	}
 
+	@Override
 	public Dimension getMinimumSize() {
 		if (board != null) {
 			return (new Dimension(board.getSquareSide(),
@@ -151,19 +148,25 @@ public class LeftRightHoldingsPanel extends HoldingsPanelBase {
 		}
 	}
 
-	public LeftRightHoldingsPanel(ChessBoard board, boolean isWhiteDropPanel) {
-		super(isWhiteDropPanel);
-		this.board = board;
-	}
-
 	public int getOrientation() {
 		return orientation;
+	}
+
+	@Override
+	public Dimension getPreferredSize() {
+		if (board != null) {
+			return (new Dimension(board.getSquareSide(),
+					board.getSquareSide() * 4));
+		} else {
+			return super.getPreferredSize();
+		}
 	}
 
 	public void setOrientation(int orientation) {
 		this.orientation = orientation;
 	}
 
+	@Override
 	protected void setupLayout() {
 		removeAll();
 		setLayout(new LeftRightLayout());

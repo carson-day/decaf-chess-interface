@@ -28,67 +28,58 @@ public class UnpartneredBugger implements Comparable<UnpartneredBugger> {
 
 	private char handleModifier;
 
-	public String getHandle() {
-		return handle;
+	public int compareTo(UnpartneredBugger bugger) {
+		int ratingAsInt = 0;
+		int buggerRatingAsInt = 0;
+
+		try {
+			ratingAsInt = Integer.parseInt(getRating());
+		} catch (NumberFormatException nfe) {
+		}
+
+		try {
+			buggerRatingAsInt = Integer.parseInt(bugger.getRating());
+		} catch (NumberFormatException nfe) {
+		}
+
+		if (ratingAsInt > buggerRatingAsInt) {
+			return -1;
+		} else if (ratingAsInt < buggerRatingAsInt) {
+			return 1;
+		} else {
+			return 0;
+		}
 	}
 
-	public void setHandle(String handle) {
-		this.handle = handle;
+	public String getHandle() {
+		return handle;
 	}
 
 	public char getHandleModifier() {
 		return handleModifier;
 	}
 
-	public void setHandleModifier(char handleModifier) {
-		this.handleModifier = handleModifier;
-	}
-
 	public String getRating() {
 		return rating;
-	}
-
-	public void setRating(String rating) {
-		this.rating = rating;
 	}
 
 	public char getRatingModifier() {
 		return ratingModifier;
 	}
 
-	public void setRatingModifier(char ratingModifier) {
-		this.ratingModifier = ratingModifier;
+	public void setHandle(String handle) {
+		this.handle = handle;
 	}
 
-	public int compareTo(UnpartneredBugger bugger) {
-		int ratingAsInt = 0;
-		int buggerRatingAsInt = 0;
-		
-		try
-		{
-			ratingAsInt = Integer.parseInt(getRating());
-		}
-		catch (NumberFormatException nfe)
-		{}
+	public void setHandleModifier(char handleModifier) {
+		this.handleModifier = handleModifier;
+	}
 
-		try
-		{
-			buggerRatingAsInt = Integer.parseInt(bugger.getRating());
-		}
-		catch (NumberFormatException nfe)
-		{}
-		
-		if (ratingAsInt > buggerRatingAsInt)
-		{
-			return -1;
-		}
-		else if (ratingAsInt < buggerRatingAsInt)
-		{
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
+	public void setRating(String rating) {
+		this.rating = rating;
+	}
+
+	public void setRatingModifier(char ratingModifier) {
+		this.ratingModifier = ratingModifier;
 	}
 }

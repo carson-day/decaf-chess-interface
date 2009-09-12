@@ -36,6 +36,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JToolBar;
 import javax.swing.JWindow;
+import javax.swing.SwingConstants;
 
 import org.apache.log4j.Logger;
 
@@ -54,33 +55,6 @@ import decaf.util.ToolbarUtil.ToolbarButton;
  */
 public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 		Disposable {
-
-	private static final Logger LOGGER = Logger
-			.getLogger(ChessAreaToolbar.class);
-
-	private JComboBox autoPromotionCombo = new JComboBox(new Object[] { "Off",
-			"Queen", "Knight", "Bishop", "Rook" });
-
-	public static final int EXAMINING_MODE = 0;
-
-	public static final int PLAYING_CHESS_MODE = 1;
-
-	public static final int PLAYING_BUGHOUSE_MODE = 2;
-
-	public static final int OBSERVING_MODE = 3;
-
-	public static final int OBS_BUG_MODE = 4;
-
-	private Preferences preferences;
-
-	private List<ToolbarUtil.ToolbarButton> buttons;
-
-	private Container currentContentPane;
-
-	private boolean isShowingMoveListButton;
-	private boolean isShowingPieceSelectionCombo;
-
-	private List<Component> components = new LinkedList<Component>();
 
 	/**
 	 * This is used to fix all the crazy focus traveral issues with toolbar. I
@@ -135,6 +109,33 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 		}
 
 	}
+
+	private static final Logger LOGGER = Logger
+			.getLogger(ChessAreaToolbar.class);
+
+	private JComboBox autoPromotionCombo = new JComboBox(new Object[] { "Off",
+			"Queen", "Knight", "Bishop", "Rook" });
+
+	public static final int EXAMINING_MODE = 0;
+
+	public static final int PLAYING_CHESS_MODE = 1;
+
+	public static final int PLAYING_BUGHOUSE_MODE = 2;
+
+	public static final int OBSERVING_MODE = 3;
+
+	public static final int OBS_BUG_MODE = 4;
+
+	private Preferences preferences;
+
+	private List<ToolbarUtil.ToolbarButton> buttons;
+
+	private Container currentContentPane;
+	private boolean isShowingMoveListButton;
+
+	private boolean isShowingPieceSelectionCombo;
+
+	private List<Component> components = new LinkedList<Component>();
 
 	// DONT USE ME I CRASH WHEN YOU CHANGE THE MOVE LIST SPLIT PLANE
 	private JButton fullScreenButton = new JButton(new AbstractAction(
@@ -201,25 +202,6 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 
 	private ChessAreaControllerBase controller;
 
-	public void dispose() {
-		for (ToolbarButton button : buttons) {
-			SwingUtils.dispose(button);
-		}
-		for (Component component : components) {
-			SwingUtils.dispose(component);
-		}
-		preferences = null;
-		if (buttons != null) {
-			buttons.clear();
-			buttons = null;
-		}
-		if (components != null) {
-			components.clear();
-			components = null;
-		}
-		SwingUtils.dispose(this);
-	}
-
 	/**
 	 * @param controller
 	 *            the controller using this toolbar.
@@ -229,7 +211,7 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 	 */
 	public ChessAreaToolbar(final Preferences preferences,
 			ChessAreaControllerBase controller) {
-		super("Speed Button Toolbar", JToolBar.HORIZONTAL);
+		super("Speed Button Toolbar", SwingConstants.HORIZONTAL);
 		setFocusTraversalPolicy(new ToolbarFocusTraversalPolicy());
 		this.controller = controller;
 		long startTime = System.currentTimeMillis();
@@ -332,16 +314,27 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 		}
 	}
 
-	public void setButtonToHideMoveList() {
-		moveListButton.setText("Hide Move List");
-		moveListButton.invalidate();
-		ChessAreaToolbar.this.validate();
+	public void dispose() {
+		for (ToolbarButton button : buttons) {
+			SwingUtils.dispose(button);
+		}
+		for (Component component : components) {
+			SwingUtils.dispose(component);
+		}
+		preferences = null;
+		if (buttons != null) {
+			buttons.clear();
+			buttons = null;
+		}
+		if (components != null) {
+			components.clear();
+			components = null;
+		}
+		SwingUtils.dispose(this);
 	}
 
-	public void setButtonToShowMoveList() {
-		moveListButton.setText("Show Move List");
-		moveListButton.invalidate();
-		ChessAreaToolbar.this.validate();
+	public Preferences getPreferences() {
+		return preferences;
 	}
 
 	public void requestToolbarFocus() {
@@ -357,6 +350,18 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 		}
 	}
 
+	public void setButtonToHideMoveList() {
+		moveListButton.setText("Hide Move List");
+		moveListButton.invalidate();
+		ChessAreaToolbar.this.validate();
+	}
+
+	public void setButtonToShowMoveList() {
+		moveListButton.setText("Show Move List");
+		moveListButton.invalidate();
+		ChessAreaToolbar.this.validate();
+	}
+
 	public void setClearPremoveEnabled(boolean isClearPremoveEnabled) {
 
 		for (ToolbarUtil.ToolbarButton button : buttons) {
@@ -364,10 +369,6 @@ public class ChessAreaToolbar extends JToolBar implements Preferenceable,
 				button.setEnabled(isClearPremoveEnabled);
 			}
 		}
-	}
-
-	public Preferences getPreferences() {
-		return preferences;
 	}
 
 	public void setPreferences(Preferences options) {

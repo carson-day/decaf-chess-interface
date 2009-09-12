@@ -23,10 +23,13 @@ import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 import decaf.messaging.inboundevent.inform.ChallengeEvent;
 
 public class ChallengeEventParser extends NonGameEventParser {
+	private static final String IDENTIFIER = "Challenge: ";
+
 	public ChallengeEventParser(int icsId) {
 		super(icsId);
 	}
 
+	@Override
 	public IcsNonGameEvent parse(String text) {
 		if (text.length() < 600 && text.indexOf(IDENTIFIER) != -1)
 			return new ChallengeEvent(getIcsId(), text);
@@ -34,6 +37,4 @@ public class ChallengeEventParser extends NonGameEventParser {
 			return null;
 
 	}
-
-	private static final String IDENTIFIER = "Challenge: ";
 }

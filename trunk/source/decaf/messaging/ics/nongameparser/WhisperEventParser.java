@@ -25,6 +25,8 @@ import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 import decaf.messaging.inboundevent.chat.WhisperEvent;
 
 public class WhisperEventParser extends NonGameEventParser {
+	private static final String IDENTIFIER = "whispers:";
+
 	public WhisperEventParser(int icsId) {
 		super(icsId);
 	}
@@ -32,6 +34,7 @@ public class WhisperEventParser extends NonGameEventParser {
 	/**
 	 * Returns null if text does not match the event this class produces.
 	 */
+	@Override
 	public IcsNonGameEvent parse(String text) {
 		if (text.length() < 1500) {
 			StringTokenizer stringtokenizer = new StringTokenizer(text, " ");
@@ -54,6 +57,4 @@ public class WhisperEventParser extends NonGameEventParser {
 		}
 		return null;
 	}
-
-	private static final String IDENTIFIER = "whispers:";
 }

@@ -32,6 +32,7 @@ public class ChannelTellEventParser extends NonGameEventParser {
 	/**
 	 * Returns null if text does not match the event this class produces.
 	 */
+	@Override
 	public IcsNonGameEvent parse(String text) {
 		if (text.length() < 1500) {
 			int i = text.indexOf("): ");

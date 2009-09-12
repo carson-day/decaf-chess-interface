@@ -24,6 +24,10 @@ package decaf.messaging.inboundevent.chat;
 
 public class PartnerTellEvent extends IcsNonGameEvent {
 
+	private String partnersName;
+
+	private String message;
+
 	public PartnerTellEvent(int icsId, String text, String partnersName,
 			String message) {
 		super(icsId, text.trim());
@@ -35,14 +39,11 @@ public class PartnerTellEvent extends IcsNonGameEvent {
 		return message;
 	}
 
+	@Override
 	public String toString() {
 		return "<PartnerTellRequestEvent>" + super.toString()
 				+ "<partnersName>" + partnersName + "<partnersName>"
 				+ "<message>" + message + "<message>"
 				+ "</PartnerTellRequestEvent>";
 	}
-
-	private String partnersName;
-
-	private String message;
 }

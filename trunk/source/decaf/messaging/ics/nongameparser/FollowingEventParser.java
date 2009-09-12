@@ -22,11 +22,15 @@ package decaf.messaging.ics.nongameparser;
 import java.util.StringTokenizer;
 
 import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
-import decaf.messaging.inboundevent.inform.BugClosedEvent;
 import decaf.messaging.inboundevent.inform.FollowingEvent;
 import decaf.messaging.inboundevent.inform.NotFollowingEvent;
 
 public class FollowingEventParser extends NonGameEventParser {
+
+	// You will now be following pindik's games.
+	private static final String IDENTIFIER = "You will now be following";
+
+	private static final String IDENTIFIER2 = "You will not follow any player's games.";
 
 	public FollowingEventParser(int icsId) {
 		super(icsId);
@@ -35,6 +39,7 @@ public class FollowingEventParser extends NonGameEventParser {
 	/**
 	 * Returns null if text does not match the event this class produces.
 	 */
+	@Override
 	public IcsNonGameEvent parse(String text) {
 		if (text.length() < 200) {
 			int identifierIndex = text.indexOf(IDENTIFIER);
@@ -54,10 +59,5 @@ public class FollowingEventParser extends NonGameEventParser {
 		} else
 			return null;
 	}
-
-	// You will now be following pindik's games.
-	private static final String IDENTIFIER = "You will now be following";
-
-	private static final String IDENTIFIER2 = "You will not follow any player's games.";
 
 }

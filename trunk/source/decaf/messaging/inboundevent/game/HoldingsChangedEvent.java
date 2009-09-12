@@ -25,10 +25,9 @@ import decaf.moveengine.Piece;
 // InboundEvent
 
 public class HoldingsChangedEvent extends GameEvent implements Piece {
-	public String toString() {
-		return "HoldingsChangedEvent: icsId=" + getIcsId() + " gameId="
-				+ getGameId();
-	}
+	private int darkHoldings[];
+
+	private int lightHoldings[];
 
 	public HoldingsChangedEvent(int icsId, int gameId, int blackHoldings[],
 			int whiteHoldings[]) {
@@ -37,15 +36,17 @@ public class HoldingsChangedEvent extends GameEvent implements Piece {
 		lightHoldings = whiteHoldings;
 	}
 
-	public int[] getWhiteHoldings() {
-		return lightHoldings;
-	}
-
 	public int[] getBlackHoldings() {
 		return darkHoldings;
 	}
 
-	private int darkHoldings[];
+	public int[] getWhiteHoldings() {
+		return lightHoldings;
+	}
 
-	private int lightHoldings[];
+	@Override
+	public String toString() {
+		return "HoldingsChangedEvent: icsId=" + getIcsId() + " gameId="
+				+ getGameId();
+	}
 }

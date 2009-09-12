@@ -19,9 +19,6 @@
  */
 package decaf.speech;
 
-import com.apple.cocoa.application.NSSpeechSynthesizer;
-import com.apple.cocoa.foundation.NSSystem;
-
 import decaf.gui.pref.SpeechPreferences;
 
 public class OSXSpeech implements DecafSpeech {

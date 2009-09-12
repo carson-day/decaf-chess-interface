@@ -22,9 +22,6 @@ package decaf.gui.widgets.chessarealayout;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -62,6 +59,17 @@ public class RightOrientedChessAreaLayout implements ChessAreaLayout {
 
 	private ChessArea chessArea;
 
+	public void adjustForLabelChanges() {
+		if (chessArea.getWhiteNameLbl().getText() != null) {
+			chessArea.getWhiteNameLbl().setText(
+					chessArea.getWhiteNameLbl().getText().trim());
+		}
+		if (chessArea.getBlackNameLbl().getText() != null) {
+			chessArea.getBlackNameLbl().setText(
+					chessArea.getBlackNameLbl().getText().trim());
+		}
+	}
+
 	public void dispose() {
 		if (northFillerPanel != null) {
 			northFillerPanel.removeAll();
@@ -97,17 +105,6 @@ public class RightOrientedChessAreaLayout implements ChessAreaLayout {
 		}
 	}
 
-	public void adjustForLabelChanges() {
-		if (chessArea.getWhiteNameLbl().getText() != null) {
-			chessArea.getWhiteNameLbl().setText(
-					chessArea.getWhiteNameLbl().getText().trim());
-		}
-		if (chessArea.getBlackNameLbl().getText() != null) {
-			chessArea.getBlackNameLbl().setText(
-					chessArea.getBlackNameLbl().getText().trim());
-		}
-	}
-
 	public void init(final ChessArea chessArea) {
 		long startTime = System.currentTimeMillis();
 		this.chessArea = chessArea;
@@ -122,12 +119,12 @@ public class RightOrientedChessAreaLayout implements ChessAreaLayout {
 		northFillerPanel = new JPanel();
 		southFillerPanel = new JPanel();
 		controlsPanel = new JPanel();
-		
+
 		chessArea.getMoveList().setMaximumSize(null);
 		chessArea.getMoveList().setPreferredSize(null);
 		chessArea.getMoveList().setMinimumSize(null);
-        chessArea.getMoveList().setAlignmentX(Component.CENTER_ALIGNMENT);
-        chessArea.getMoveList().setAlignmentY(Component.CENTER_ALIGNMENT);
+		chessArea.getMoveList().setAlignmentX(Component.CENTER_ALIGNMENT);
+		chessArea.getMoveList().setAlignmentY(Component.CENTER_ALIGNMENT);
 
 		adjustForLabelChanges();
 
@@ -144,7 +141,7 @@ public class RightOrientedChessAreaLayout implements ChessAreaLayout {
 				BoxLayout.X_AXIS));
 		chessArea.getWhitesClock().setAlignmentX(0);
 		chessArea.getWhiteLagLbl().setAlignmentX(0);
-		
+
 		whiteClockPanel.add(chessArea.getWhitesClock());
 		whiteClockPanel.add(Box.createHorizontalStrut(10));
 		whiteClockPanel.add(chessArea.getWhiteLagLbl());
@@ -154,7 +151,7 @@ public class RightOrientedChessAreaLayout implements ChessAreaLayout {
 				BoxLayout.X_AXIS));
 		chessArea.getMarkBlackLabel().setAlignmentX(0);
 		chessArea.getBlackNameLbl().setAlignmentX(0);
-		
+
 		blackControlsPanel.add(chessArea.getMarkBlackLabel());
 		blackControlsPanel.add(chessArea.getBlackNameLbl());
 		blackControlsPanel.add(Box.createHorizontalGlue());
@@ -171,7 +168,8 @@ public class RightOrientedChessAreaLayout implements ChessAreaLayout {
 
 		setupDropPieces(chessArea);
 
-		whiteControlAndClockPanel.setLayout(new BoxLayout(whiteControlAndClockPanel,BoxLayout.Y_AXIS));
+		whiteControlAndClockPanel.setLayout(new BoxLayout(
+				whiteControlAndClockPanel, BoxLayout.Y_AXIS));
 		whiteControlsPanel.setAlignmentY(0);
 		whiteClockPanel.setAlignmentY(0);
 		whiteClockPanel.setAlignmentX(1);
@@ -181,7 +179,6 @@ public class RightOrientedChessAreaLayout implements ChessAreaLayout {
 		chessArea.getWhiteHoldings().setAlignmentY(0);
 		chessArea.getBlackHoldings().setAlignmentY(0);
 
-
 		if (chessArea.isWhiteOnTop()) {
 
 			whiteControlAndClockPanel.add(whiteControlsPanel);
@@ -195,9 +192,10 @@ public class RightOrientedChessAreaLayout implements ChessAreaLayout {
 			whiteControlAndClockPanel.add(whiteControlsPanel);
 		}
 
-		blackControlAndClockPanel.setLayout(new BoxLayout(blackControlAndClockPanel,BoxLayout.Y_AXIS));
+		blackControlAndClockPanel.setLayout(new BoxLayout(
+				blackControlAndClockPanel, BoxLayout.Y_AXIS));
 		if (chessArea.isWhiteOnTop()) {
-			blackControlAndClockPanel.add(Box.createVerticalGlue());			
+			blackControlAndClockPanel.add(Box.createVerticalGlue());
 			blackControlAndClockPanel.add(chessArea.getBlackHoldings());
 			blackControlAndClockPanel.add(blackClockPanel);
 			blackControlAndClockPanel.add(blackControlsPanel);
@@ -207,8 +205,8 @@ public class RightOrientedChessAreaLayout implements ChessAreaLayout {
 			blackControlAndClockPanel.add(Box.createVerticalGlue());
 		}
 
-		controlsPanel.setLayout(new BoxLayout(controlsPanel,BoxLayout.Y_AXIS));
-		whiteControlAndClockPanel.setAlignmentX(0);		
+		controlsPanel.setLayout(new BoxLayout(controlsPanel, BoxLayout.Y_AXIS));
+		whiteControlAndClockPanel.setAlignmentX(0);
 		blackControlAndClockPanel.setAlignmentX(0);
 		if (chessArea.isWhiteOnTop()) {
 			controlsPanel.add(whiteControlAndClockPanel);
@@ -216,7 +214,7 @@ public class RightOrientedChessAreaLayout implements ChessAreaLayout {
 			controlsPanel.add(blackControlAndClockPanel);
 		} else {
 			controlsPanel.add(blackControlAndClockPanel);
-			controlsPanel.add(Box.createVerticalGlue());			
+			controlsPanel.add(Box.createVerticalGlue());
 			controlsPanel.add(whiteControlAndClockPanel);
 		}
 

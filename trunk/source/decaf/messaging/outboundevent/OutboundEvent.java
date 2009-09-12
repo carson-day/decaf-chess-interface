@@ -23,16 +23,17 @@ package decaf.messaging.outboundevent;
 import decaf.event.Event;
 
 public class OutboundEvent implements Event {
-	
+
+	private long creationTime;
+
+	private String text;
+
+	private boolean isHidingFromUser;
+
+	private Class hideResponseEventType;
+
 	public OutboundEvent() {
-		
-	}
-	/**
-	 * @param text
-	 *            The message to send.
-	 */
-	public OutboundEvent(String text) {
-		this(text, false, null);
+
 	}
 
 	/**
@@ -41,6 +42,14 @@ public class OutboundEvent implements Event {
 	 */
 	public OutboundEvent(boolean isHidingFromUser) {
 		this(null, isHidingFromUser, null);
+	}
+
+	/**
+	 * @param text
+	 *            The message to send.
+	 */
+	public OutboundEvent(String text) {
+		this(text, false, null);
 	}
 
 	/**
@@ -62,8 +71,12 @@ public class OutboundEvent implements Event {
 	 *            If not null the Class of the InboundEvent type to hide from
 	 *            the user in response to this event.
 	 */
-	public OutboundEvent(String text, Class hideResponseEventType) {
-		this(text, true, null);
+	public OutboundEvent(String text, boolean isHidingFromUser,
+			Class hideResponseEventType) {
+		this.text = (text != null ? text.trim() : null);
+		this.isHidingFromUser = isHidingFromUser;
+		this.hideResponseEventType = hideResponseEventType;
+		this.creationTime = System.currentTimeMillis();
 	}
 
 	/**
@@ -75,12 +88,8 @@ public class OutboundEvent implements Event {
 	 *            If not null the Class of the InboundEvent type to hide from
 	 *            the user in response to this event.
 	 */
-	public OutboundEvent(String text, boolean isHidingFromUser,
-			Class hideResponseEventType) {
-		this.text = (text != null ? text.trim() : null);
-		this.isHidingFromUser = isHidingFromUser;
-		this.hideResponseEventType = hideResponseEventType;
-		this.creationTime = System.currentTimeMillis();
+	public OutboundEvent(String text, Class hideResponseEventType) {
+		this(text, true, null);
 	}
 
 	/**
@@ -94,19 +103,11 @@ public class OutboundEvent implements Event {
 		return hideResponseEventType;
 	}
 
-	public boolean isHidingFromUser() {
-		return isHidingFromUser;
-	}
-
 	public String getText() {
 		return text;
 	}
 
-	private long creationTime;
-
-	private String text;
-
-	private boolean isHidingFromUser;
-
-	private Class hideResponseEventType;
+	public boolean isHidingFromUser() {
+		return isHidingFromUser;
+	}
 }

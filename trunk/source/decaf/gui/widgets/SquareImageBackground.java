@@ -40,12 +40,12 @@ import decaf.resources.ResourceManagerFactory;
 
 public class SquareImageBackground implements Serializable {
 	private static final long serialVersionUID = 11;
-	
+
 	private transient static final Logger LOGGER = Logger
 			.getLogger(SquareImageBackground.class);
 
 	private String name;
-	
+
 	private transient boolean isCrop;
 
 	private transient Image darkSquareImage;
@@ -59,6 +59,38 @@ public class SquareImageBackground implements Serializable {
 		initImages();
 	}
 
+	private void compile() {
+		boolean isWhiteSquare = false;
+
+		int width = lightSquareImage.getWidth(null);
+		int height = lightSquareImage.getHeight(null);
+		int w = width > height ? height / 8 : width / 8;
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Compiling SquareImageBackground (" + name + ") " + w);
+		}
+		for (int i = 0; i < 8; i++) {
+			isWhiteSquare = !isWhiteSquare;
+
+			for (int j = 0; j < 8; j++) {
+				if (isCrop) {
+					CropImageFilter filter = new CropImageFilter(i * w, j * w,
+							w, w);
+					ImageProducer ip = new FilteredImageSource(
+							isWhiteSquare ? lightSquareImage.getSource()
+									: darkSquareImage.getSource(), filter);
+					coordinatesToImage.put("" + i + j, Toolkit
+							.getDefaultToolkit().createImage(ip));
+				} else {
+					coordinatesToImage.put("" + i + j,
+							isWhiteSquare ? lightSquareImage : darkSquareImage);
+				}
+				isWhiteSquare = !isWhiteSquare;
+			}
+		}
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (o != null) {
 			return getName().equals(((SquareImageBackground) o).getName());
@@ -68,12 +100,40 @@ public class SquareImageBackground implements Serializable {
 
 	}
 
-	public int hashCode() {
-		return getName().hashCode();
+	public Image getImage(int rank, int file) {
+		return coordinatesToImage.get("" + rank + file);
 	}
 
 	public String getName() {
 		return name;
+	}
+
+	public BufferedImage getScaledImage(int rank, int file, int width,
+			int height) {
+
+		if (width <= 0 || height <= 0) {
+			width = 1;
+			height = 1;
+		}
+
+		BufferedImage result = new BufferedImage(width, height, 2);
+
+		Graphics2D graphics = (Graphics2D) result.getGraphics();
+		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+		graphics.setRenderingHint(RenderingHints.KEY_RENDERING,
+				RenderingHints.VALUE_RENDER_QUALITY);
+
+		Image initialImage = getImage(rank, file);
+
+		graphics.drawImage(initialImage, 0, 0, width, height, null);
+
+		return result;
+	}
+
+	@Override
+	public int hashCode() {
+		return getName().hashCode();
 	}
 
 	private void initImages() {
@@ -81,23 +141,20 @@ public class SquareImageBackground implements Serializable {
 		String darkImage = "SQUARE." + name + ".DARK." + suffix;
 		String lightImage = "SQUARE." + name + ".LIGHT." + suffix;
 
-		try
-		{
+		try {
 			darkSquareImage = ResourceManagerFactory.getManager().getImage(
 					darkImage);
 			lightSquareImage = ResourceManagerFactory.getManager().getImage(
 					lightImage);
 			isCrop = false;
-		}
-		catch (Exception e)
-		{
-			darkImage  = "SQUARE.CROP." + name + ".DARK." + suffix;
+		} catch (Exception e) {
+			darkImage = "SQUARE.CROP." + name + ".DARK." + suffix;
 			lightImage = "SQUARE.CROP." + name + ".LIGHT." + suffix;
-			
+
 			darkSquareImage = ResourceManagerFactory.getManager().getImage(
 					darkImage);
 			lightSquareImage = ResourceManagerFactory.getManager().getImage(
-					lightImage);			
+					lightImage);
 			isCrop = true;
 		}
 
@@ -118,66 +175,6 @@ public class SquareImageBackground implements Serializable {
 			LOGGER.error(e);
 		}
 		return this;
-	}
-
-	private void compile() {
-		boolean isWhiteSquare = false;
-
-		int width = lightSquareImage.getWidth(null);
-		int height = lightSquareImage.getHeight(null);
-		int w = width > height ? height / 8 : width / 8;
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Compiling SquareImageBackground (" + name + ") " + w);
-		}
-		for (int i = 0; i < 8; i++) {
-			isWhiteSquare = !isWhiteSquare;
-
-			for (int j = 0; j < 8; j++) {
-				if (isCrop)
-				{
-					CropImageFilter filter = new CropImageFilter(i * w, j * w, w, w);
-					ImageProducer ip = new FilteredImageSource(
-							isWhiteSquare ? lightSquareImage.getSource()
-									: darkSquareImage.getSource(), filter);
-					coordinatesToImage.put("" + i + j, Toolkit.getDefaultToolkit()
-							.createImage(ip));
-				}
-				else
-				{
-					coordinatesToImage.put("" + i + j, isWhiteSquare ? lightSquareImage: darkSquareImage);
-				}
-				isWhiteSquare = !isWhiteSquare;
-			}
-		}
-	}
-
-	public Image getImage(int rank, int file) {
-		return coordinatesToImage.get("" + rank + file);
-	}
-
-	public BufferedImage getScaledImage(int rank, int file, int width,
-			int height) {
-		
-		if (width <= 0 || height <= 0)
-		{
-			width=1;
-			height=1;
-		}
-		
-		BufferedImage result = new BufferedImage(width, height, 2);
-
-		Graphics2D graphics = (Graphics2D) result.getGraphics();
-		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
-		graphics.setRenderingHint(RenderingHints.KEY_RENDERING,
-				RenderingHints.VALUE_RENDER_QUALITY);
-
-		Image initialImage = getImage(rank, file);
-
-		graphics.drawImage(initialImage, 0, 0, width, height, null);
-
-		return result;
 	}
 
 }

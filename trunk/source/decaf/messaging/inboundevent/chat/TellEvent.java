@@ -21,27 +21,28 @@ package decaf.messaging.inboundevent.chat;
 
 public class TellEvent extends IcsNonGameEvent {
 
+	private String sender;
+
+	private String message;
+
 	public TellEvent(int icsId, String text, String sender, String message) {
 		super(icsId, text.trim());
 		this.sender = sender;
 		this.message = message;
 	}
 
-	public String getSender() {
-		return sender;
-	}
-
 	public String getMessage() {
 		return message;
 	}
 
+	public String getSender() {
+		return sender;
+	}
+
+	@Override
 	public String toString() {
 		return "<TellEvent>" + super.toString() + "<sender>" + sender
 				+ "</sender>" + "<message>" + message + "</message>"
 				+ "</TellEvent>";
 	}
-
-	private String sender;
-
-	private String message;
 }

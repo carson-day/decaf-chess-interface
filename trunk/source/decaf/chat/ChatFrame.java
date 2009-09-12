@@ -43,26 +43,27 @@ public class ChatFrame extends JFrame implements Preferenceable {
 		setIconImage(GUIManager.DECAF_ICON);
 	}
 
-	public void setPreferences(Preferences preferences) {
-		this.preferences = preferences;
-		chatPanel.setPreferences(preferences);
-
+	public ChatPanel getChatPanel() {
+		return chatPanel;
 	}
 
 	public Preferences getPreferences() {
 		return preferences;
 	}
 
-	public ChatPanel getChatPanel() {
-		return chatPanel;
+	@Override
+	public void requestFocus() {
+		chatPanel.getInputField().requestFocusInWindow();
 	}
 
 	public void setChatPanel(ChatPanel chatPanel) {
 		this.chatPanel = chatPanel;
 	}
 
-	public void requestFocus() {
-		chatPanel.getInputField().requestFocusInWindow();
+	public void setPreferences(Preferences preferences) {
+		this.preferences = preferences;
+		chatPanel.setPreferences(preferences);
+
 	}
 
 }

@@ -38,14 +38,14 @@ public class Style12Subscriber implements Subscriber, Disposable {
 
 	private boolean isPartnersBoard;
 
+	public Style12Subscriber(ChessAreaControllerBase controller) {
+		this(controller, false);
+	}
+
 	public Style12Subscriber(ChessAreaControllerBase controller,
 			boolean isPartnersBoard) {
 		this.controller = controller;
 		this.isPartnersBoard = isPartnersBoard;
-	}
-
-	public Style12Subscriber(ChessAreaControllerBase controller) {
-		this(controller, false);
 	}
 
 	public void dispose() {

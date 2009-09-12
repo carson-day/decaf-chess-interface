@@ -25,6 +25,8 @@ import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 import decaf.messaging.inboundevent.chat.TellEvent;
 
 public class TellEventParser extends NonGameEventParser {
+	private static final String TOLD = "\n(told";
+
 	public TellEventParser(int icsId) {
 		super(icsId);
 	}
@@ -32,6 +34,7 @@ public class TellEventParser extends NonGameEventParser {
 	/**
 	 * Returns null if text does not match the event this class produces.
 	 */
+	@Override
 	public IcsNonGameEvent parse(String text) {
 		if (text.length() < 1500) {
 			text = text.trim();
@@ -70,6 +73,4 @@ public class TellEventParser extends NonGameEventParser {
 		}
 		return null;
 	}
-
-	private static final String TOLD = "\n(told";
 }

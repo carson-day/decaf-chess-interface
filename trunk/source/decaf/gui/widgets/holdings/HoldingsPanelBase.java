@@ -40,7 +40,6 @@ import org.apache.log4j.Logger;
 import decaf.gui.SwingUtils;
 import decaf.gui.pref.Preferenceable;
 import decaf.gui.pref.Preferences;
-import decaf.gui.widgets.ChessBoard;
 import decaf.gui.widgets.ChessBoardSquare;
 import decaf.gui.widgets.Disposable;
 import decaf.moveengine.Piece;
@@ -49,10 +48,11 @@ import decaf.util.TextProperties;
 
 public abstract class HoldingsPanelBase extends JPanel implements Piece,
 		Preferenceable, Disposable {
-	private static final Logger LOGGER = Logger.getLogger(HoldingsPanelBase.class);
-
-
 	public class DecoratedChessBoardSquare extends ChessBoardSquare {
+
+		private int numberOfPiecesPreDrag;
+
+		private int numberOfPieces;
 
 		public DecoratedChessBoardSquare(Preferences preferences,
 				String boardID, boolean isWhiteSquare, int dropPiece) {
@@ -63,21 +63,7 @@ public abstract class HoldingsPanelBase extends JPanel implements Piece,
 			return numberOfPieces;
 		}
 
-		public void setNumberOfPieces(int pieces) {
-			this.numberOfPieces = pieces;
-			repaint();
-		}
-
-		public void setPreferences(Preferences skin) {
-			if (skin != null) {
-				super.setPreferences(skin);
-
-				setBackground(skin.getBoardPreferences().getDropSquareColor());
-
-				repaint();
-			}
-		}
-
+		@Override
 		protected void onDragStart() {
 			numberOfPieces--;
 			if (numberOfPieces == 0) {
@@ -91,11 +77,13 @@ public abstract class HoldingsPanelBase extends JPanel implements Piece,
 		// A successful drop will work because the holdings will be set and the
 		// square redrawn from ChessBoardSquare.
 
+		@Override
 		protected void onUnsuccessfulDropEnd() {
 			numberOfPieces++;
 			super.onUnsuccessfulDropEnd();
 		}
 
+		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			if (numberOfPieces > 1) {
@@ -120,11 +108,26 @@ public abstract class HoldingsPanelBase extends JPanel implements Piece,
 			}
 		}
 
-		private int numberOfPiecesPreDrag;
+		public void setNumberOfPieces(int pieces) {
+			this.numberOfPieces = pieces;
+			repaint();
+		}
 
-		private int numberOfPieces;
+		@Override
+		public void setPreferences(Preferences skin) {
+			if (skin != null) {
+				super.setPreferences(skin);
+
+				setBackground(skin.getBoardPreferences().getDropSquareColor());
+
+				repaint();
+			}
+		}
 
 	}
+
+	private static final Logger LOGGER = Logger
+			.getLogger(HoldingsPanelBase.class);
 
 	private static final String EMPTY_BOARD_ID = "<EMPTY>";
 
@@ -175,7 +178,7 @@ public abstract class HoldingsPanelBase extends JPanel implements Piece,
 		queenSquare = new DecoratedChessBoardSquare(preferences,
 				EMPTY_BOARD_ID, isWhiteDropPanel, representsLightPieces ? WQ
 						: BQ);
-		
+
 		add(pawnSquare);
 		add(knightSquare);
 		add(bishopSquare);
@@ -194,10 +197,86 @@ public abstract class HoldingsPanelBase extends JPanel implements Piece,
 		});
 	}
 
+	public void dispose() {
+		LOGGER.error("Disposing HoldingsPanelBase");
+		SwingUtils.dispose(this);
+		if (pawnSquare != null) {
+			pawnSquare.dispose();
+		}
+		if (knightSquare != null) {
+			knightSquare.dispose();
+		}
+		if (bishopSquare != null) {
+			bishopSquare.dispose();
+		}
+		if (rookSquare != null) {
+			rookSquare.dispose();
+		}
+		if (queenSquare != null) {
+			queenSquare.dispose();
+		}
+	}
+
+	public int getBishopCount() {
+		return numBishops;
+	}
+
+	public String getBoardId() {
+		return boardId;
+	}
+
+	public int getKnightCount() {
+		return numKnights;
+	}
+
+	public Dimension getLastSizeConstraint() {
+		return lastSizeConstraint;
+	}
+
+	public int getPawnCount() {
+		return numPawns;
+	}
+
+	public int[] getPieceArray() {
+		int ai[] = null;
+		int i = getPawnCount() + getKnightCount() + getBishopCount()
+				+ getRookCount() + getQueenCount();
+		ai = new int[i];
+		int j = 0;
+		for (int k = 0; k < getPawnCount(); k++)
+			ai[j++] = representsLightPieces ? Piece.WP : Piece.BP;
+
+		for (int l = 0; l < getKnightCount(); l++)
+			ai[j++] = representsLightPieces ? Piece.WN : Piece.BN;
+
+		for (int i1 = 0; i1 < getBishopCount(); i1++)
+			ai[j++] = representsLightPieces ? Piece.WB : Piece.BB;
+
+		for (int j1 = 0; j1 < getRookCount(); j1++)
+			ai[j++] = representsLightPieces ? Piece.WR : Piece.BR;
+
+		for (int k1 = 0; k1 < getQueenCount(); k1++)
+			ai[j++] = representsLightPieces ? Piece.WQ : Piece.BQ;
+
+		return ai;
+	}
+
+	public Preferences getPreferences() {
+		return preferences;
+	}
+
+	public int getQueenCount() {
+		return numQueens;
+	}
+
+	public int getRookCount() {
+		return numRooks;
+	}
+
 	public synchronized ChessBoardSquare[] getSquaresWithPieces() {
 		List<ChessBoardSquare> result = new ArrayList<ChessBoardSquare>(5);
 
-		//add squares with pieces.
+		// add squares with pieces.
 		if (getPawnCount() > 0) {
 			result.add(pawnSquare);
 		}
@@ -213,8 +292,8 @@ public abstract class HoldingsPanelBase extends JPanel implements Piece,
 		if (getQueenCount() > 0) {
 			result.add(queenSquare);
 		}
-		
-		//add empty squares.
+
+		// add empty squares.
 		if (getPawnCount() == 0) {
 			result.add(pawnSquare);
 		}
@@ -234,134 +313,8 @@ public abstract class HoldingsPanelBase extends JPanel implements Piece,
 		return result.toArray(new ChessBoardSquare[0]);
 	}
 
-	public boolean isMoveable() {
-		return pawnSquare.isMoveable();
-	}
-
-	public void setMoveable(boolean isMoveable) {
-		pawnSquare.setMoveable(isMoveable);
-		knightSquare.setMoveable(isMoveable);
-		bishopSquare.setMoveable(isMoveable);
-		rookSquare.setMoveable(isMoveable);
-		queenSquare.setMoveable(isMoveable);
-	}
-
-	public boolean isRepresentsLightPieces() {
-		return representsLightPieces;
-	}
-
-	public void setRepresentsLightPieces(boolean representsLightPieces) {
-		this.representsLightPieces = representsLightPieces;
-
-		pawnSquare.setDropPiece(representsLightPieces ? WP : BP);
-		knightSquare.setDropPiece(representsLightPieces ? WN : BN);
-		bishopSquare.setDropPiece(representsLightPieces ? WB : BB);
-		rookSquare.setDropPiece(representsLightPieces ? WR : BR);
-		queenSquare.setDropPiece(representsLightPieces ? WQ : BQ);
-
-		invalidate();
-		validate();
-	}
-
-	public Dimension getLastSizeConstraint() {
-		return lastSizeConstraint;
-	}
-
-	public void setLastSizeConstraint(Dimension lastSizeConstraint) {
-		this.lastSizeConstraint = lastSizeConstraint;
-
-		System.err.println("Setting size constraint "
-				+ lastSizeConstraint.width + " " + lastSizeConstraint.height);
-	}
-
-	public String getBoardId() {
-		return boardId;
-	}
-
-	public void setBoardId(String boardId) {
-		this.boardId = boardId;
-		pawnSquare.setBoardId(boardId);
-		knightSquare.setBoardId(boardId);
-		bishopSquare.setBoardId(boardId);
-		rookSquare.setBoardId(boardId);
-		queenSquare.setBoardId(boardId);
-	}
-
 	private void initializePieceDecorators() {
 		setPieceLabels();
-	}
-
-	private void setPieceLabels() {
-		if (getPawnCount() == 0) {
-			pawnSquare.clear();
-		} else {
-			pawnSquare.setPiece(representsLightPieces ? Piece.WP : Piece.BP);
-		}
-		if (getBishopCount() == 0) {
-			bishopSquare.clear();
-		} else {
-			bishopSquare.setPiece(representsLightPieces ? Piece.WB : Piece.BB);
-		}
-		if (getKnightCount() == 0) {
-			knightSquare.clear();
-		} else {
-			knightSquare.setPiece(representsLightPieces ? Piece.WN : Piece.BN);
-		}
-		if (getRookCount() == 0) {
-			rookSquare.clear();
-		} else {
-			rookSquare.setPiece(representsLightPieces ? Piece.WR : Piece.BR);
-		}
-		if (getQueenCount() == 0) {
-			queenSquare.clear();
-		} else {
-			queenSquare.setPiece(representsLightPieces ? Piece.WQ : Piece.BQ);
-		}
-
-		pawnSquare.setNumberOfPieces(getPawnCount());
-		knightSquare.setNumberOfPieces(getKnightCount());
-		bishopSquare.setNumberOfPieces(getBishopCount());
-		rookSquare.setNumberOfPieces(getRookCount());
-		queenSquare.setNumberOfPieces(getQueenCount());
-	}
-
-	public void setPreferences(Preferences preferences) {
-		this.preferences = preferences;
-
-		if (preferences != null) {
-
-			pawnSquare.setPreferences(preferences);
-			knightSquare.setPreferences(preferences);
-			bishopSquare.setPreferences(preferences);
-			rookSquare.setPreferences(preferences);
-			queenSquare.setPreferences(preferences);
-
-			initializePieceDecorators();
-
-			setBackground(preferences.getBoardPreferences()
-					.getBackgroundControlsColor());
-			setupLayout();
-			Color dropSquareColor = preferences.getBoardPreferences()
-					.getDropSquareColor();
-
-			Border dropSquareBorder = BorderUtil.intToBorder(preferences
-					.getBoardPreferences().getDropSquareBorder());
-
-			pawnSquare.setBackground(dropSquareColor);
-			knightSquare.setBackground(dropSquareColor);
-			bishopSquare.setBackground(dropSquareColor);
-			queenSquare.setBackground(dropSquareColor);
-			rookSquare.setBackground(dropSquareColor);
-			pawnSquare.setBorder(dropSquareBorder);
-			knightSquare.setBorder(dropSquareBorder);
-			bishopSquare.setBorder(dropSquareBorder);
-			queenSquare.setBorder(dropSquareBorder);
-			rookSquare.setBorder(dropSquareBorder);
-		}
-	}
-
-	public Preferences getPreferences() {
-		return preferences;
 	}
 
 	private boolean intArraysAreEqual(int ai[], int ai1[]) {
@@ -375,6 +328,89 @@ public abstract class HoldingsPanelBase extends JPanel implements Piece,
 
 		}
 		return flag;
+	}
+
+	public boolean isMoveable() {
+		return pawnSquare.isMoveable();
+	}
+
+	public boolean isRepresentsLightPieces() {
+		return representsLightPieces;
+	}
+
+	public int numPiecesFromSquareIdentifier(int i) {
+		int j;
+		if (representsLightPieces)
+			switch (i) {
+			case 100: // 'd'
+				j = getPawnCount();
+				break;
+
+			case 101: // 'e'
+				j = getKnightCount();
+				break;
+
+			case 102: // 'f'
+				j = getBishopCount();
+				break;
+
+			case 103: // 'g'
+				j = getRookCount();
+				break;
+
+			case 104: // 'h'
+				j = getQueenCount();
+				break;
+
+			default:
+				throw new RuntimeException("Invalid holding square: " + i);
+			}
+		else
+			switch (i) {
+			case 201:
+				j = getPawnCount();
+				break;
+
+			case 202:
+				j = getKnightCount();
+				break;
+
+			case 203:
+				j = getBishopCount();
+				break;
+
+			case 204:
+				j = getRookCount();
+				break;
+
+			case 205:
+				j = getQueenCount();
+				break;
+
+			default:
+				throw new RuntimeException("Invalid holding square: " + i);
+			}
+		return j;
+	}
+
+	private synchronized void setBishopCount(int i) {
+		if (i == numBishops)
+			return;
+		if (i < 0) {
+			throw new RuntimeException("newBishopCount can't be negative.");
+		} else {
+			numBishops = i;
+			return;
+		}
+	}
+
+	public void setBoardId(String boardId) {
+		this.boardId = boardId;
+		pawnSquare.setBoardId(boardId);
+		knightSquare.setBoardId(boardId);
+		bishopSquare.setBoardId(boardId);
+		rookSquare.setBoardId(boardId);
+		queenSquare.setBoardId(boardId);
 	}
 
 	public void setFromPieceArray(int ai[]) {
@@ -459,103 +495,30 @@ public abstract class HoldingsPanelBase extends JPanel implements Piece,
 		repaint();
 	}
 
-	public int numPiecesFromSquareIdentifier(int i) {
-		int j;
-		if (representsLightPieces)
-			switch (i) {
-			case 100: // 'd'
-				j = getPawnCount();
-				break;
-
-			case 101: // 'e'
-				j = getKnightCount();
-				break;
-
-			case 102: // 'f'
-				j = getBishopCount();
-				break;
-
-			case 103: // 'g'
-				j = getRookCount();
-				break;
-
-			case 104: // 'h'
-				j = getQueenCount();
-				break;
-
-			default:
-				throw new RuntimeException("Invalid holding square: " + i);
-			}
-		else
-			switch (i) {
-			case 201:
-				j = getPawnCount();
-				break;
-
-			case 202:
-				j = getKnightCount();
-				break;
-
-			case 203:
-				j = getBishopCount();
-				break;
-
-			case 204:
-				j = getRookCount();
-				break;
-
-			case 205:
-				j = getQueenCount();
-				break;
-
-			default:
-				throw new RuntimeException("Invalid holding square: " + i);
-			}
-		return j;
+	private synchronized void setKnightCount(int i) {
+		if (i == numKnights)
+			return;
+		if (i < 0) {
+			throw new RuntimeException("newKnightCount can't be negative.");
+		} else {
+			numKnights = i;
+			return;
+		}
 	}
 
-	public int[] getPieceArray() {
-		int ai[] = null;
-		int i = getPawnCount() + getKnightCount() + getBishopCount()
-				+ getRookCount() + getQueenCount();
-		ai = new int[i];
-		int j = 0;
-		for (int k = 0; k < getPawnCount(); k++)
-			ai[j++] = representsLightPieces ? Piece.WP : Piece.BP;
+	public void setLastSizeConstraint(Dimension lastSizeConstraint) {
+		this.lastSizeConstraint = lastSizeConstraint;
 
-		for (int l = 0; l < getKnightCount(); l++)
-			ai[j++] = representsLightPieces ? Piece.WN : Piece.BN;
-
-		for (int i1 = 0; i1 < getBishopCount(); i1++)
-			ai[j++] = representsLightPieces ? Piece.WB : Piece.BB;
-
-		for (int j1 = 0; j1 < getRookCount(); j1++)
-			ai[j++] = representsLightPieces ? Piece.WR : Piece.BR;
-
-		for (int k1 = 0; k1 < getQueenCount(); k1++)
-			ai[j++] = representsLightPieces ? Piece.WQ : Piece.BQ;
-
-		return ai;
+		System.err.println("Setting size constraint "
+				+ lastSizeConstraint.width + " " + lastSizeConstraint.height);
 	}
 
-	public int getPawnCount() {
-		return numPawns;
-	}
-
-	public int getKnightCount() {
-		return numKnights;
-	}
-
-	public int getBishopCount() {
-		return numBishops;
-	}
-
-	public int getRookCount() {
-		return numRooks;
-	}
-
-	public int getQueenCount() {
-		return numQueens;
+	public void setMoveable(boolean isMoveable) {
+		pawnSquare.setMoveable(isMoveable);
+		knightSquare.setMoveable(isMoveable);
+		bishopSquare.setMoveable(isMoveable);
+		rookSquare.setMoveable(isMoveable);
+		queenSquare.setMoveable(isMoveable);
 	}
 
 	private synchronized void setPawnCount(int i) {
@@ -569,36 +532,72 @@ public abstract class HoldingsPanelBase extends JPanel implements Piece,
 		}
 	}
 
-	private synchronized void setKnightCount(int i) {
-		if (i == numKnights)
-			return;
-		if (i < 0) {
-			throw new RuntimeException("newKnightCount can't be negative.");
+	private void setPieceLabels() {
+		if (getPawnCount() == 0) {
+			pawnSquare.clear();
 		} else {
-			numKnights = i;
-			return;
+			pawnSquare.setPiece(representsLightPieces ? Piece.WP : Piece.BP);
 		}
+		if (getBishopCount() == 0) {
+			bishopSquare.clear();
+		} else {
+			bishopSquare.setPiece(representsLightPieces ? Piece.WB : Piece.BB);
+		}
+		if (getKnightCount() == 0) {
+			knightSquare.clear();
+		} else {
+			knightSquare.setPiece(representsLightPieces ? Piece.WN : Piece.BN);
+		}
+		if (getRookCount() == 0) {
+			rookSquare.clear();
+		} else {
+			rookSquare.setPiece(representsLightPieces ? Piece.WR : Piece.BR);
+		}
+		if (getQueenCount() == 0) {
+			queenSquare.clear();
+		} else {
+			queenSquare.setPiece(representsLightPieces ? Piece.WQ : Piece.BQ);
+		}
+
+		pawnSquare.setNumberOfPieces(getPawnCount());
+		knightSquare.setNumberOfPieces(getKnightCount());
+		bishopSquare.setNumberOfPieces(getBishopCount());
+		rookSquare.setNumberOfPieces(getRookCount());
+		queenSquare.setNumberOfPieces(getQueenCount());
 	}
 
-	private synchronized void setBishopCount(int i) {
-		if (i == numBishops)
-			return;
-		if (i < 0) {
-			throw new RuntimeException("newBishopCount can't be negative.");
-		} else {
-			numBishops = i;
-			return;
-		}
-	}
+	public void setPreferences(Preferences preferences) {
+		this.preferences = preferences;
 
-	private synchronized void setRookCount(int i) {
-		if (i == numRooks)
-			return;
-		if (i < 0) {
-			throw new RuntimeException("newRookCount can't be negative.");
-		} else {
-			numRooks = i;
-			return;
+		if (preferences != null) {
+
+			pawnSquare.setPreferences(preferences);
+			knightSquare.setPreferences(preferences);
+			bishopSquare.setPreferences(preferences);
+			rookSquare.setPreferences(preferences);
+			queenSquare.setPreferences(preferences);
+
+			initializePieceDecorators();
+
+			setBackground(preferences.getBoardPreferences()
+					.getBackgroundControlsColor());
+			setupLayout();
+			Color dropSquareColor = preferences.getBoardPreferences()
+					.getDropSquareColor();
+
+			Border dropSquareBorder = BorderUtil.intToBorder(preferences
+					.getBoardPreferences().getDropSquareBorder());
+
+			pawnSquare.setBackground(dropSquareColor);
+			knightSquare.setBackground(dropSquareColor);
+			bishopSquare.setBackground(dropSquareColor);
+			queenSquare.setBackground(dropSquareColor);
+			rookSquare.setBackground(dropSquareColor);
+			pawnSquare.setBorder(dropSquareBorder);
+			knightSquare.setBorder(dropSquareBorder);
+			bishopSquare.setBorder(dropSquareBorder);
+			queenSquare.setBorder(dropSquareBorder);
+			rookSquare.setBorder(dropSquareBorder);
 		}
 	}
 
@@ -613,26 +612,30 @@ public abstract class HoldingsPanelBase extends JPanel implements Piece,
 		}
 	}
 
-	protected abstract void setupLayout();
+	public void setRepresentsLightPieces(boolean representsLightPieces) {
+		this.representsLightPieces = representsLightPieces;
 
-	public void dispose() {
-		LOGGER.error("Disposing HoldingsPanelBase");
-		SwingUtils.dispose(this);
-		if (pawnSquare != null) {
-			pawnSquare.dispose();
-		}
-		if (knightSquare != null) {
-			knightSquare.dispose();
-		}
-		if (bishopSquare != null) {
-			bishopSquare.dispose();
-		}
-		if (rookSquare != null) {
-			rookSquare.dispose();
-		}
-		if (queenSquare != null) {
-			queenSquare.dispose();
+		pawnSquare.setDropPiece(representsLightPieces ? WP : BP);
+		knightSquare.setDropPiece(representsLightPieces ? WN : BN);
+		bishopSquare.setDropPiece(representsLightPieces ? WB : BB);
+		rookSquare.setDropPiece(representsLightPieces ? WR : BR);
+		queenSquare.setDropPiece(representsLightPieces ? WQ : BQ);
+
+		invalidate();
+		validate();
+	}
+
+	private synchronized void setRookCount(int i) {
+		if (i == numRooks)
+			return;
+		if (i < 0) {
+			throw new RuntimeException("newRookCount can't be negative.");
+		} else {
+			numRooks = i;
+			return;
 		}
 	}
+
+	protected abstract void setupLayout();
 
 }

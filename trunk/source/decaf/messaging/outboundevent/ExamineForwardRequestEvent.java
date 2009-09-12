@@ -20,6 +20,8 @@
 package decaf.messaging.outboundevent;
 
 public class ExamineForwardRequestEvent extends GameOutboundEvent {
+	private int halfMovesForward;
+
 	public ExamineForwardRequestEvent(int gameId, int halfMovesForward,
 			boolean isHidingFromUser) {
 		super(gameId, isHidingFromUser);
@@ -29,6 +31,4 @@ public class ExamineForwardRequestEvent extends GameOutboundEvent {
 	public int getHalfMovesForward() {
 		return halfMovesForward;
 	}
-
-	private int halfMovesForward;
 }

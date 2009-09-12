@@ -41,6 +41,26 @@ import decaf.util.TextProperties;
  */
 public class TextPropertiesSelectionControl extends SelectionControl implements
 		Disposable {
+	private class ChangeButtonActionListener implements ActionListener {
+		Component parent;
+
+		public ChangeButtonActionListener(Component parent) {
+			this.parent = parent;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+
+			TextProperties properties = TextPropertiesSelectionDialog
+					.showTextPropertiesDialog(parent, getLabel(),
+							(TextProperties) getValue(),
+							!allowForegroundColorChange,
+							!allowBackgroundColorChange, overrideBackground);
+			if (properties != null) {
+				setValue(properties);
+			}
+		}
+	}
+
 	private static final Logger LOGGER = Logger
 			.getLogger(TextPropertiesSelectionControl.class);
 
@@ -57,18 +77,6 @@ public class TextPropertiesSelectionControl extends SelectionControl implements
 	private boolean allowForegroundColorChange = true;
 
 	private Color overrideBackground = null;
-
-	public void dispose() {
-		super.dispose();
-		removeAll();
-		label = null;
-		if (swatch != null) {
-			swatch.removeAll();
-			swatch = null;
-		}
-		swatchLabel = null;
-		changeButton = null;
-	}
 
 	public TextPropertiesSelectionControl(String labelText, String helpText,
 			TextProperties properties) {
@@ -104,14 +112,59 @@ public class TextPropertiesSelectionControl extends SelectionControl implements
 		setHelpText(helpText);
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+		removeAll();
+		label = null;
+		if (swatch != null) {
+			swatch.removeAll();
+			swatch = null;
+		}
+		swatchLabel = null;
+		changeButton = null;
+	}
+
+	public Color getOverrideBackground() {
+		return overrideBackground;
+	}
+
+	public boolean isAllowBackgroundColorChange() {
+		return allowBackgroundColorChange;
+	}
+
+	public boolean isAllowForegroundColorChange() {
+		return allowForegroundColorChange;
+	}
+
+	public void setAllowBackgroundColorChange(boolean allowBackgroundColorChange) {
+		this.allowBackgroundColorChange = allowBackgroundColorChange;
+	}
+
+	public void setAllowForegroundColorChange(boolean allowForegroundColorChange) {
+		this.allowForegroundColorChange = allowForegroundColorChange;
+	}
+
+	@Override
 	public void setEnabled(boolean isEnabled) {
 		changeButton.setEnabled(isEnabled);
 		super.setEnabled(isEnabled);
 	}
 
+	public void setOverrideBackground(Color overrideBackground) {
+		this.overrideBackground = overrideBackground;
+
+		if (overrideBackground != null) {
+			swatchLabel.setBackground(overrideBackground);
+			swatch.setBackground(overrideBackground);
+		}
+
+	}
+
 	/**
 	 * Value will always be of type Boolean
 	 */
+	@Override
 	public void setValue(Object value) {
 		if (value != null && !(value instanceof TextProperties)) {
 			throw new IllegalArgumentException(
@@ -135,56 +188,6 @@ public class TextPropertiesSelectionControl extends SelectionControl implements
 			super.setValue(value);
 			fireValueChanged();
 		}
-	}
-
-	private class ChangeButtonActionListener implements ActionListener {
-		Component parent;
-
-		public ChangeButtonActionListener(Component parent) {
-			this.parent = parent;
-		}
-
-		public void actionPerformed(ActionEvent e) {
-
-			TextProperties properties = TextPropertiesSelectionDialog
-					.showTextPropertiesDialog(parent, getLabel(),
-							(TextProperties) getValue(),
-							!allowForegroundColorChange,
-							!allowBackgroundColorChange, overrideBackground);
-			if (properties != null) {
-				setValue(properties);
-			}
-		}
-	}
-
-	public boolean isAllowForegroundColorChange() {
-		return allowForegroundColorChange;
-	}
-
-	public void setAllowForegroundColorChange(boolean allowForegroundColorChange) {
-		this.allowForegroundColorChange = allowForegroundColorChange;
-	}
-
-	public boolean isAllowBackgroundColorChange() {
-		return allowBackgroundColorChange;
-	}
-
-	public void setAllowBackgroundColorChange(boolean allowBackgroundColorChange) {
-		this.allowBackgroundColorChange = allowBackgroundColorChange;
-	}
-
-	public Color getOverrideBackground() {
-		return overrideBackground;
-	}
-
-	public void setOverrideBackground(Color overrideBackground) {
-		this.overrideBackground = overrideBackground;
-
-		if (overrideBackground != null) {
-			swatchLabel.setBackground(overrideBackground);
-			swatch.setBackground(overrideBackground);
-		}
-
 	}
 
 }

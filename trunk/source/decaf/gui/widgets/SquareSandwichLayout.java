@@ -38,8 +38,9 @@ import org.apache.log4j.Logger;
  */
 public class SquareSandwichLayout implements LayoutManager2 {
 
-	private static final Logger LOGGER = Logger.getLogger(SquareSandwichLayout.class);
-	
+	private static final Logger LOGGER = Logger
+			.getLogger(SquareSandwichLayout.class);
+
 	public static final String NORTH = BorderLayout.NORTH;
 
 	public static final String SOUTH = BorderLayout.SOUTH;
@@ -67,41 +68,15 @@ public class SquareSandwichLayout implements LayoutManager2 {
 	private double northWeight;
 
 	private double southWeight;
-	
+
 	private int maxWestWidth;
 	private int maxEastWidth;
 	private int maxSouthWidth;
 	private int maxNorthWidth;
-	
+
 	private int centerSpacing;
 
 	public SquareSandwichLayout() {
-	}
-
-	public void addLayoutComponent(String name, Component component) {
-		addLayoutComponent(component, name);
-	}
-
-	public void removeLayoutComponent(Component component) {
-		if (northComponent == component) {
-			northComponent = null;
-		} else if (southComponent == component) {
-			southComponent = null;
-		} else if (eastComponent == component) {
-			eastComponent = null;
-		} else if (westComponent == component) {
-			westComponent = null;
-		} else if (centerComponent == component) {
-			centerComponent = null;
-		}
-	}
-
-	public Dimension minimumLayoutSize(Container parent) {
-		return new Dimension(0, 0);
-	}
-
-	public Dimension preferredLayoutSize(Container parent) {
-		return new Dimension(0, 0);
 	}
 
 	public void addLayoutComponent(Component comp, Object constraints) {
@@ -121,6 +96,14 @@ public class SquareSandwichLayout implements LayoutManager2 {
 		}
 	}
 
+	public void addLayoutComponent(String name, Component component) {
+		addLayoutComponent(component, name);
+	}
+
+	public double getEastWeight() {
+		return eastWeight;
+	}
+
 	public float getLayoutAlignmentX(Container target) {
 		return 0.5F;
 	}
@@ -129,79 +112,28 @@ public class SquareSandwichLayout implements LayoutManager2 {
 		return 0.5F;
 	}
 
-	public void invalidateLayout(Container target) {
-
-	}
-
-	public Dimension maximumLayoutSize(Container target) {
-		return new Dimension(10000, 10000);
-	}
-
-	public double getEastWeight() {
-		return eastWeight;
-	}
-
-	public void setEastWeight(double eastWeight) {
-		this.eastWeight = eastWeight;
-	}
-
-	public double getNorthWeight() {
-		return northWeight;
-	}
-
-	public void setNorthWeight(double northWeight) {
-		this.northWeight = northWeight;
-	}
-
-	public double getSouthWeight() {
-		return southWeight;
-	}
-
-	public void setSouthWeight(double southWeight) {
-		this.southWeight = southWeight;
-	}
-
-	public double getWestWeight() {
-		return westWeight;
-	}
-
-	public void setWestWeight(double westWeight) {
-		this.westWeight = westWeight;
-	}
-	
-	
-
 	public int getMaxEastWidth() {
 		return maxEastWidth;
-	}
-
-	public void setMaxEastWidth(int maxEastWidth) {
-		this.maxEastWidth = maxEastWidth;
 	}
 
 	public int getMaxWestWidth() {
 		return maxWestWidth;
 	}
 
-	public void setMaxWestWidth(int maxWestWidth) {
-		this.maxWestWidth = maxWestWidth;
-	}
-	
-	public void setMaxNorthWidth(int maxNorthWidth) {
-		this.maxNorthWidth = maxNorthWidth;
-	}
-	
-	public void setMaxSouthWidth(int maxSouthWidth) {
-		this.maxSouthWidth = maxSouthWidth;
+	public double getNorthWeight() {
+		return northWeight;
 	}
 
-	private void validateAllComponents() {
-		if (northComponent == null || southComponent == null
-				|| eastComponent == null || westComponent == null
-				|| centerComponent == null) {
-			throw new IllegalArgumentException(
-					"This layout manager requres a NORTH,SOUTH,EAST,WEST and CENTER copmonent.");
-		}
+	public double getSouthWeight() {
+		return southWeight;
+	}
+
+	public double getWestWeight() {
+		return westWeight;
+	}
+
+	public void invalidateLayout(Container target) {
+
 	}
 
 	public void layoutContainer(Container container) {
@@ -221,88 +153,140 @@ public class SquareSandwichLayout implements LayoutManager2 {
 
 		int leftOverWidth = width - (eastWidth + westWidth);
 		int leftOverHeight = height - (northHeight + southHeight);
-		
+
 		int squareSide = Math.min(leftOverWidth, leftOverHeight);
-		
-		int widthMinusSquareDivide2 = (width - squareSide)/2;
-		int heightMinusSquareDivide2 = (height - squareSide)/2;
-		
-		
-		
-		if (widthMinusSquareDivide2 >= eastWidth && widthMinusSquareDivide2 >= westWidth)
-		{
-			//If there is enough left over width that both sides desire, evenly distrubute it.
+
+		int widthMinusSquareDivide2 = (width - squareSide) / 2;
+		int heightMinusSquareDivide2 = (height - squareSide) / 2;
+
+		if (widthMinusSquareDivide2 >= eastWidth
+				&& widthMinusSquareDivide2 >= westWidth) {
+			// If there is enough left over width that both sides desire, evenly
+			// distrubute it.
 			eastWidth = widthMinusSquareDivide2;
-			westWidth = widthMinusSquareDivide2;			
-		}
-		else
-		{
-			int x = (width - (eastWidth + westWidth + squareSide))/2;
-			if (x >= 0)
-			{
+			westWidth = widthMinusSquareDivide2;
+		} else {
+			int x = (width - (eastWidth + westWidth + squareSide)) / 2;
+			if (x >= 0) {
 				eastWidth = eastWidth + x;
 				westWidth = westWidth + x;
 			}
 		}
-		if (heightMinusSquareDivide2 >= northHeight && heightMinusSquareDivide2 >= southHeight)
-		{
-			//If there is enough left over height that both sides desire, evenly distrubute it.
+		if (heightMinusSquareDivide2 >= northHeight
+				&& heightMinusSquareDivide2 >= southHeight) {
+			// If there is enough left over height that both sides desire,
+			// evenly distrubute it.
 			northHeight = heightMinusSquareDivide2;
 			southHeight = heightMinusSquareDivide2;
-		}
-		else
-		{
-			int y = (height - (northHeight + southHeight + squareSide))/2;
-			if (y >= 0)
-			{
+		} else {
+			int y = (height - (northHeight + southHeight + squareSide)) / 2;
+			if (y >= 0) {
 				northHeight = northHeight + y;
-				southHeight = southHeight + y;				
+				southHeight = southHeight + y;
 			}
 		}
 
-		if (maxNorthWidth != 0 && width > maxNorthWidth)
-		{
-			int center = width/2;
-			northComponent.setBounds(center - maxNorthWidth/2, 0, maxNorthWidth, northHeight);
+		if (maxNorthWidth != 0 && width > maxNorthWidth) {
+			int center = width / 2;
+			northComponent.setBounds(center - maxNorthWidth / 2, 0,
+					maxNorthWidth, northHeight);
+		} else {
+			northComponent.setBounds(0, 0, width, northHeight);
 		}
-		else
-		{
-		   northComponent.setBounds(0, 0, width, northHeight);
+
+		if (maxWestWidth != 0 && westWidth > maxWestWidth) {
+			westComponent.setBounds(westWidth - maxWestWidth, northHeight,
+					maxWestWidth, squareSide);
+		} else {
+			westComponent.setBounds(0, northHeight, westWidth, squareSide);
 		}
-		
-		if (maxWestWidth != 0 && westWidth > maxWestWidth)
-		{
-			westComponent.setBounds(westWidth - maxWestWidth,northHeight,maxWestWidth,squareSide);
+
+		centerComponent.setBounds(westWidth + centerSpacing, northHeight
+				+ centerSpacing, squareSide - 2 * centerSpacing, squareSide - 2
+				* centerSpacing);
+
+		if (maxEastWidth != 0 && eastWidth > maxEastWidth) {
+			eastComponent.setBounds(westWidth + squareSide, northHeight,
+					maxEastWidth, squareSide);
+		} else {
+			eastComponent.setBounds(westWidth + squareSide, northHeight,
+					eastWidth, squareSide);
 		}
-		else
-		{
-		   westComponent.setBounds(0, northHeight, westWidth, squareSide);
-		}
-		
-		centerComponent.setBounds(westWidth + centerSpacing,
-				northHeight + centerSpacing, squareSide - 2 * centerSpacing,
-				squareSide - 2 * centerSpacing);
-		
-		if (maxEastWidth != 0 && eastWidth > maxEastWidth)
-		{
-			eastComponent.setBounds(westWidth + squareSide ,northHeight,maxEastWidth,squareSide);
-		}
-		else
-		{
-			eastComponent.setBounds(westWidth
-					+ squareSide, northHeight, eastWidth,squareSide);
-		}
-		
-		if (maxSouthWidth != 0 && width > maxSouthWidth)
-		{
-			int center = width/2;
-			southComponent.setBounds(center - maxSouthWidth/2, northHeight
+
+		if (maxSouthWidth != 0 && width > maxSouthWidth) {
+			int center = width / 2;
+			southComponent.setBounds(center - maxSouthWidth / 2, northHeight
 					+ squareSide, maxSouthWidth, southHeight);
+		} else {
+			southComponent.setBounds(0, northHeight + squareSide, width,
+					southHeight);
 		}
-		else
-		{
-			southComponent.setBounds(0, northHeight
-					+ squareSide, width, southHeight);
+	}
+
+	public Dimension maximumLayoutSize(Container target) {
+		return new Dimension(10000, 10000);
+	}
+
+	public Dimension minimumLayoutSize(Container parent) {
+		return new Dimension(0, 0);
+	}
+
+	public Dimension preferredLayoutSize(Container parent) {
+		return new Dimension(0, 0);
+	}
+
+	public void removeLayoutComponent(Component component) {
+		if (northComponent == component) {
+			northComponent = null;
+		} else if (southComponent == component) {
+			southComponent = null;
+		} else if (eastComponent == component) {
+			eastComponent = null;
+		} else if (westComponent == component) {
+			westComponent = null;
+		} else if (centerComponent == component) {
+			centerComponent = null;
+		}
+	}
+
+	public void setEastWeight(double eastWeight) {
+		this.eastWeight = eastWeight;
+	}
+
+	public void setMaxEastWidth(int maxEastWidth) {
+		this.maxEastWidth = maxEastWidth;
+	}
+
+	public void setMaxNorthWidth(int maxNorthWidth) {
+		this.maxNorthWidth = maxNorthWidth;
+	}
+
+	public void setMaxSouthWidth(int maxSouthWidth) {
+		this.maxSouthWidth = maxSouthWidth;
+	}
+
+	public void setMaxWestWidth(int maxWestWidth) {
+		this.maxWestWidth = maxWestWidth;
+	}
+
+	public void setNorthWeight(double northWeight) {
+		this.northWeight = northWeight;
+	}
+
+	public void setSouthWeight(double southWeight) {
+		this.southWeight = southWeight;
+	}
+
+	public void setWestWeight(double westWeight) {
+		this.westWeight = westWeight;
+	}
+
+	private void validateAllComponents() {
+		if (northComponent == null || southComponent == null
+				|| eastComponent == null || westComponent == null
+				|| centerComponent == null) {
+			throw new IllegalArgumentException(
+					"This layout manager requres a NORTH,SOUTH,EAST,WEST and CENTER copmonent.");
 		}
 	}
 

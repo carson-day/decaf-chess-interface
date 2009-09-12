@@ -22,47 +22,14 @@ package decaf.messaging.inboundevent.game;
 import decaf.moveengine.Position;
 
 public class MoveEvent extends GameEvent {
-	public MoveEvent(int icsId, int gameId, Position position,
-			int numberOfMovesSinceLastIrreversible, String whiteName,
-			String blackName, int relation, int initialTime, int initialInc,
-			int whiteStrength, int blackStrength, long whiteRemainingTime,
-			long blackRemainingTime, int standardChessMoveNumber,
-			String verboseNotation, long timeTakenForLastMove,
-			String prettyNotation, boolean isWhiteOnTop,
-			boolean isClockTicking, int lagInMillis) {
-		super(icsId, gameId);
-		this.position = position;
-		this.numberOfMovesSinceLastIrreversible = numberOfMovesSinceLastIrreversible;
-		this.whiteName = whiteName;
-		this.blackName = blackName;
-		this.relation = relation;
-		this.initialTime = initialTime;
-		this.initialInc = initialInc;
-		this.whiteStrength = whiteStrength;
-		this.blackStrength = blackStrength;
-		this.whiteRemainingTime = whiteRemainingTime;
-		this.blackRemainingTime = blackRemainingTime;
-		this.standardChessMoveNumber = standardChessMoveNumber;
-		this.verboseNotation = verboseNotation;
-		this.timeTakenForLastMove = timeTakenForLastMove;
-		this.prettyNotation = prettyNotation;
-		this.isWhiteOnTop = isWhiteOnTop;
-		this.isClockTicking = isClockTicking;
-		this.lagInMillis = lagInMillis;
-	}
+	public static final int ISOLATED_POSITION_RELATION = -3;
 
-	public String toString() {
-		return "MoveEvent: icsId=" + getIcsId() + " gameId=" + getGameId();
-	}
+	public static final int OBSERVING_EXAMINED_GAME_RELATION = -2;
 
 	// public String toString()
 	// {
 	// return XmlUtil.toXml(this);
 	// }
-
-	public static final int ISOLATED_POSITION_RELATION = -3;
-
-	public static final int OBSERVING_EXAMINED_GAME_RELATION = -2;
 
 	public static final int EXAMINING_GAME_RELATION = 2;
 
@@ -110,82 +77,37 @@ public class MoveEvent extends GameEvent {
 
 	private int lagInMillis;
 
-	public String getWhiteName() {
-		return whiteName;
+	public MoveEvent(int icsId, int gameId, Position position,
+			int numberOfMovesSinceLastIrreversible, String whiteName,
+			String blackName, int relation, int initialTime, int initialInc,
+			int whiteStrength, int blackStrength, long whiteRemainingTime,
+			long blackRemainingTime, int standardChessMoveNumber,
+			String verboseNotation, long timeTakenForLastMove,
+			String prettyNotation, boolean isWhiteOnTop,
+			boolean isClockTicking, int lagInMillis) {
+		super(icsId, gameId);
+		this.position = position;
+		this.numberOfMovesSinceLastIrreversible = numberOfMovesSinceLastIrreversible;
+		this.whiteName = whiteName;
+		this.blackName = blackName;
+		this.relation = relation;
+		this.initialTime = initialTime;
+		this.initialInc = initialInc;
+		this.whiteStrength = whiteStrength;
+		this.blackStrength = blackStrength;
+		this.whiteRemainingTime = whiteRemainingTime;
+		this.blackRemainingTime = blackRemainingTime;
+		this.standardChessMoveNumber = standardChessMoveNumber;
+		this.verboseNotation = verboseNotation;
+		this.timeTakenForLastMove = timeTakenForLastMove;
+		this.prettyNotation = prettyNotation;
+		this.isWhiteOnTop = isWhiteOnTop;
+		this.isClockTicking = isClockTicking;
+		this.lagInMillis = lagInMillis;
 	}
 
 	public String getBlackName() {
 		return blackName;
-	}
-
-	public HoldingsChangedEvent getHoldingsChangedEvent() {
-		return holdingsChangedEvent;
-	}
-
-	public int getlagInMillis() {
-		return lagInMillis;
-	}
-
-	public Position getPosition() {
-		return position;
-	}
-
-	public boolean isWhitesMove() {
-		return position.isWhitesMove();
-	}
-
-	public int getDoublePawnPushFile() {
-		return position.getLastMoveDoublePawnPushFile();
-	}
-
-	public boolean isWhiteAbleToCastleShort() {
-		return position.whiteCanCastleKingside();
-	}
-
-	public boolean isWhiteAbleToCastleLong() {
-		return position.whiteCanCastleQueenside();
-	}
-
-	public boolean isBlackAbleToCastleShort() {
-		return position.blackCanCastleKingside();
-	}
-
-	public boolean isBlackAbleToCastleLong() {
-		return position.blackCanCastleQueenside();
-	}
-
-	public int getNumberOfMovesSinceLastIrreversible() {
-		return numberOfMovesSinceLastIrreversible;
-	}
-
-	/**
-	 * Returns one of the relation constants.
-	 */
-	public int getRelation() {
-		return relation;
-	}
-
-	public int getInitialTime() {
-		return initialTime;
-	}
-
-	public int getInitialInc() {
-		return initialInc;
-	}
-
-	public int getWhiteStrength() {
-		return whiteStrength;
-	}
-
-	public int getBlackStrength() {
-		return blackStrength;
-	}
-
-	/**
-	 * Returns whites remaining time in seconds.
-	 */
-	public long getWhiteRemainingTime() {
-		return whiteRemainingTime;
 	}
 
 	/**
@@ -195,12 +117,51 @@ public class MoveEvent extends GameEvent {
 		return blackRemainingTime;
 	}
 
-	public int getStandardChessMoveNumber() {
-		return standardChessMoveNumber;
+	public int getBlackStrength() {
+		return blackStrength;
 	}
 
-	public String getVerboseNotation() {
-		return verboseNotation;
+	public int getDoublePawnPushFile() {
+		return position.getLastMoveDoublePawnPushFile();
+	}
+
+	public HoldingsChangedEvent getHoldingsChangedEvent() {
+		return holdingsChangedEvent;
+	}
+
+	public int getInitialInc() {
+		return initialInc;
+	}
+
+	public int getInitialTime() {
+		return initialTime;
+	}
+
+	public int getlagInMillis() {
+		return lagInMillis;
+	}
+
+	public int getNumberOfMovesSinceLastIrreversible() {
+		return numberOfMovesSinceLastIrreversible;
+	}
+
+	public Position getPosition() {
+		return position;
+	}
+
+	public String getPrettyNotation() {
+		return prettyNotation;
+	}
+
+	/**
+	 * Returns one of the relation constants.
+	 */
+	public int getRelation() {
+		return relation;
+	}
+
+	public int getStandardChessMoveNumber() {
+		return standardChessMoveNumber;
 	}
 
 	/**
@@ -210,16 +171,51 @@ public class MoveEvent extends GameEvent {
 		return timeTakenForLastMove;
 	}
 
-	public String getPrettyNotation() {
-		return prettyNotation;
+	public String getVerboseNotation() {
+		return verboseNotation;
+	}
+
+	public String getWhiteName() {
+		return whiteName;
+	}
+
+	/**
+	 * Returns whites remaining time in seconds.
+	 */
+	public long getWhiteRemainingTime() {
+		return whiteRemainingTime;
+	}
+
+	public int getWhiteStrength() {
+		return whiteStrength;
+	}
+
+	public boolean isBlackAbleToCastleLong() {
+		return position.blackCanCastleQueenside();
+	}
+
+	public boolean isBlackAbleToCastleShort() {
+		return position.blackCanCastleKingside();
+	}
+
+	public boolean isClockTicking() {
+		return isClockTicking;
+	}
+
+	public boolean isWhiteAbleToCastleLong() {
+		return position.whiteCanCastleQueenside();
+	}
+
+	public boolean isWhiteAbleToCastleShort() {
+		return position.whiteCanCastleKingside();
 	}
 
 	public boolean isWhiteOnTop() {
 		return isWhiteOnTop;
 	}
 
-	public boolean isClockTicking() {
-		return isClockTicking;
+	public boolean isWhitesMove() {
+		return position.isWhitesMove();
 	}
 
 	public void setHoldingsChangedEvent(
@@ -232,7 +228,10 @@ public class MoveEvent extends GameEvent {
 	public void setWhiteOnTop(boolean isWhiteOnTop) {
 		this.isWhiteOnTop = isWhiteOnTop;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "MoveEvent: icsId=" + getIcsId() + " gameId=" + getGameId();
+	}
 
 }

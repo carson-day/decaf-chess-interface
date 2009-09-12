@@ -52,15 +52,6 @@ public class ProcessTimesealStrategy implements TimesealStrategy {
 
 	}
 
-	public InputStream getInputStream() {
-		return inputStream;
-	}
-
-	public void sendMsg(String message) throws IOException {
-		outputStream.write(message.getBytes(), 0, message.length());
-		outputStream.flush();
-	}
-
 	public void disconnect() {
 		try {
 			outputStream.close();
@@ -74,6 +65,15 @@ public class ProcessTimesealStrategy implements TimesealStrategy {
 		process.destroy();
 	}
 
+	public InputStream getInputStream() {
+		return inputStream;
+	}
+
 	public void sendAck() throws IOException {
+	}
+
+	public void sendMsg(String message) throws IOException {
+		outputStream.write(message.getBytes(), 0, message.length());
+		outputStream.flush();
 	}
 }

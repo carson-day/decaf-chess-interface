@@ -34,13 +34,13 @@ import decaf.gui.widgets.Disposable;
  */
 public class CheckboxSelectionControl extends SelectionControl implements
 		Disposable {
-	private JCheckBox checkBox;
-
-	public void dispose() {
-		super.dispose();
-		removeAll();
-		checkBox = null;
+	private class CheckBoxActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			setValue(new Boolean(checkBox.isSelected()));
+		}
 	}
+
+	private JCheckBox checkBox;
 
 	public CheckboxSelectionControl(String labelText, String helpText,
 			boolean value) {
@@ -60,6 +60,14 @@ public class CheckboxSelectionControl extends SelectionControl implements
 		setHelpText(helpText);
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+		removeAll();
+		checkBox = null;
+	}
+
+	@Override
 	public void setEnabled(boolean isEnabled) {
 		checkBox.setEnabled(isEnabled);
 		super.setEnabled(isEnabled);
@@ -68,6 +76,7 @@ public class CheckboxSelectionControl extends SelectionControl implements
 	/**
 	 * Value will always be of type Boolean
 	 */
+	@Override
 	public void setValue(Object value) {
 		if (!(value instanceof Boolean)) {
 			throw new IllegalArgumentException("value must be of type Boolean");
@@ -79,12 +88,6 @@ public class CheckboxSelectionControl extends SelectionControl implements
 			checkBox.setSelected(booleanValue.booleanValue());
 			super.setValue(booleanValue);
 			fireValueChanged();
-		}
-	}
-
-	private class CheckBoxActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			setValue(new Boolean(checkBox.isSelected()));
 		}
 	}
 }

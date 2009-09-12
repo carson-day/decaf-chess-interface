@@ -27,6 +27,12 @@ import java.util.Map;
 
 public class GameStartEvent extends GameEvent implements GameTypes {
 
+	private boolean isExamining;
+
+	private MoveEvent firstEvent;
+
+	private Map<String, String> g1Params;
+
 	/**
 	 * @param moveEvent
 	 *            should never be null. If a move has not been made it should
@@ -37,32 +43,50 @@ public class GameStartEvent extends GameEvent implements GameTypes {
 		this.g1Params = g1Params;
 	}
 
-	public MoveEvent getFirstEvent() {
-		return firstEvent;
-	}
-
-	public void setFirstEvent(MoveEvent firstEvent) {
-		this.firstEvent = firstEvent;
-	}
-
-	public String getWhiteName() {
-		return firstEvent.getWhiteName();
-	}
-
 	public String getBlackName() {
 		return firstEvent.getBlackName();
-	}
-
-	public String getWhiteRating() {
-		return g1Params.get("rt").split(",")[0];
 	}
 
 	public String getBlackRating() {
 		return g1Params.get("rt").split(",")[1];
 	}
 
+	public MoveEvent getFirstEvent() {
+		return firstEvent;
+	}
+
+	public String getG1Param(String paramName) {
+		return g1Params.get(paramName);
+	}
+
 	public String getGameDescription() {
 		return isExamining ? "Examining" : g1Params.get("t");
+	}
+
+	public MoveEvent getInitialInboundChessMoveEvent() {
+		return firstEvent;
+	}
+
+	public String getWhiteName() {
+		return firstEvent.getWhiteName();
+	}
+
+	public String getWhiteRating() {
+		return g1Params.get("rt").split(",")[0];
+	}
+
+	public boolean isBughouse() {
+		return isExamining ? false : getGameDescription().equalsIgnoreCase(
+				"bughouse");
+	}
+
+	public boolean isCrazyhouse() {
+		return isExamining ? false : getGameDescription().equalsIgnoreCase(
+				"crazyhouse");
+	}
+
+	public boolean isExamining() {
+		return isExamining;
 	}
 
 	public boolean isRated() {
@@ -78,39 +102,15 @@ public class GameStartEvent extends GameEvent implements GameTypes {
 		return result == 0 ? -1 : result;
 	}
 
-	public MoveEvent getInitialInboundChessMoveEvent() {
-		return firstEvent;
+	public void setExamining(boolean isExamining) {
+		this.isExamining = isExamining;
 	}
 
-	public String getG1Param(String paramName) {
-		return g1Params.get(paramName);
+	public void setFirstEvent(MoveEvent firstEvent) {
+		this.firstEvent = firstEvent;
 	}
 
 	public void setG1Params(HashMap<String, String> g1params) {
 		this.g1Params = g1params;
-	}
-
-	public boolean isBughouse() {
-		return isExamining ? false : getGameDescription().equalsIgnoreCase(
-				"bughouse");
-	}
-
-	public boolean isCrazyhouse() {
-		return isExamining ? false : getGameDescription().equalsIgnoreCase(
-				"crazyhouse");
-	}
-
-	private boolean isExamining;
-
-	private MoveEvent firstEvent;
-
-	private Map<String, String> g1Params;
-
-	public boolean isExamining() {
-		return isExamining;
-	}
-
-	public void setExamining(boolean isExamining) {
-		this.isExamining = isExamining;
 	}
 }

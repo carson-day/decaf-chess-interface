@@ -47,6 +47,14 @@ public class BugChessArea extends JPanel implements Preferenceable, Disposable {
 
 	private Preferences preferences;
 
+	public BugChessArea(ChessArea chessArea, ChessArea partnersChessArea) {
+		area1 = chessArea;
+		area2 = partnersChessArea;
+		boardDividingSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		boardDividingSplitPane.setOneTouchExpandable(true);
+		setupLayout();
+	}
+
 	public void dispose() {
 		preferences = null;
 		if (area1 != null) {
@@ -57,30 +65,12 @@ public class BugChessArea extends JPanel implements Preferenceable, Disposable {
 		}
 	}
 
-	public BugChessArea(ChessArea chessArea, ChessArea partnersChessArea) {
-		area1 = chessArea;
-		area2 = partnersChessArea;
-		boardDividingSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		boardDividingSplitPane.setOneTouchExpandable(true);
-		setupLayout();
+	public Preferences getPreferences() {
+		return preferences;
 	}
 
-	public void setBugOrientation(int orientation) {
-		synchronized (this) {
-			boolean isArea1OnLeft = boardDividingSplitPane.getLeftComponent() == area1;
-			if (isArea1OnLeft && orientation != AREA1_ON_LEFT) {
-				rotate();
-			} else if (!isArea1OnLeft && orientation != AREA1_ON_RIGHT) {
-				rotate();
-			}
-		}
-	}
-
-	private void setupLayout() {
-		setLayout(new BorderLayout());
-		add(boardDividingSplitPane, BorderLayout.CENTER);
-		boardDividingSplitPane.setLeftComponent(area1);
-		boardDividingSplitPane.setRightComponent(area2);
+	public int getSplitPaneLocation() {
+		return boardDividingSplitPane.getDividerLocation();
 	}
 
 	public void rotate() {
@@ -101,8 +91,21 @@ public class BugChessArea extends JPanel implements Preferenceable, Disposable {
 		}
 	}
 
-	public Preferences getPreferences() {
-		return preferences;
+	public void setBugChessAreaPrefsOnly(Preferences preferences) {
+		this.preferences = preferences;
+		setBackground(preferences.getBoardPreferences()
+				.getBackgroundControlsColor());
+	}
+
+	public void setBugOrientation(int orientation) {
+		synchronized (this) {
+			boolean isArea1OnLeft = boardDividingSplitPane.getLeftComponent() == area1;
+			if (isArea1OnLeft && orientation != AREA1_ON_LEFT) {
+				rotate();
+			} else if (!isArea1OnLeft && orientation != AREA1_ON_RIGHT) {
+				rotate();
+			}
+		}
 	}
 
 	public void setDividerLocation(int location) {
@@ -112,12 +115,6 @@ public class BugChessArea extends JPanel implements Preferenceable, Disposable {
 			boardDividingSplitPane.setDividerLocation(location);
 		}
 		invalidate();
-	}
-
-	public void setBugChessAreaPrefsOnly(Preferences preferences) {
-		this.preferences = preferences;
-		setBackground(preferences.getBoardPreferences()
-				.getBackgroundControlsColor());
 	}
 
 	public void setPreferences(Preferences preferences) {
@@ -135,7 +132,10 @@ public class BugChessArea extends JPanel implements Preferenceable, Disposable {
 		}
 	}
 
-	public int getSplitPaneLocation() {
-		return boardDividingSplitPane.getDividerLocation();
+	private void setupLayout() {
+		setLayout(new BorderLayout());
+		add(boardDividingSplitPane, BorderLayout.CENTER);
+		boardDividingSplitPane.setLeftComponent(area1);
+		boardDividingSplitPane.setRightComponent(area2);
 	}
 }

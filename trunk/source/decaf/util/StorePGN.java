@@ -28,18 +28,45 @@ public class StorePGN {
 			.getManager().getDecafUserHome()
 			+ "/games");
 
+	private static void createGamesDirIfDoesntExist() {
+		if (!GAMES_DIR.exists()) {
+			GAMES_DIR.mkdir();
+		}
+	}
+
+	public static String gameEndStateToResult(int gameEndState) {
+		switch (gameEndState) {
+		case ChessAreaControllerBase.BLACK_WON: {
+			return "0-1";
+		}
+		case ChessAreaControllerBase.WHITE_WON: {
+			return "1-0";
+		}
+		case ChessAreaControllerBase.DRAW: {
+			return "1/2-1/2";
+		}
+		case ChessAreaControllerBase.ABORTED: {
+			return "*";
+		}
+		case ChessAreaControllerBase.ADJOURNED: {
+			return "*";
+		}
+		case ChessAreaControllerBase.UNDETERMINED: {
+			return "*";
+		}
+		default: {
+			throw new IllegalArgumentException("Invalid gameEndState: "
+					+ gameEndState);
+		}
+		}
+	}
+
 	public static void storeBPGN(ChessAreaControllerBase controller) {
 		if (!controller.isBughouse()) {
 			throw new IllegalArgumentException(
 					"Invoke storePGN for non bughouse games");
 		}
 
-	}
-
-	private static void createGamesDirIfDoesntExist() {
-		if (!GAMES_DIR.exists()) {
-			GAMES_DIR.mkdir();
-		}
 	}
 
 	public static void storePGN(ChessAreaControllerBase controller) {
@@ -63,7 +90,8 @@ public class StorePGN {
 		writeOutPGN(controller, file, date);
 	}
 
-	public static void writeOutPGN(ChessAreaControllerBase controller,  File file, Date date) {
+	public static void writeOutPGN(ChessAreaControllerBase controller,
+			File file, Date date) {
 		PrintWriter printWriter = null;
 		try {
 			printWriter = new PrintWriter(new FileWriter(file, true));
@@ -109,33 +137,6 @@ public class StorePGN {
 		} finally {
 			printWriter.flush();
 			printWriter.close();
-		}
-	}
-	
-	public static String gameEndStateToResult(int gameEndState) {
-		switch (gameEndState) {
-		case ChessAreaControllerBase.BLACK_WON: {
-			return "0-1";
-		}
-		case ChessAreaControllerBase.WHITE_WON: {
-			return "1-0";
-		}
-		case ChessAreaControllerBase.DRAW: {
-			return "1/2-1/2";
-		}
-		case ChessAreaControllerBase.ABORTED: {
-			return "*";
-		}
-		case ChessAreaControllerBase.ADJOURNED: {
-			return "*";
-		}
-		case ChessAreaControllerBase.UNDETERMINED: {
-			return "*";
-		}
-		default: {
-			throw new IllegalArgumentException("Invalid gameEndState: "
-					+ gameEndState);
-		}
 		}
 	}
 }

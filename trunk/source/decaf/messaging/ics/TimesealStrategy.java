@@ -25,11 +25,11 @@ import java.io.InputStream;
 public interface TimesealStrategy {
 	public void connect(String server, int port) throws IOException;
 
-	public InputStream getInputStream();
-
-	public void sendMsg(String message) throws IOException;
-
 	public void disconnect() throws IOException;
 
+	public InputStream getInputStream();
+
 	public void sendAck() throws IOException;
+
+	public void sendMsg(String message) throws IOException;
 }

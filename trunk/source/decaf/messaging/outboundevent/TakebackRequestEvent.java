@@ -20,6 +20,8 @@
 package decaf.messaging.outboundevent;
 
 public class TakebackRequestEvent extends GameOutboundEvent {
+	private int halfMoves;
+
 	public TakebackRequestEvent(int gameId, int halfMoves,
 			boolean isHidingFromUser) {
 		super(gameId, isHidingFromUser);
@@ -29,6 +31,4 @@ public class TakebackRequestEvent extends GameOutboundEvent {
 	public int getHalfMoves() {
 		return halfMoves;
 	}
-
-	private int halfMoves;
 }

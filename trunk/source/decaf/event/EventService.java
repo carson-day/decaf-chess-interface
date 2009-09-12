@@ -41,71 +41,6 @@ import decaf.util.InvalidEventTypeException;
  * tradeoff of efficency.
  */
 public class EventService {
-	private static final Logger LOGGER = Logger.getLogger(EventService.class);
-
-	private List<Subscription> subscriptions = new ArrayList<Subscription>(500);
-
-	private static EventService singleton = null;
-
-	private EventService() {
-	}
-
-	public void dispose() {
-		subscriptions.clear();
-	}
-
-	public static EventService getInstance() {
-
-		synchronized (EventService.class) {
-			if (singleton == null) {
-				singleton = new EventService();
-			}
-		}
-		return singleton;
-	}
-
-	public void publish(Event event) {
-		synchronized (this) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug(getInstance() + " Invoking publish: " + event);
-			}
-			try {
-				for (Subscription subscription : subscriptions) {
-					if (subscription.getEventClass().equals(event.getClass())
-							&& (subscription.getFilter() == null || subscription
-									.getFilter().apply(event))) {
-						ThreadManager
-								.execute(new Publisher(event, subscription));
-					}
-				}
-			} catch (ConcurrentModificationException cme) {
-				LOGGER.error(cme);
-			}
-		}
-	}
-
-	public void subscribe(Subscription subscription)
-			throws InvalidEventTypeException {
-		synchronized (this) {
-			subscriptions.add(subscription);
-		}
-
-	}
-
-	public void unsubscribe(Subscription subscription)
-			throws InvalidEventTypeException {
-		synchronized (this) {
-			subscriptions.remove(subscription);
-		}
-
-	}
-
-	public void unsubscribeAll() {
-		synchronized (this) {
-			subscriptions.clear();
-		}
-	}
-
 	public class Publisher implements Runnable, Comparable {
 		private Event event;
 
@@ -176,6 +111,71 @@ public class EventService {
 			} catch (Exception e) {
 				LOGGER.error(e);
 			}
+		}
+	}
+
+	private static final Logger LOGGER = Logger.getLogger(EventService.class);
+
+	public static EventService getInstance() {
+
+		synchronized (EventService.class) {
+			if (singleton == null) {
+				singleton = new EventService();
+			}
+		}
+		return singleton;
+	}
+
+	private List<Subscription> subscriptions = new ArrayList<Subscription>(500);
+
+	private static EventService singleton = null;
+
+	private EventService() {
+	}
+
+	public void dispose() {
+		subscriptions.clear();
+	}
+
+	public void publish(Event event) {
+		synchronized (this) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug(getInstance() + " Invoking publish: " + event);
+			}
+			try {
+				for (Subscription subscription : subscriptions) {
+					if (subscription.getEventClass().equals(event.getClass())
+							&& (subscription.getFilter() == null || subscription
+									.getFilter().apply(event))) {
+						ThreadManager
+								.execute(new Publisher(event, subscription));
+					}
+				}
+			} catch (ConcurrentModificationException cme) {
+				LOGGER.error(cme);
+			}
+		}
+	}
+
+	public void subscribe(Subscription subscription)
+			throws InvalidEventTypeException {
+		synchronized (this) {
+			subscriptions.add(subscription);
+		}
+
+	}
+
+	public void unsubscribe(Subscription subscription)
+			throws InvalidEventTypeException {
+		synchronized (this) {
+			subscriptions.remove(subscription);
+		}
+
+	}
+
+	public void unsubscribeAll() {
+		synchronized (this) {
+			subscriptions.clear();
 		}
 	}
 }

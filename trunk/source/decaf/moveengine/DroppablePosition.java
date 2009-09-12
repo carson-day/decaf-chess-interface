@@ -57,8 +57,17 @@ public class DroppablePosition extends Position {
 	}
 
 	/**
+	 * @return Returns the blackHoldings.
+	 */
+	@Override
+	public int[] getBlackHoldings() {
+		return blackHoldings;
+	}
+
+	/**
 	 * Returns a list of all of the legal moves from this position.
 	 */
+	@Override
 	public Move[] getLegalMoves() {
 		return PositionUtil
 				.getLegalDroppableChessMoves(getBoard(), getBoardState(),
@@ -66,16 +75,18 @@ public class DroppablePosition extends Position {
 	}
 
 	/**
-	 * @return Returns the blackHoldings.
+	 * @return Returns the whiteHoldings.
 	 */
-	public int[] getBlackHoldings() {
-		return blackHoldings;
+	@Override
+	public int[] getWhiteHoldings() {
+		return whiteHoldings;
 	}
 
 	/**
 	 * @param blackHoldings
 	 *            The blackHoldings to set.
 	 */
+	@Override
 	public void setBlackHoldings(int[] blackHoldings) {
 		if (blackHoldings == null || blackHoldings.length == 0) {
 			this.blackHoldings = new int[] {};
@@ -97,16 +108,10 @@ public class DroppablePosition extends Position {
 	}
 
 	/**
-	 * @return Returns the whiteHoldings.
-	 */
-	public int[] getWhiteHoldings() {
-		return whiteHoldings;
-	}
-
-	/**
 	 * @param whiteHoldings
 	 *            The whiteHoldings to set.
 	 */
+	@Override
 	public void setWhiteHoldings(int[] whiteHoldings) {
 		if (whiteHoldings == null || whiteHoldings.length == 0) {
 			this.whiteHoldings = new int[] {};

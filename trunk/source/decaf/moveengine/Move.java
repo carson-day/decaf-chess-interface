@@ -30,184 +30,6 @@ import decaf.util.PieceUtil;
  */
 public class Move implements Cloneable, Serializable, Coordinates, Piece,
 		Comparable {
-	private int startRank;
-
-	private int startFile;
-
-	private int endRank;
-
-	private int endFile;
-
-	private boolean isWhitesMove;
-
-	private boolean isDoublePawnPush;
-
-	private int epPawnRank = -1;
-
-	private int epPawnFile = -1;
-
-	private int capturedPiece = PieceUtil.NILL;
-
-	private int pieceMoving = PieceUtil.NILL;
-
-	private int promotedPiece = PieceUtil.NILL;
-
-	private int hash;
-
-	private boolean isHashSet = false;
-
-	private boolean isEnPassant;
-
-	private boolean isCastleKingside;
-
-	private boolean isCastleQueenside;
-
-	private int droppedPiece;
-
-	public Move(int startRank, int startFile, int endRank, int endFile,
-			int pieceMoving, int capturedPiece, boolean isWhitesMove)
-			throws InvalidMoveException {
-		if (!CoordinatesUtil.isInBounds(startRank, startFile))
-			throw new InvalidMoveException("Invalid startRank/startFile "
-					+ CoordinatesUtil.getDefaultCoordinates(startRank,
-							startFile));
-		if (!CoordinatesUtil.isInBounds(endRank, endFile))
-			throw new InvalidMoveException("Invalid endRank/endFile "
-					+ CoordinatesUtil.getDefaultCoordinates(startRank,
-							startFile));
-		// if(PieceUtil.isEmpty(pieceMoving))
-		// throw new InvalidMoveException(
-		// "Piece moving cant be empty. "
-		// + "Use Move.createMove if you want to avoid worrying about this.");
-		// if((isWhitesMove && PieceUtil.isBlackPiece(pieceMoving))
-		// || (!isWhitesMove && PieceUtil.isWhitePiece(pieceMoving)))
-		// throw new InvalidMoveException("Invalid piece moving: "
-		// + PieceUtil.getDefaultPiece(pieceMoving));
-		// if(!PieceUtil.isEmpty(capturedPiece)
-		// && (isWhitesMove && PieceUtil.isWhitePiece(capturedPiece) ||
-		// !isWhitesMove
-		// && PieceUtil.isBlackPiece(capturedPiece)))
-		// throw new InvalidMoveException(
-		// "Invalid captured piece: "
-		// + PieceUtil.getDefaultPiece(capturedPiece)
-		// + " Use Move.createMove if you do not want to worry about this.");
-		// if(PieceUtil.isKing(capturedPiece))
-		// throw new InvalidMoveException("CapturedPiece can not be a king. "
-		// + PieceUtil.getDefaultPiece(capturedPiece));
-
-		this.startRank = startRank;
-		this.startFile = startFile;
-		this.endRank = endRank;
-		this.endFile = endFile;
-		this.isWhitesMove = isWhitesMove;
-		this.pieceMoving = pieceMoving;
-		this.capturedPiece = capturedPiece;
-	}
-
-	public Move(int[] startCoordinates, int[] endCoordinates, int pieceMoving,
-			int capturedPiece, boolean isWhitesMove)
-			throws InvalidMoveException {
-		this(startCoordinates[0], startCoordinates[1], endCoordinates[0],
-				endCoordinates[1], pieceMoving, capturedPiece, isWhitesMove);
-	}
-
-	/**
-	 * @param doublePawnPushFile
-	 *            0 based double pawn push file.
-	 */
-	public Move(int doublePawnPushFile, boolean isWhitesMove)
-			throws InvalidMoveException {
-		this(isWhitesMove ? RANK_2 : RANK_7, doublePawnPushFile,
-				isWhitesMove ? RANK_4 : RANK_5, doublePawnPushFile,
-				isWhitesMove ? PieceUtil.WP : PieceUtil.BP, PieceUtil.EMPTY,
-				isWhitesMove);
-		this.isDoublePawnPush = true;
-	}
-
-	/**
-	 * Should only be used for enpassant captures.
-	 * 
-	 * @param startCoordinates
-	 *            The coordinates of the pawn moving before the capture
-	 * @param endFile
-	 *            The file the pawn is on after the capture.
-	 */
-	public Move(int[] startCoordinates, int endFile, boolean isWhitesMove)
-			throws InvalidMoveException {
-		this(startCoordinates, new int[] {
-				isWhitesMove ? startCoordinates[0] - 1
-						: startCoordinates[0] + 1, endFile },
-				isWhitesMove ? PieceUtil.WP : PieceUtil.BP,
-				isWhitesMove ? PieceUtil.BP : PieceUtil.WP, isWhitesMove);
-
-		if ((startCoordinates[0] != RANK_5 && isWhitesMove)
-				|| (startCoordinates[0] != RANK_4 && !isWhitesMove))
-			throw new InvalidMoveException(
-					"Invalid startRank for ep captures: "
-							+ CoordinatesUtil
-									.getDefaultCoordinates(startCoordinates));
-
-		this.epPawnRank = startCoordinates[0];
-		this.epPawnFile = endFile;
-
-		if (!CoordinatesUtil.isInBounds(epPawnRank, epPawnFile))
-			throw new InvalidMoveException("Invalid En Passant Rank/File "
-					+ CoordinatesUtil.getDefaultCoordinates(epPawnRank,
-							epPawnFile));
-
-		isEnPassant = true;
-	}
-
-	/**
-	 * Should only be used for castling moves.
-	 * 
-	 * @param isCastleKingside
-	 *            True if castling kingside, false if castling queenside.
-	 */
-	public Move(boolean isCastleKingside, boolean isWhitesMove)
-			throws InvalidMoveException {
-		this(isWhitesMove ? E1 : E8, isCastleKingside && isWhitesMove ? H1
-				: isCastleKingside && !isWhitesMove ? H8 : !isCastleKingside
-						&& isWhitesMove ? A1 : A8, isWhitesMove ? PieceUtil.WK
-				: PieceUtil.BK, PieceUtil.EMPTY, isWhitesMove);
-		this.isCastleKingside = isCastleKingside;
-		this.isCastleQueenside = !isCastleKingside;
-	}
-
-	/**
-	 * Creates a promotion.
-	 */
-	public Move(int promotedPiece, int[] startCoordinates,
-			int[] endCoordinates, int capturedPiece, boolean isWhitesMove) {
-		CoordinatesUtil.assertValid(startCoordinates);
-		CoordinatesUtil.assertValid(endCoordinates);
-		PieceUtil.assertValidAndNotEmpty(promotedPiece);
-		this.startRank = startCoordinates[0];
-		this.startFile = startCoordinates[1];
-		this.endRank = endCoordinates[0];
-		this.endFile = endCoordinates[1];
-		this.isWhitesMove = isWhitesMove;
-		this.capturedPiece = capturedPiece;
-		this.pieceMoving = isWhitesMove ? Piece.WP : Piece.BP;
-		this.promotedPiece = promotedPiece;
-	}
-
-	/**
-	 * Used for droppable chess (bughouse or crazyhouse)
-	 */
-	public Move(int droppedPiece, int[] endCoordinates, boolean isWhitesMove) {
-		CoordinatesUtil.assertValid(endCoordinates);
-		if (isWhitesMove) {
-			PieceUtil.assertValidWhiteDropPiece(droppedPiece);
-		} else {
-			PieceUtil.assertValidBlackDropPiece(droppedPiece);
-		}
-		this.endRank = endCoordinates[0];
-		this.endFile = endCoordinates[1];
-		this.isWhitesMove = isWhitesMove;
-		this.droppedPiece = droppedPiece;
-	}
-
 	/**
 	 * Attempts to figure out which constructor to invoke e.g. invokes the one
 	 * for castling if its a castling move invokes the one for ep if its an en
@@ -285,54 +107,184 @@ public class Move implements Cloneable, Serializable, Coordinates, Piece,
 		}
 	}
 
-	public int getStartRank() {
-		return startRank;
+	private int startRank;
+
+	private int startFile;
+
+	private int endRank;
+
+	private int endFile;
+
+	private boolean isWhitesMove;
+
+	private boolean isDoublePawnPush;
+
+	private int epPawnRank = -1;
+
+	private int epPawnFile = -1;
+
+	private int capturedPiece = Piece.NILL;
+
+	private int pieceMoving = Piece.NILL;
+
+	private int promotedPiece = Piece.NILL;
+
+	private int hash;
+
+	private boolean isHashSet = false;
+
+	private boolean isEnPassant;
+
+	private boolean isCastleKingside;
+
+	private boolean isCastleQueenside;
+
+	private int droppedPiece;
+
+	/**
+	 * Should only be used for castling moves.
+	 * 
+	 * @param isCastleKingside
+	 *            True if castling kingside, false if castling queenside.
+	 */
+	public Move(boolean isCastleKingside, boolean isWhitesMove)
+			throws InvalidMoveException {
+		this(isWhitesMove ? E1 : E8, isCastleKingside && isWhitesMove ? H1
+				: isCastleKingside && !isWhitesMove ? H8 : !isCastleKingside
+						&& isWhitesMove ? A1 : A8, isWhitesMove ? Piece.WK
+				: Piece.BK, Piece.EMPTY, isWhitesMove);
+		this.isCastleKingside = isCastleKingside;
+		this.isCastleQueenside = !isCastleKingside;
 	}
 
-	public int getStartFile() {
-		return startFile;
+	/**
+	 * @param doublePawnPushFile
+	 *            0 based double pawn push file.
+	 */
+	public Move(int doublePawnPushFile, boolean isWhitesMove)
+			throws InvalidMoveException {
+		this(isWhitesMove ? RANK_2 : RANK_7, doublePawnPushFile,
+				isWhitesMove ? RANK_4 : RANK_5, doublePawnPushFile,
+				isWhitesMove ? Piece.WP : Piece.BP, Piece.EMPTY, isWhitesMove);
+		this.isDoublePawnPush = true;
 	}
 
-	public int getEndRank() {
-		return endRank;
+	public Move(int startRank, int startFile, int endRank, int endFile,
+			int pieceMoving, int capturedPiece, boolean isWhitesMove)
+			throws InvalidMoveException {
+		if (!CoordinatesUtil.isInBounds(startRank, startFile))
+			throw new InvalidMoveException("Invalid startRank/startFile "
+					+ CoordinatesUtil.getDefaultCoordinates(startRank,
+							startFile));
+		if (!CoordinatesUtil.isInBounds(endRank, endFile))
+			throw new InvalidMoveException("Invalid endRank/endFile "
+					+ CoordinatesUtil.getDefaultCoordinates(startRank,
+							startFile));
+		// if(PieceUtil.isEmpty(pieceMoving))
+		// throw new InvalidMoveException(
+		// "Piece moving cant be empty. "
+		// + "Use Move.createMove if you want to avoid worrying about this.");
+		// if((isWhitesMove && PieceUtil.isBlackPiece(pieceMoving))
+		// || (!isWhitesMove && PieceUtil.isWhitePiece(pieceMoving)))
+		// throw new InvalidMoveException("Invalid piece moving: "
+		// + PieceUtil.getDefaultPiece(pieceMoving));
+		// if(!PieceUtil.isEmpty(capturedPiece)
+		// && (isWhitesMove && PieceUtil.isWhitePiece(capturedPiece) ||
+		// !isWhitesMove
+		// && PieceUtil.isBlackPiece(capturedPiece)))
+		// throw new InvalidMoveException(
+		// "Invalid captured piece: "
+		// + PieceUtil.getDefaultPiece(capturedPiece)
+		// + " Use Move.createMove if you do not want to worry about this.");
+		// if(PieceUtil.isKing(capturedPiece))
+		// throw new InvalidMoveException("CapturedPiece can not be a king. "
+		// + PieceUtil.getDefaultPiece(capturedPiece));
+
+		this.startRank = startRank;
+		this.startFile = startFile;
+		this.endRank = endRank;
+		this.endFile = endFile;
+		this.isWhitesMove = isWhitesMove;
+		this.pieceMoving = pieceMoving;
+		this.capturedPiece = capturedPiece;
 	}
 
-	public int getEndFile() {
-		return endFile;
+	/**
+	 * Used for droppable chess (bughouse or crazyhouse)
+	 */
+	public Move(int droppedPiece, int[] endCoordinates, boolean isWhitesMove) {
+		CoordinatesUtil.assertValid(endCoordinates);
+		if (isWhitesMove) {
+			PieceUtil.assertValidWhiteDropPiece(droppedPiece);
+		} else {
+			PieceUtil.assertValidBlackDropPiece(droppedPiece);
+		}
+		this.endRank = endCoordinates[0];
+		this.endFile = endCoordinates[1];
+		this.isWhitesMove = isWhitesMove;
+		this.droppedPiece = droppedPiece;
 	}
 
-	public boolean isWhitesMove() {
-		return isWhitesMove;
+	/**
+	 * Creates a promotion.
+	 */
+	public Move(int promotedPiece, int[] startCoordinates,
+			int[] endCoordinates, int capturedPiece, boolean isWhitesMove) {
+		CoordinatesUtil.assertValid(startCoordinates);
+		CoordinatesUtil.assertValid(endCoordinates);
+		PieceUtil.assertValidAndNotEmpty(promotedPiece);
+		this.startRank = startCoordinates[0];
+		this.startFile = startCoordinates[1];
+		this.endRank = endCoordinates[0];
+		this.endFile = endCoordinates[1];
+		this.isWhitesMove = isWhitesMove;
+		this.capturedPiece = capturedPiece;
+		this.pieceMoving = isWhitesMove ? Piece.WP : Piece.BP;
+		this.promotedPiece = promotedPiece;
 	}
 
-	public int getEnPassantPawnRank() {
-		return epPawnRank;
+	/**
+	 * Should only be used for enpassant captures.
+	 * 
+	 * @param startCoordinates
+	 *            The coordinates of the pawn moving before the capture
+	 * @param endFile
+	 *            The file the pawn is on after the capture.
+	 */
+	public Move(int[] startCoordinates, int endFile, boolean isWhitesMove)
+			throws InvalidMoveException {
+		this(startCoordinates, new int[] {
+				isWhitesMove ? startCoordinates[0] - 1
+						: startCoordinates[0] + 1, endFile },
+				isWhitesMove ? Piece.WP : Piece.BP, isWhitesMove ? Piece.BP
+						: Piece.WP, isWhitesMove);
+
+		if ((startCoordinates[0] != RANK_5 && isWhitesMove)
+				|| (startCoordinates[0] != RANK_4 && !isWhitesMove))
+			throw new InvalidMoveException(
+					"Invalid startRank for ep captures: "
+							+ CoordinatesUtil
+									.getDefaultCoordinates(startCoordinates));
+
+		this.epPawnRank = startCoordinates[0];
+		this.epPawnFile = endFile;
+
+		if (!CoordinatesUtil.isInBounds(epPawnRank, epPawnFile))
+			throw new InvalidMoveException("Invalid En Passant Rank/File "
+					+ CoordinatesUtil.getDefaultCoordinates(epPawnRank,
+							epPawnFile));
+
+		isEnPassant = true;
 	}
 
-	public int getEnPassantPawnFile() {
-		return epPawnFile;
+	public Move(int[] startCoordinates, int[] endCoordinates, int pieceMoving,
+			int capturedPiece, boolean isWhitesMove)
+			throws InvalidMoveException {
+		this(startCoordinates[0], startCoordinates[1], endCoordinates[0],
+				endCoordinates[1], pieceMoving, capturedPiece, isWhitesMove);
 	}
 
-	public int[] getEnPassantCoordinates() {
-		return new int[] { epPawnRank, epPawnFile };
-	}
-
-	public boolean isEnPassant() {
-		return isEnPassant;
-	}
-
-	public boolean isCastleKingside() {
-		return isCastleKingside;
-	}
-
-	public boolean isCastleQueenside() {
-		return isCastleQueenside;
-	}
-
-	public boolean isDoublePawnPush() {
-		return isDoublePawnPush;
-	}
-
+	@Override
 	public Object clone() {
 		try {
 			return super.clone();
@@ -341,6 +293,16 @@ public class Move implements Cloneable, Serializable, Coordinates, Piece,
 		}
 	}
 
+	public int compareTo(Object move) {
+		// assert move instanceof Object : "Move must be of type object";
+
+		int hash1 = hashCode();
+		int hash2 = move.hashCode();
+
+		return hash1 < hash2 ? -1 : hash1 > hash2 ? 1 : 0;
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
@@ -382,72 +344,39 @@ public class Move implements Cloneable, Serializable, Coordinates, Piece,
 		return true;
 	}
 
-	public int compareTo(Object move) {
-		// assert move instanceof Object : "Move must be of type object";
-
-		int hash1 = hashCode();
-		int hash2 = move.hashCode();
-
-		return hash1 < hash2 ? -1 : hash1 > hash2 ? 1 : 0;
+	public int getCapturedPiece() {
+		return capturedPiece;
 	}
 
-	public int hashCode() {
-		if (!isHashSet) {
-			hash = startRank;
-			hash = 29 * hash + startFile;
-			hash = 29 * hash + endRank;
-			hash = 29 * hash + endFile;
-			hash = 29 * hash + (isWhitesMove ? 1 : 0);
-			hash = 29 * hash + (isDoublePawnPush ? 1 : 0);
-			hash = 29 * hash + epPawnRank;
-			hash = 29 * hash + epPawnFile;
-			hash = 29 * hash + capturedPiece;
-			hash = 29 * hash + pieceMoving;
-			hash = 29 * hash + promotedPiece;
-			hash = 29 * hash + droppedPiece;
-			hash = 29 * hash + (isEnPassant ? 1 : 0);
-			hash = 29 * hash + (isCastleKingside ? 1 : 0);
-			hash = 29 * hash + (isCastleQueenside ? 1 : 0);
-
-			isHashSet = true;
-		}
-		return hash;
-	}
-
-	public String toString() {
-		return CoordinatesUtil.getDefaultMove(this);
-	}
-
-	public int[] getStartCoordinates() {
-		return new int[] { startRank, startFile };
-	}
-
-	public int getPromotedPiece() {
-		return promotedPiece;
-	}
-
-	public boolean isPromotion() {
-		return promotedPiece != Piece.NILL;
+	/**
+	 * @return Returns the droppedPiece.
+	 */
+	public int getDroppedPiece() {
+		return droppedPiece;
 	}
 
 	public int[] getEndCoordinates() {
 		return new int[] { endRank, endFile };
 	}
 
-	public boolean isCapture() {
-		return capturedPiece != PieceUtil.NILL;
+	public int getEndFile() {
+		return endFile;
 	}
 
-	public int getCapturedPiece() {
-		return capturedPiece;
+	public int getEndRank() {
+		return endRank;
 	}
 
-	public int getPieceMoving() {
-		return pieceMoving;
+	public int[] getEnPassantCoordinates() {
+		return new int[] { epPawnRank, epPawnFile };
 	}
 
-	public boolean isCastling() {
-		return isCastleKingside() || isCastleQueenside();
+	public int getEnPassantPawnFile() {
+		return epPawnFile;
+	}
+
+	public int getEnPassantPawnRank() {
+		return epPawnRank;
 	}
 
 	/**
@@ -471,15 +400,89 @@ public class Move implements Cloneable, Serializable, Coordinates, Piece,
 		return result;
 	}
 
-	/**
-	 * @return Returns the droppedPiece.
-	 */
-	public int getDroppedPiece() {
-		return droppedPiece;
+	public int getPieceMoving() {
+		return pieceMoving;
+	}
+
+	public int getPromotedPiece() {
+		return promotedPiece;
+	}
+
+	public int[] getStartCoordinates() {
+		return new int[] { startRank, startFile };
+	}
+
+	public int getStartFile() {
+		return startFile;
+	}
+
+	public int getStartRank() {
+		return startRank;
+	}
+
+	@Override
+	public int hashCode() {
+		if (!isHashSet) {
+			hash = startRank;
+			hash = 29 * hash + startFile;
+			hash = 29 * hash + endRank;
+			hash = 29 * hash + endFile;
+			hash = 29 * hash + (isWhitesMove ? 1 : 0);
+			hash = 29 * hash + (isDoublePawnPush ? 1 : 0);
+			hash = 29 * hash + epPawnRank;
+			hash = 29 * hash + epPawnFile;
+			hash = 29 * hash + capturedPiece;
+			hash = 29 * hash + pieceMoving;
+			hash = 29 * hash + promotedPiece;
+			hash = 29 * hash + droppedPiece;
+			hash = 29 * hash + (isEnPassant ? 1 : 0);
+			hash = 29 * hash + (isCastleKingside ? 1 : 0);
+			hash = 29 * hash + (isCastleQueenside ? 1 : 0);
+
+			isHashSet = true;
+		}
+		return hash;
+	}
+
+	public boolean isCapture() {
+		return capturedPiece != Piece.NILL;
+	}
+
+	public boolean isCastleKingside() {
+		return isCastleKingside;
+	}
+
+	public boolean isCastleQueenside() {
+		return isCastleQueenside;
+	}
+
+	public boolean isCastling() {
+		return isCastleKingside() || isCastleQueenside();
+	}
+
+	public boolean isDoublePawnPush() {
+		return isDoublePawnPush;
 	}
 
 	public boolean isDropMove() {
 		return droppedPiece != Piece.NILL;
+	}
+
+	public boolean isEnPassant() {
+		return isEnPassant;
+	}
+
+	public boolean isPromotion() {
+		return promotedPiece != Piece.NILL;
+	}
+
+	public boolean isWhitesMove() {
+		return isWhitesMove;
+	}
+
+	@Override
+	public String toString() {
+		return CoordinatesUtil.getDefaultMove(this);
 	}
 
 }

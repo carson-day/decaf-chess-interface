@@ -121,6 +121,489 @@ import decaf.util.ToolbarUtil;
 public class ChatPanel extends JPanel implements ActionListener,
 		Preferenceable, Disposable, ClipboardOwner {
 
+	private class BugOpenActionListener implements ActionListener {
+
+		private BugOpenActionListener() {
+		}
+
+		public void actionPerformed(ActionEvent actionevent) {
+			EventService.getInstance().publish(
+					new BugOpenRequestEvent(!isBugOpen, true));
+		}
+
+	}
+
+	private class ExposedJTextField extends JTextField {
+
+		public void processKeyEvent(KeyEvent arg0) {
+			// TODO Auto-generated method stub
+			super.processKeyEvent(arg0);
+		}
+
+	}
+
+	/**
+	 * Handles up and down input history. Also handles setting focus to text
+	 * pane if a page up or page down is pressed.
+	 */
+	private class InputFieldKeyHistoryListener extends KeyAdapter {
+
+		public void keyPressed(KeyEvent keyEvent) {
+			inputFieldKeyTyped(keyEvent);
+
+		}
+	}
+
+	private class OpenActionListener implements ActionListener {
+
+		private OpenActionListener() {
+		}
+
+		public void actionPerformed(ActionEvent actionevent) {
+			EventService.getInstance().publish(
+					new OpenRequestEvent(!isOpen, true));
+		}
+
+	}
+
+	private class ScrollLockActionListener implements ActionListener {
+
+		private ScrollLockActionListener() {
+		}
+
+		public void actionPerformed(ActionEvent actionevent) {
+			setAutoScrolling(!isAutoScrolling);
+		}
+	}
+
+	private class ShowBughActionListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent e) {
+			if (lastBugSeekFrame != null && lastBugSeekFrame.isVisible()) {
+				lastBugSeekFrame.toFront();
+			} else {
+				lastBugSeekFrame = new BugSeekFrame();
+				GUIManager.getInstance().addKeyForwarder(lastBugSeekFrame);
+				lastBugSeekFrame.setVisible(true);
+			}
+		}
+
+	}
+
+	private class ShowSeekGraphActionListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent e) {
+			if (lastSeekFrame != null && lastSeekFrame.isVisible()) {
+				lastSeekFrame.toFront();
+			} else {
+				lastSeekFrame = new SeekFrame();
+				GUIManager.getInstance().addKeyForwarder(lastSeekFrame);
+				lastSeekFrame.setVisible(true);
+			}
+		}
+
+	}
+
+	public class TextReceivedEventSubscriber implements Subscriber, Filter {
+
+		public TextReceivedEventSubscriber() {
+			EventService.getInstance().subscribe(
+					new Subscription(IcsNonGameEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(OpenEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(ClosedEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(BugOpenEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(BugClosedEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(CShoutEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(ChannelTellEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(KibitzEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(WhisperEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(PartnerTellEvent.class, this, this));
+			EventService.getInstance()
+					.subscribe(
+							new Subscription(PartnershipCreatedEvent.class,
+									this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(ChallengeEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(NotificationEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(PartnershipEndedEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(ShoutEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(TellEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(SoughtEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(BugWhoPEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(BugWhoUEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(BugWhoGEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(MoveListEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(FollowingEvent.class, this, this));
+			EventService.getInstance().subscribe(
+					new Subscription(NotFollowingEvent.class, this, this));
+
+		}
+
+		public boolean apply(Event event) {
+			return true;
+		}
+
+		public void inform(BugClosedEvent bugclosedevent) {
+			getMainTab().appendText(
+					bugclosedevent.getText(),
+					getSimpleAttributes(getPreferences().getChatPreferences()
+							.getDefaultTextProperties()));
+			setBugOpen(false);
+
+		}
+
+		public void inform(BugOpenEvent bugopenevent) {
+			getMainTab().appendText(
+					bugopenevent.getText(),
+					getSimpleAttributes(getPreferences().getChatPreferences()
+							.getDefaultTextProperties()));
+			setBugOpen(true);
+
+		}
+
+		public void inform(BugWhoGEvent bugWhoGEvent) {
+			if (!bugWhoGEvent.isHideFromUser()) {
+				getMainTab().appendText(
+						bugWhoGEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
+
+			}
+		}
+
+		public void inform(BugWhoPEvent bugWhoPEvent) {
+			if (!bugWhoPEvent.isHideFromUser()) {
+				getMainTab().appendText(
+						bugWhoPEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
+
+			}
+		}
+
+		public void inform(BugWhoUEvent bugWhoIEvent) {
+			if (!bugWhoIEvent.isHideFromUser()) {
+				getMainTab().appendText(
+						bugWhoIEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
+
+			}
+		}
+
+		public void inform(ChallengeEvent challengeEvent) {
+			getMainTab().appendText(
+					challengeEvent.getText(),
+					getSimpleAttributes(getPreferences().getChatPreferences()
+							.getMatchTextProperties()));
+			if (preferences.getSpeechPreferences().isSpeakingNotifications()) {
+				SpeechManager.getInstance().getSpeech().speak("Challenge");
+			}
+
+			if (SpeechManager.getInstance().getSpeech() instanceof NoSpeechEnabled
+					|| !preferences.getSpeechPreferences().isSpeechEnabled()
+					|| !preferences.getSpeechPreferences()
+							.isSpeakingNotifications()) {
+				SoundManagerFactory.getInstance()
+						.playSound(SoundKeys.ALERT_KEY);
+			}
+
+		}
+
+		public void inform(ChannelTellEvent channeltellevent) {
+
+			String text = channeltellevent.getText();
+			AttributeSet attributes = getSimpleAttributes(getPreferences()
+					.getChatPreferences().getChannelProperties(
+							channeltellevent.getChannel()));
+
+			getMainTab().appendText(text, attributes);
+
+			ChatTab channelTab = getChannelTab(channeltellevent.getChannel());
+
+			if (channelTab != null) {
+				channelTab.appendText(text, attributes);
+			}
+
+		}
+
+		public void inform(ClosedEvent closedevent) {
+			getMainTab().appendText(
+					closedevent.getText(),
+					getSimpleAttributes(getPreferences().getChatPreferences()
+							.getDefaultTextProperties()));
+			setOpen(false);
+
+		}
+
+		public void inform(CShoutEvent cshoutevent) {
+
+			getMainTab().appendText(
+					cshoutevent.getText(),
+					getSimpleAttributes(getPreferences().getChatPreferences()
+							.getCshoutTextProperties()));
+		}
+
+		public void inform(FollowingEvent followingEvent) {
+			if (!followingEvent.isHideFromUser()) {
+				getMainTab().appendText(
+						followingEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
+
+			}
+		}
+
+		public void inform(IcsNonGameEvent event) {
+			getMainTab().appendText(
+					event.getText(),
+					getSimpleAttributes(getPreferences().getChatPreferences()
+							.getDefaultTextProperties()));
+		}
+
+		public void inform(KibitzEvent kibitzevent) {
+			if (!isExtendedCensor(kibitzevent.getKibitzer())) {
+				getMainTab()
+						.appendText(
+								kibitzevent.getText(),
+								getSimpleAttributes(getPreferences()
+										.getChatPreferences()
+										.getKibitzTextProperties()));
+
+				if (preferences.getBoardPreferences().isShowingGameCaptions()) {
+					GUIManager.getInstance().showCaption(
+							kibitzevent.getKibitzer(), kibitzevent.getText());
+				}
+			}
+		}
+
+		public void inform(MoveListEvent moveListEvent) {
+			if (!moveListEvent.isHideFromUser()) {
+				getMainTab().appendText(
+						moveListEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
+
+			}
+		}
+
+		public void inform(NotFollowingEvent notFollowingEvent) {
+			if (!notFollowingEvent.isHideFromUser()) {
+				getMainTab().appendText(
+						notFollowingEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
+
+			}
+		}
+
+		public void inform(NotificationEvent notificationEvent) {
+			getMainTab().appendText(
+					notificationEvent.getText(),
+					getSimpleAttributes(getPreferences().getChatPreferences()
+							.getNotificationTextProperties()));
+			if (preferences.getSpeechPreferences().isSpeakingNotifications()) {
+
+				String text = notificationEvent.getText();
+
+				int notIndex = text.indexOf("Notification:");
+
+				if (notIndex != -1) {
+					text = text.substring(notIndex + "Notification:".length(),
+							text.length());
+				}
+
+				SpeechManager.getInstance().getSpeech().speak(text);
+			}
+
+			if (SpeechManager.getInstance().getSpeech() instanceof NoSpeechEnabled
+					|| !preferences.getSpeechPreferences().isSpeechEnabled()
+					|| !preferences.getSpeechPreferences()
+							.isSpeakingNotifications()) {
+				SoundManagerFactory.getInstance()
+						.playSound(SoundKeys.ALERT_KEY);
+			}
+		}
+
+		public void inform(OpenEvent openevent) {
+			getMainTab().appendText(
+					openevent.getText(),
+					getSimpleAttributes(getPreferences().getChatPreferences()
+							.getDefaultTextProperties()));
+			setOpen(true);
+		}
+
+		public void inform(PartnershipCreatedEvent partnershipcreatedevent) {
+
+			try {
+				getMainTab().appendText(
+						partnershipcreatedevent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		public void inform(PartnershipEndedEvent partnershipendedevent) {
+			getMainTab().appendText(
+					partnershipendedevent.getText(),
+					getSimpleAttributes(getPreferences().getChatPreferences()
+							.getDefaultTextProperties()));
+			if (preferences.getSpeechPreferences().isSpeakingNotifications()) {
+				SpeechManager.getInstance().getSpeech().speak(
+						"Partnership ended");
+			}
+
+		}
+
+		public void inform(PartnerTellEvent partnertellevent) {
+			getMainTab().appendText(
+					partnertellevent.getText(),
+					getSimpleAttributes(getPreferences().getChatPreferences()
+							.getPtellTextProperties()));
+			if (preferences.getSpeechPreferences().isSpeakingPtells()) {
+				SpeechManager.getInstance().getSpeech().speak(
+						tellEventToSpeechString(partnertellevent));
+			}
+
+			if (preferences.getBughousePreferences().isShowingPartnerCaptions()) {
+				GUIManager.getInstance().showPartnerCaption(
+						partnertellevent.getText());
+			}
+
+			if (SpeechManager.getInstance().getSpeech() instanceof NoSpeechEnabled
+					|| !preferences.getSpeechPreferences().isSpeechEnabled()
+					|| !preferences.getSpeechPreferences().isSpeakingPtells()) {
+				SoundManagerFactory.getInstance().playSound(SoundKeys.CHAT_KEY);
+			}
+
+		}
+
+		public void inform(ShoutEvent shoutevent) {
+			if (!isExtendedCensor(shoutevent.getShouter())) {
+				getMainTab()
+						.appendText(
+								shoutevent.getText(),
+								getSimpleAttributes(getPreferences()
+										.getChatPreferences()
+										.getShoutTextProperties()));
+			}
+		}
+
+		public void inform(SoughtEvent soughtEvent) {
+			if (!soughtEvent.isHideFromUser()) {
+				getMainTab().appendText(
+						soughtEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getDefaultTextProperties()));
+
+			}
+		}
+
+		public void inform(TellEvent tellEvent) {
+			if (!isExtendedCensor(tellEvent.getSender())) {
+				getMainTab().appendText(
+						tellEvent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences().getTellTextProperties()));
+				if (preferences.getSpeechPreferences().isSpeakingTells()
+						&& tellEvent.getText().indexOf("http://") == -1) {
+					SpeechManager.getInstance().getSpeech().speak(
+							tellEventToSpeechString(tellEvent));
+				}
+
+				addLastTellSender(tellEvent.getSender());
+
+				LinkedList<String> previousTellList = previousTells
+						.get(tellEvent.getSender());
+				if (previousTellList == null) {
+					previousTellList = new LinkedList<String>();
+					previousTells.put(tellEvent.getSender(), previousTellList);
+				}
+
+				if (previousTellList.size() > MAX_PREVIOUS_TELLS) {
+					previousTellList.removeFirst();
+				}
+
+				previousTellList.addLast(tellEvent.getText());
+
+				if (preferences.getBoardPreferences().isShowingGameCaptions()) {
+					GUIManager.getInstance().showCaption(tellEvent.getSender(),
+							tellEvent.getText());
+				}
+
+				ChatTab conversationTab = getConversationTab(tellEvent
+						.getSender());
+				if (conversationTab != null) {
+					conversationTab.appendText(tellEvent.getText(),
+							getSimpleAttributes(getPreferences()
+									.getChatPreferences()
+									.getTellTextProperties()));
+				}
+
+				if (SpeechManager.getInstance().getSpeech() instanceof NoSpeechEnabled
+						|| !preferences.getSpeechPreferences()
+								.isSpeechEnabled()
+						|| !preferences.getSpeechPreferences()
+								.isSpeakingTells()) {
+					SoundManagerFactory.getInstance().playSound(
+							SoundKeys.CHAT_KEY);
+				}
+			} else {
+				EventService.getInstance().publish(
+						new OutboundEvent("tell "
+								+ ParserUtil
+										.removeTitles(tellEvent.getSender())
+								+ " You are on my extended censor list."));
+			}
+		}
+
+		public void inform(WhisperEvent whisperevent) {
+
+			if (!isExtendedCensor(whisperevent.getWhisperer())) {
+				getMainTab().appendText(
+						whisperevent.getText(),
+						getSimpleAttributes(getPreferences()
+								.getChatPreferences()
+								.getWhisperTextProperties()));
+
+				if (preferences.getBoardPreferences().isShowingGameCaptions()) {
+					GUIManager.getInstance()
+							.showCaption(whisperevent.getWhisperer(),
+									whisperevent.getText());
+				}
+			}
+		}
+	}
+
 	private Logger LOGGER = Logger.getLogger(ChatPanel.class);
 
 	private static final int MAX_PREVIOUS_TELLS = 20;
@@ -202,32 +685,110 @@ public class ChatPanel extends JPanel implements ActionListener,
 
 	private HashMap<String, LinkedList<String>> previousTells = new HashMap<String, LinkedList<String>>();
 
-	private class ExposedJTextField extends JTextField {
+	public ChatPanel(Preferences preferences) {
+		this.preferences = preferences;
+		initControls();
+		subscribe();
+	}
 
-		public void processKeyEvent(KeyEvent arg0) {
-			// TODO Auto-generated method stub
-			super.processKeyEvent(arg0);
+	public void actionPerformed(ActionEvent actionevent) {
+		String s = inputField.getText();
+		if (s == null) {
+			s = "";
+		}
+
+		EventService.getInstance().publish(new OutboundEvent(s));
+		inputField.setText("");
+		previousInput.add(s);
+		lastPreviousInputIndex = previousInput.size();
+
+		if (s.startsWith("t") || s.startsWith("tell")) {
+			StringTokenizer tok = new StringTokenizer(s, " ");
+			if (tok.hasMoreTokens()) {
+				tok.nextToken();
+				if (tok.hasMoreTokens()) {
+					final String personTold = tok.nextToken();
+					final ChatTab conversationTab = getConversationTab(personTold);
+					final String finalS = s;
+					if (conversationTab != null) {
+						ThreadManager.execute(new Runnable() {
+							public void run() {
+								conversationTab.appendText(finalS,
+										getSimpleAttributes(getPreferences()
+												.getChatPreferences()
+												.getDefaultTextProperties()));
+							}
+						});
+					}
+				}
+			}
+		}
+		lastTellsIndex = lastTells.size() - 1;
+		prependInputText();
+	}
+
+	public void addChannelTab(int channel) {
+		addChannelTab(channel, null);
+	}
+
+	public void addChannelTab(int channel, StringBuffer buffer) {
+		ChatTab newTab = new ChatTab(this, channel);
+		addTab(newTab);
+
+		if (buffer != null) {
+			AttributeSet attributes = getSimpleAttributes(getPreferences()
+					.getChatPreferences().getChannelProperties(channel));
+			getChannelTab(channel).appendText(buffer.toString(), attributes);
+		}
+	}
+
+	public void addConversationTab(String person, StringBuffer buffer) {
+		ChatTab newTab = new ChatTab(this, person);
+		addTab(newTab);
+
+		if (buffer != null) {
+			AttributeSet attributes = getSimpleAttributes(getPreferences()
+					.getChatPreferences().getTellTextProperties());
+
+			getConversationTab(person)
+					.appendText(buffer.toString(), attributes);
+		}
+	}
+
+	private void addLastTellSender(String name) {
+		synchronized (this) {
+			lastTells.remove(name);
+			if (lastTells.size() >= MAX_PREVIOUS_TELLS) {
+				lastTells.removeFirst();
+			}
+			lastTells.addLast(name);
+			lastTellsIndex = lastTells.size() - 1;
 		}
 
 	}
 
-	public List<String> getPreviousTells(String name) {
-		return previousTells.get(name);
-	}
+	public void addTab(ChatTab tab) {
 
-	private class ScrollLockActionListener implements ActionListener {
-
-		public void actionPerformed(ActionEvent actionevent) {
-			setAutoScrolling(!isAutoScrolling);
+		if (tabbedPane == null) {
+			setupSplitPaneMode();
 		}
 
-		private ScrollLockActionListener() {
+		int index = -1;
+		for (int i = 0; index == -1 && i < tabbedPane.getTabCount(); i++) {
+			if (getTabAt(i).isGreaterThan(tab)) {
+				index = i;
+			}
 		}
-	}
 
-	public void setAutoScrolling(boolean isAutoScrolling) {
-		this.isAutoScrolling = isAutoScrolling;
-		slEnabled.setSelected(isAutoScrolling);
+		if (index == -1) {
+			index = tabbedPane.getTabCount();
+		}
+
+		tabbedPane.add(tab, tab.getChannel() != -1 ? "" + tab.getChannel()
+				: tab.getTopic(), index);
+
+		GUIManager.getInstance().addKeyForwarder(tab);
+
 	}
 
 	public void dispose() {
@@ -249,18 +810,112 @@ public class ChatPanel extends JPanel implements ActionListener,
 		}
 	}
 
-	public void setFocusToInput() {
-		inputField.requestFocusInWindow();
+	public void forwardKeyEvent(KeyEvent keyEvent) {
+		inputField.setText(inputField.getText() + keyEvent.getKeyChar());
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				// For OSX Jaguar (unselect all text for some reason it selects
+				// it.)
+				inputField.select(inputField.getDocument().getLength(),
+						inputField.getDocument().getLength());
+			}
+		});
 	}
 
-	public ChatPanel(Preferences preferences) {
-		this.preferences = preferences;
-		initControls();
-		subscribe();
+	public ChatTab getChannelTab(int channel) {
+		if (isTabbingDisabled || tabbedPane == null) {
+			return null;
+		} else {
+			ChatTab result = null;
+			for (int i = 0; result == null
+					&& i < tabbedPane.getComponentCount(); i++) {
+				ChatTab current = getChatTab(i);
+
+				if (current.getChannel() == channel) {
+					result = current;
+				}
+			}
+			return result;
+		}
 	}
 
-	private void subscribe() {
-		subscriber = new TextReceivedEventSubscriber();
+	public ChatTab getChatTab(int index) {
+		if (isTabbingDisabled || tabbedPane == null) {
+			return mainTab;
+		} else {
+			return (ChatTab) tabbedPane.getComponentAt(index);
+		}
+	}
+
+	public ChatTab getConversationTab(String person) {
+		if (isTabbingDisabled || tabbedPane == null) {
+			return null;
+		} else if (person != null) {
+			ChatTab result = null;
+			for (int i = 1; result == null
+					&& i < tabbedPane.getComponentCount(); i++) {
+				ChatTab current = getChatTab(i);
+
+				if (current.getTopic() != null
+						&& current.getTopic().equalsIgnoreCase(person)) {
+					result = current;
+				}
+			}
+			return result;
+		} else {
+			return null;
+		}
+
+	}
+
+	public ChatTab getCurrentTab() {
+		if (isTabbingDisabled || tabbedPane == null) {
+			return mainTab;
+		} else {
+			return (ChatTab) tabbedPane.getSelectedComponent();
+		}
+	}
+
+	public JTextField getInputField() {
+		return inputField;
+	}
+
+	public ChatTab getMainTab() {
+		return mainTab;
+	}
+
+	public Preferences getPreferences() {
+		return preferences;
+	}
+
+	public List<String> getPreviousTells(String name) {
+		return previousTells.get(name);
+	}
+
+	public SimpleAttributeSet getSimpleAttributes(TextProperties properties) {
+		SimpleAttributeSet result = textPrefsToAttributesCache.get(properties);
+
+		if (result == null) {
+			result = new SimpleAttributeSet();
+			StyleConstants.setBackground(result, getPreferences()
+					.getChatPreferences().getTelnetPanelBackground());
+			StyleConstants.setFontSize(result, properties.getFont().getSize());
+			StyleConstants.setFontFamily(result, properties.getFont()
+					.getFamily());
+			StyleConstants.setForeground(result, properties.getForeground());
+			textPrefsToAttributesCache.put(properties, result);
+		}
+
+		return result;
+	}
+
+	public ChatTab getTabAt(int index) {
+		if (isTabbingDisabled || tabbedPane == null) {
+			return mainTab;
+		} else {
+			return (ChatTab) tabbedPane.getComponentAt(index);
+		}
 	}
 
 	private void initControls() {
@@ -406,108 +1061,32 @@ public class ChatPanel extends JPanel implements ActionListener,
 		setBugOpen(false);
 	}
 
-	public void setupMainConsoleMode() {
-		remove(tabSplitPane);
-		add(mainTab, BorderLayout.CENTER);
-		tabSplitPane.removeAll();
-		tabbedPane.removeAll();
-		revalidate();
-		removeTabButton.setVisible(false);
-		removeTabButton.setEnabled(false);
-		prependTellText.setVisible(false);
-		prependTellText.setEnabled(false);
-		tabSplitPane.removeAll();
-		tabSplitPane = null;
-		tabbedPane = null;
-	}
-
-	public void setupSplitPaneMode() {
-
-		if (!isTabbingDisabled) {
-			tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
-
-			tabbedPane.setTabPlacement(preferences.getChatPreferences()
-					.getTabOrientation());
-
-			tabbedPane.addChangeListener(new ChangeListener() {
-				public void stateChanged(ChangeEvent e) {
-					if (getCurrentTab() != null)
-					{
-						getCurrentTab().activate();
-						prependInputText();
-					}
-
+	private void inputFieldKeyTyped(KeyEvent keyEvent) {
+		int keyCode = keyEvent.getKeyCode();
+		if (!keyMapper.process(keyEvent)) {
+			if (keyEvent.getKeyCode() == 38 && lastPreviousInputIndex > 0) {
+				lastPreviousInputIndex--;
+				inputField.setText(""
+						+ previousInput.get(lastPreviousInputIndex));
+			} else if (keyEvent.getKeyCode() == 40) {
+				if (lastPreviousInputIndex < previousInput.size() - 1) {
+					lastPreviousInputIndex++;
+					inputField.setText(""
+							+ previousInput.get(lastPreviousInputIndex));
+				} else {
+					lastPreviousInputIndex = previousInput.size();
+					inputField.setText("");
 				}
-			});
-
-			tabSplitPane = new JSplitPane();
-			tabSplitPane.setDividerLocation((getHeight() - 100) / 2);
-			tabSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			tabSplitPane.setTopComponent(mainTab);
-			tabSplitPane.setBottomComponent(tabbedPane);
-
-			removeTabButton.setVisible(true);
-			removeTabButton.setEnabled(true);
-			prependTellText.setEnabled(true);
-			prependTellText.setVisible(true);
-
-			remove(mainTab);
-			add(tabSplitPane, BorderLayout.CENTER);
-			revalidate();
-			
-			if (isAutoScrolling())
-			{
-				mainTab.setScrollBarToMax();
-			}
-		}
-	}
-
-	public ChatTab getCurrentTab() {
-		if (isTabbingDisabled || tabbedPane == null) {
-			return mainTab;
-		} else {
-			return (ChatTab) tabbedPane.getSelectedComponent();
-		}
-	}
-
-	public ChatTab getMainTab() {
-		return mainTab;
-	}
-
-	public ChatTab getTabAt(int index) {
-		if (isTabbingDisabled || tabbedPane == null) {
-			return mainTab;
-		} else {
-			return (ChatTab) tabbedPane.getComponentAt(index);
-		}
-	}
-
-	public ChatTab getConversationTab(String person) {
-		if (isTabbingDisabled || tabbedPane == null) {
-			return null;
-		} else if (person != null) {
-			ChatTab result = null;
-			for (int i = 1; result == null
-					&& i < tabbedPane.getComponentCount(); i++) {
-				ChatTab current = getChatTab(i);
-
-				if (current.getTopic() != null
-						&& current.getTopic().equalsIgnoreCase(person)) {
-					result = current;
+			} else if (keyCode == KeyEvent.VK_ESCAPE) {
+				if (inputField.getText().equals("")) {
+					prependInputText();
+				} else {
+					inputField.setText("");
 				}
+				GUIManager.getInstance().clearPremove();
+			} else if (keyCode == KeyEvent.VK_SCROLL_LOCK) {
+				setAutoScrolling(!isAutoScrolling());
 			}
-			return result;
-		} else {
-			return null;
-		}
-
-	}
-
-	public ChatTab getChatTab(int index) {
-		if (isTabbingDisabled || tabbedPane == null) {
-			return mainTab;
-		} else {
-			return (ChatTab) tabbedPane.getComponentAt(index);
 		}
 	}
 
@@ -521,25 +1100,31 @@ public class ChatPanel extends JPanel implements ActionListener,
 		}
 	}
 
-	public ChatTab getChannelTab(int channel) {
-		if (isTabbingDisabled || tabbedPane == null) {
-			return null;
-		} else {
-			ChatTab result = null;
-			for (int i = 0; result == null
-					&& i < tabbedPane.getComponentCount(); i++) {
-				ChatTab current = getChatTab(i);
-
-				if (current.getChannel() == channel) {
-					result = current;
-				}
-			}
-			return result;
-		}
+	public boolean isAutoScrolling() {
+		return isAutoScrolling;
 	}
 
-	public void setScrollBarToMax() {
-		getCurrentTab().setScrollBarToMax();
+	private boolean isEndOrHome(int keyCode) {
+		return keyCode == KeyEvent.VK_HOME || keyCode == KeyEvent.VK_END;
+	}
+
+	public boolean isExtendedCensor(String name) {
+		return ExtendedListUtil.contains(ExtendedListUtil.ExtendedList.CENSOR,
+				ParserUtil.removeTitles(name));
+	}
+
+	public boolean isInputLineOnTop() {
+		return isInputLineOnTop;
+	}
+
+	private boolean isPageUpOrDown(int keyCode) {
+		return keyCode == KeyEvent.VK_PAGE_DOWN
+				|| keyCode == KeyEvent.VK_PAGE_UP;
+	}
+
+	public void lostOwnership(Clipboard arg0, Transferable arg1) {
+		// TODO Auto-generated method stub
+
 	}
 
 	private void prependInputText() {
@@ -560,6 +1145,123 @@ public class ChatPanel extends JPanel implements ActionListener,
 				inputField.setCaretPosition(0);
 			}
 		}
+	}
+
+	public void removeMessagesPending(ChatTab tab) {
+		synchronized (this) {
+			for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+				if (getTabAt(i) == tab) {
+					if (tabbedPane.getTitleAt(i).startsWith("*")) {
+						String title = tabbedPane.getTitleAt(i);
+						title = title.substring(1, title.length() - 1);
+						tabbedPane.setTitleAt(i, title);
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	public void removeTab(ChatTab tab) {
+		synchronized (this) {
+			for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+				if (getTabAt(i) == tab) {
+					tabbedPane.removeTabAt(i);
+				}
+			}
+		}
+
+		if (tabbedPane.getComponentCount() == 0) {
+			setupMainConsoleMode();
+		}
+	}
+
+	public void requestFocus() {
+		super.requestFocus();
+		inputField.requestFocus();
+	}
+
+	public void setAutoScrolling(boolean isAutoScrolling) {
+		this.isAutoScrolling = isAutoScrolling;
+		slEnabled.setSelected(isAutoScrolling);
+	}
+
+	public void setBugOpen(boolean isBugOpen) {
+		if (this.isBugOpen != isBugOpen) {
+			this.isBugOpen = isBugOpen;
+			bugOpenEnabled.setSelected(isBugOpen);
+		}
+	}
+
+	public void setFocusToInput() {
+		inputField.requestFocusInWindow();
+	}
+
+	public void setFont(Font font) {
+		super.setFont(font);
+	}
+
+	public void setInputField(ExposedJTextField inputField) {
+		this.inputField = inputField;
+	}
+
+	private void setInputProperties(TextProperties textProperties) {
+		inputPrompt.setFont(textProperties.getFont());
+		inputField.setFont(textProperties.getFont());
+		inputField.setForeground(textProperties.getForeground());
+		inputField.setBackground(textProperties.getBackground());
+
+	}
+
+	public void setMessagesPending(ChatTab tab) {
+		synchronized (this) {
+			for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+				if (getTabAt(i) == tab) {
+					if (!tabbedPane.getTitleAt(i).startsWith("*")) {
+						String title = tabbedPane.getTitleAt(i);
+						title = "*" + title + "*";
+						tabbedPane.setTitleAt(i, title);
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	public void setOpen(boolean isOpen) {
+		if (this.isOpen != isOpen) {
+			this.isOpen = isOpen;
+			openEnabled.setSelected(isOpen);
+		}
+	}
+
+	public void setPreferences(Preferences preferences) {
+		synchronized (this) {
+			this.preferences = preferences;
+
+			pingLabel.setPreferences(preferences);
+			textPrefsToAttributesCache.clear();
+
+			if (tabbedPane != null) {
+				tabbedPane.setTabPlacement(preferences.getChatPreferences()
+						.getTabOrientation());
+			}
+
+			for (Integer integer : preferences.getChatPreferences()
+					.getChannelTabs()) {
+				if (getChannelTab(integer) == null) {
+					addChannelTab(integer);
+				}
+			}
+
+			if (lastSeekFrame != null) {
+				lastSeekFrame.setPreferences(preferences);
+			}
+		}
+	}
+
+	public void setScrollBarToMax() {
+		getCurrentTab().setScrollBarToMax();
 	}
 
 	private void setupInputPanelLayout() {
@@ -603,798 +1305,62 @@ public class ChatPanel extends JPanel implements ActionListener,
 		inputPanel.add(pingLabel, constraints);
 	}
 
-	private void setInputProperties(TextProperties textProperties) {
-		inputPrompt.setFont(textProperties.getFont());
-		inputField.setFont(textProperties.getFont());
-		inputField.setForeground(textProperties.getForeground());
-		inputField.setBackground(textProperties.getBackground());
-
+	public void setupMainConsoleMode() {
+		remove(tabSplitPane);
+		add(mainTab, BorderLayout.CENTER);
+		tabSplitPane.removeAll();
+		tabbedPane.removeAll();
+		revalidate();
+		removeTabButton.setVisible(false);
+		removeTabButton.setEnabled(false);
+		prependTellText.setVisible(false);
+		prependTellText.setEnabled(false);
+		tabSplitPane.removeAll();
+		tabSplitPane = null;
+		tabbedPane = null;
 	}
 
-	public void setPreferences(Preferences preferences) {
-		synchronized (this) {
-			this.preferences = preferences;
+	public void setupSplitPaneMode() {
 
-			pingLabel.setPreferences(preferences);
-			textPrefsToAttributesCache.clear();
+		if (!isTabbingDisabled) {
+			tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
 
-			if (tabbedPane != null) {
-				tabbedPane.setTabPlacement(preferences.getChatPreferences()
-						.getTabOrientation());
-			}
+			tabbedPane.setTabPlacement(preferences.getChatPreferences()
+					.getTabOrientation());
 
-			for (Integer integer : preferences.getChatPreferences()
-					.getChannelTabs()) {
-				if (getChannelTab(integer) == null) {
-					addChannelTab(integer);
-				}
-			}
-
-			if (lastSeekFrame != null) {
-				lastSeekFrame.setPreferences(preferences);
-			}
-		}
-	}
-
-	public void removeTab(ChatTab tab) {
-		synchronized (this) {
-			for (int i = 0; i < tabbedPane.getTabCount(); i++) {
-				if (getTabAt(i) == tab) {
-					tabbedPane.removeTabAt(i);
-				}
-			}
-		}
-
-		if (tabbedPane.getComponentCount() == 0) {
-			setupMainConsoleMode();
-		}
-	}
-
-	public void addChannelTab(int channel) {
-		addChannelTab(channel, null);
-	}
-
-	public void addConversationTab(String person, StringBuffer buffer) {
-		ChatTab newTab = new ChatTab(this, person);
-		addTab(newTab);
-
-		if (buffer != null) {
-			AttributeSet attributes = getSimpleAttributes(getPreferences()
-					.getChatPreferences().getTellTextProperties());
-
-			getConversationTab(person)
-					.appendText(buffer.toString(), attributes);
-		}
-	}
-
-	public void addChannelTab(int channel, StringBuffer buffer) {
-		ChatTab newTab = new ChatTab(this, channel);
-		addTab(newTab);
-
-		if (buffer != null) {
-			AttributeSet attributes = getSimpleAttributes(getPreferences()
-					.getChatPreferences().getChannelProperties(channel));
-			getChannelTab(channel).appendText(buffer.toString(), attributes);
-		}
-	}
-
-	public void addTab(ChatTab tab) {
-
-		if (tabbedPane == null) {
-			setupSplitPaneMode();
-		}
-
-		int index = -1;
-		for (int i = 0; index == -1 && i < tabbedPane.getTabCount(); i++) {
-			if (getTabAt(i).isGreaterThan(tab)) {
-				index = i;
-			}
-		}
-
-		if (index == -1) {
-			index = tabbedPane.getTabCount();
-		}
-
-		tabbedPane.add(tab, tab.getChannel() != -1 ? "" + tab.getChannel()
-				: tab.getTopic(), index);
-
-		GUIManager.getInstance().addKeyForwarder(tab);
-
-	}
-
-	public void setMessagesPending(ChatTab tab) {
-		synchronized (this) {
-			for (int i = 0; i < tabbedPane.getTabCount(); i++) {
-				if (getTabAt(i) == tab) {
-					if (!tabbedPane.getTitleAt(i).startsWith("*")) {
-						String title = tabbedPane.getTitleAt(i);
-						title = "*" + title + "*";
-						tabbedPane.setTitleAt(i, title);
-						break;
+			tabbedPane.addChangeListener(new ChangeListener() {
+				public void stateChanged(ChangeEvent e) {
+					if (getCurrentTab() != null) {
+						getCurrentTab().activate();
+						prependInputText();
 					}
+
 				}
+			});
+
+			tabSplitPane = new JSplitPane();
+			tabSplitPane.setDividerLocation((getHeight() - 100) / 2);
+			tabSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+			tabSplitPane.setTopComponent(mainTab);
+			tabSplitPane.setBottomComponent(tabbedPane);
+
+			removeTabButton.setVisible(true);
+			removeTabButton.setEnabled(true);
+			prependTellText.setEnabled(true);
+			prependTellText.setVisible(true);
+
+			remove(mainTab);
+			add(tabSplitPane, BorderLayout.CENTER);
+			revalidate();
+
+			if (isAutoScrolling()) {
+				mainTab.setScrollBarToMax();
 			}
 		}
 	}
 
-	public void removeMessagesPending(ChatTab tab) {
-		synchronized (this) {
-			for (int i = 0; i < tabbedPane.getTabCount(); i++) {
-				if (getTabAt(i) == tab) {
-					if (tabbedPane.getTitleAt(i).startsWith("*")) {
-						String title = tabbedPane.getTitleAt(i);
-						title = title.substring(1, title.length() - 1);
-						tabbedPane.setTitleAt(i, title);
-						break;
-					}
-				}
-			}
-		}
-	}
-
-	public boolean isExtendedCensor(String name) {
-		return ExtendedListUtil.contains(ExtendedListUtil.ExtendedList.CENSOR,
-				ParserUtil.removeTitles(name));
-	}
-
-	public Preferences getPreferences() {
-		return preferences;
-	}
-
-	public boolean isAutoScrolling() {
-		return isAutoScrolling;
-	}
-
-	public void setOpen(boolean isOpen) {
-		if (this.isOpen != isOpen) {
-			this.isOpen = isOpen;
-			openEnabled.setSelected(isOpen);
-		}
-	}
-
-	public void setBugOpen(boolean isBugOpen) {
-		if (this.isBugOpen != isBugOpen) {
-			this.isBugOpen = isBugOpen;
-			bugOpenEnabled.setSelected(isBugOpen);
-		}
-	}
-
-	public void setFont(Font font) {
-		super.setFont(font);
-	}
-
-	public void actionPerformed(ActionEvent actionevent) {
-		String s = inputField.getText();
-		if (s == null) {
-			s = "";
-		}
-
-		EventService.getInstance().publish(new OutboundEvent(s));
-		inputField.setText("");
-		previousInput.add(s);
-		lastPreviousInputIndex = previousInput.size();
-
-		if (s.startsWith("t") || s.startsWith("tell")) {
-			StringTokenizer tok = new StringTokenizer(s, " ");
-			if (tok.hasMoreTokens()) {
-				tok.nextToken();
-				if (tok.hasMoreTokens()) {
-					final String personTold = tok.nextToken();
-					final ChatTab conversationTab = getConversationTab(personTold);
-					final String finalS = s;
-					if (conversationTab != null) {
-						ThreadManager.execute(new Runnable() {
-							public void run() {
-								conversationTab.appendText(finalS,
-										getSimpleAttributes(getPreferences()
-												.getChatPreferences()
-												.getDefaultTextProperties()));
-							}
-						});
-					}
-				}
-			}
-		}
-		lastTellsIndex = lastTells.size() - 1;
-		prependInputText();
-	}
-
-	public boolean isInputLineOnTop() {
-		return isInputLineOnTop;
-	}
-
-	public void requestFocus() {
-		super.requestFocus();
-		inputField.requestFocus();
-	}
-
-	public void tellLast() {
-		if (!lastTells.isEmpty()) {
-			String lastTell = lastTells.get(lastTellsIndex);
-			if (lastTell != null) {
-				inputField.setText("tell " + lastTell + " ");
-
-				synchronized (this) {
-					if (lastTellsIndex != 0) {
-						lastTellsIndex--;
-					} else {
-						lastTellsIndex = lastTells.size() - 1;
-					}
-				}
-			}
-		}
-	}
-
-	private void addLastTellSender(String name) {
-		synchronized (this) {
-			lastTells.remove(name);
-			if (lastTells.size() >= MAX_PREVIOUS_TELLS) {
-				lastTells.removeFirst();
-			}
-			lastTells.addLast(name);
-			lastTellsIndex = lastTells.size() - 1;
-		}
-
-	}
-
-	public SimpleAttributeSet getSimpleAttributes(TextProperties properties) {
-		SimpleAttributeSet result = textPrefsToAttributesCache.get(properties);
-
-		if (result == null) {
-			result = new SimpleAttributeSet();
-			StyleConstants.setBackground(result, getPreferences()
-					.getChatPreferences().getTelnetPanelBackground());
-			StyleConstants.setFontSize(result, properties.getFont().getSize());
-			StyleConstants.setFontFamily(result, properties.getFont()
-					.getFamily());
-			StyleConstants.setForeground(result, properties.getForeground());
-			textPrefsToAttributesCache.put(properties, result);
-		}
-
-		return result;
-	}
-
-	public class TextReceivedEventSubscriber implements Subscriber, Filter {
-
-		public TextReceivedEventSubscriber() {
-			EventService.getInstance().subscribe(
-					new Subscription(IcsNonGameEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(OpenEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(ClosedEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(BugOpenEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(BugClosedEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(CShoutEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(ChannelTellEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(KibitzEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(WhisperEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(PartnerTellEvent.class, this, this));
-			EventService.getInstance()
-					.subscribe(
-							new Subscription(PartnershipCreatedEvent.class,
-									this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(ChallengeEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(NotificationEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(PartnershipEndedEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(ShoutEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(TellEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(SoughtEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(BugWhoPEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(BugWhoUEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(BugWhoGEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(MoveListEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(FollowingEvent.class, this, this));
-			EventService.getInstance().subscribe(
-					new Subscription(NotFollowingEvent.class, this, this));
-
-		}
-
-		public boolean apply(Event event) {
-			return true;
-		}
-
-		public void inform(IcsNonGameEvent event) {
-			getMainTab().appendText(
-					event.getText(),
-					getSimpleAttributes(getPreferences().getChatPreferences()
-							.getDefaultTextProperties()));
-		}
-
-		public void inform(OpenEvent openevent) {
-			getMainTab().appendText(
-					openevent.getText(),
-					getSimpleAttributes(getPreferences().getChatPreferences()
-							.getDefaultTextProperties()));
-			setOpen(true);
-		}
-
-		public void inform(ClosedEvent closedevent) {
-			getMainTab().appendText(
-					closedevent.getText(),
-					getSimpleAttributes(getPreferences().getChatPreferences()
-							.getDefaultTextProperties()));
-			setOpen(false);
-
-		}
-
-		public void inform(BugOpenEvent bugopenevent) {
-			getMainTab().appendText(
-					bugopenevent.getText(),
-					getSimpleAttributes(getPreferences().getChatPreferences()
-							.getDefaultTextProperties()));
-			setBugOpen(true);
-
-		}
-
-		public void inform(BugClosedEvent bugclosedevent) {
-			getMainTab().appendText(
-					bugclosedevent.getText(),
-					getSimpleAttributes(getPreferences().getChatPreferences()
-							.getDefaultTextProperties()));
-			setBugOpen(false);
-
-		}
-
-		public void inform(CShoutEvent cshoutevent) {
-
-			getMainTab().appendText(
-					cshoutevent.getText(),
-					getSimpleAttributes(getPreferences().getChatPreferences()
-							.getCshoutTextProperties()));
-		}
-
-		public void inform(ChannelTellEvent channeltellevent) {
-
-			String text = channeltellevent.getText();
-			AttributeSet attributes = getSimpleAttributes(getPreferences()
-					.getChatPreferences().getChannelProperties(
-							channeltellevent.getChannel()));
-
-			getMainTab().appendText(text, attributes);
-
-			ChatTab channelTab = getChannelTab(channeltellevent.getChannel());
-
-			if (channelTab != null) {
-				channelTab.appendText(text, attributes);
-			}
-
-		}
-
-		public void inform(KibitzEvent kibitzevent) {
-			if (!isExtendedCensor(kibitzevent.getKibitzer())) {
-				getMainTab()
-						.appendText(
-								kibitzevent.getText(),
-								getSimpleAttributes(getPreferences()
-										.getChatPreferences()
-										.getKibitzTextProperties()));
-
-				if (preferences.getBoardPreferences().isShowingGameCaptions()) {
-					GUIManager.getInstance().showCaption(
-							kibitzevent.getKibitzer(), kibitzevent.getText());
-				}
-			}
-		}
-
-		public void inform(WhisperEvent whisperevent) {
-
-			if (!isExtendedCensor(whisperevent.getWhisperer())) {
-				getMainTab().appendText(
-						whisperevent.getText(),
-						getSimpleAttributes(getPreferences()
-								.getChatPreferences()
-								.getWhisperTextProperties()));
-
-				if (preferences.getBoardPreferences().isShowingGameCaptions()) {
-					GUIManager.getInstance()
-							.showCaption(whisperevent.getWhisperer(),
-									whisperevent.getText());
-				}
-			}
-		}
-
-		public void inform(PartnerTellEvent partnertellevent) {
-			getMainTab().appendText(
-					partnertellevent.getText(),
-					getSimpleAttributes(getPreferences().getChatPreferences()
-							.getPtellTextProperties()));
-			if (preferences.getSpeechPreferences().isSpeakingPtells()) {
-				SpeechManager.getInstance().getSpeech().speak(
-						tellEventToSpeechString(partnertellevent));
-			}
-
-			if (preferences.getBughousePreferences().isShowingPartnerCaptions()) {
-				GUIManager.getInstance().showPartnerCaption(
-						partnertellevent.getText());
-			}
-
-			if (SpeechManager.getInstance().getSpeech() instanceof NoSpeechEnabled
-					|| !preferences.getSpeechPreferences().isSpeechEnabled()
-					|| !preferences.getSpeechPreferences().isSpeakingPtells()) {
-				SoundManagerFactory.getInstance().playSound(SoundKeys.CHAT_KEY);
-			}
-
-		}
-
-		public void inform(PartnershipCreatedEvent partnershipcreatedevent) {
-
-			try {
-				getMainTab().appendText(
-						partnershipcreatedevent.getText(),
-						getSimpleAttributes(getPreferences()
-								.getChatPreferences()
-								.getDefaultTextProperties()));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		public void inform(PartnershipEndedEvent partnershipendedevent) {
-			getMainTab().appendText(
-					partnershipendedevent.getText(),
-					getSimpleAttributes(getPreferences().getChatPreferences()
-							.getDefaultTextProperties()));
-			if (preferences.getSpeechPreferences().isSpeakingNotifications()) {
-				SpeechManager.getInstance().getSpeech().speak(
-						"Partnership ended");
-			}
-
-		}
-
-		public void inform(ShoutEvent shoutevent) {
-			if (!isExtendedCensor(shoutevent.getShouter())) {
-				getMainTab()
-						.appendText(
-								shoutevent.getText(),
-								getSimpleAttributes(getPreferences()
-										.getChatPreferences()
-										.getShoutTextProperties()));
-			}
-		}
-
-		public void inform(TellEvent tellEvent) {
-			if (!isExtendedCensor(tellEvent.getSender())) {
-				getMainTab().appendText(
-						tellEvent.getText(),
-						getSimpleAttributes(getPreferences()
-								.getChatPreferences().getTellTextProperties()));
-				if (preferences.getSpeechPreferences().isSpeakingTells()
-						&& tellEvent.getText().indexOf("http://") == -1) {
-					SpeechManager.getInstance().getSpeech().speak(
-							tellEventToSpeechString(tellEvent));
-				}
-
-				addLastTellSender(tellEvent.getSender());
-
-				LinkedList<String> previousTellList = previousTells
-						.get(tellEvent.getSender());
-				if (previousTellList == null) {
-					previousTellList = new LinkedList<String>();
-					previousTells.put(tellEvent.getSender(), previousTellList);
-				}
-
-				if (previousTellList.size() > MAX_PREVIOUS_TELLS) {
-					previousTellList.removeFirst();
-				}
-
-				previousTellList.addLast(tellEvent.getText());
-
-				if (preferences.getBoardPreferences().isShowingGameCaptions()) {
-					GUIManager.getInstance().showCaption(tellEvent.getSender(),
-							tellEvent.getText());
-				}
-
-				ChatTab conversationTab = getConversationTab(tellEvent
-						.getSender());
-				if (conversationTab != null) {
-					conversationTab.appendText(tellEvent.getText(),
-							getSimpleAttributes(getPreferences()
-									.getChatPreferences()
-									.getTellTextProperties()));
-				}
-
-				if (SpeechManager.getInstance().getSpeech() instanceof NoSpeechEnabled
-						|| !preferences.getSpeechPreferences()
-								.isSpeechEnabled()
-						|| !preferences.getSpeechPreferences()
-								.isSpeakingTells()) {
-					SoundManagerFactory.getInstance().playSound(
-							SoundKeys.CHAT_KEY);
-				}
-			} else {
-				EventService.getInstance().publish(
-						new OutboundEvent("tell "
-								+ ParserUtil
-										.removeTitles(tellEvent.getSender())
-								+ " You are on my extended censor list."));
-			}
-		}
-
-		public void inform(NotificationEvent notificationEvent) {
-			getMainTab().appendText(
-					notificationEvent.getText(),
-					getSimpleAttributes(getPreferences().getChatPreferences()
-							.getNotificationTextProperties()));
-			if (preferences.getSpeechPreferences().isSpeakingNotifications()) {
-
-				String text = notificationEvent.getText();
-
-				int notIndex = text.indexOf("Notification:");
-
-				if (notIndex != -1) {
-					text = text.substring(notIndex + "Notification:".length(),
-							text.length());
-				}
-
-				SpeechManager.getInstance().getSpeech().speak(text);
-			}
-
-			if (SpeechManager.getInstance().getSpeech() instanceof NoSpeechEnabled
-					|| !preferences.getSpeechPreferences().isSpeechEnabled()
-					|| !preferences.getSpeechPreferences()
-							.isSpeakingNotifications()) {
-				SoundManagerFactory.getInstance()
-						.playSound(SoundKeys.ALERT_KEY);
-			}
-		}
-
-		public void inform(ChallengeEvent challengeEvent) {
-			getMainTab().appendText(
-					challengeEvent.getText(),
-					getSimpleAttributes(getPreferences().getChatPreferences()
-							.getMatchTextProperties()));
-			if (preferences.getSpeechPreferences().isSpeakingNotifications()) {
-				SpeechManager.getInstance().getSpeech().speak("Challenge");
-			}
-
-			if (SpeechManager.getInstance().getSpeech() instanceof NoSpeechEnabled
-					|| !preferences.getSpeechPreferences().isSpeechEnabled()
-					|| !preferences.getSpeechPreferences()
-							.isSpeakingNotifications()) {
-				SoundManagerFactory.getInstance()
-						.playSound(SoundKeys.ALERT_KEY);
-			}
-
-		}
-
-		public void inform(SoughtEvent soughtEvent) {
-			if (!soughtEvent.isHideFromUser()) {
-				getMainTab().appendText(
-						soughtEvent.getText(),
-						getSimpleAttributes(getPreferences()
-								.getChatPreferences()
-								.getDefaultTextProperties()));
-
-			}
-		}
-
-		public void inform(BugWhoPEvent bugWhoPEvent) {
-			if (!bugWhoPEvent.isHideFromUser()) {
-				getMainTab().appendText(
-						bugWhoPEvent.getText(),
-						getSimpleAttributes(getPreferences()
-								.getChatPreferences()
-								.getDefaultTextProperties()));
-
-			}
-		}
-
-		public void inform(BugWhoUEvent bugWhoIEvent) {
-			if (!bugWhoIEvent.isHideFromUser()) {
-				getMainTab().appendText(
-						bugWhoIEvent.getText(),
-						getSimpleAttributes(getPreferences()
-								.getChatPreferences()
-								.getDefaultTextProperties()));
-
-			}
-		}
-
-		public void inform(BugWhoGEvent bugWhoGEvent) {
-			if (!bugWhoGEvent.isHideFromUser()) {
-				getMainTab().appendText(
-						bugWhoGEvent.getText(),
-						getSimpleAttributes(getPreferences()
-								.getChatPreferences()
-								.getDefaultTextProperties()));
-
-			}
-		}
-
-		public void inform(MoveListEvent moveListEvent) {
-			if (!moveListEvent.isHideFromUser()) {
-				getMainTab().appendText(
-						moveListEvent.getText(),
-						getSimpleAttributes(getPreferences()
-								.getChatPreferences()
-								.getDefaultTextProperties()));
-
-			}
-		}
-
-		
-		public void inform(NotFollowingEvent notFollowingEvent) {
-			if (!notFollowingEvent.isHideFromUser()) {
-				getMainTab().appendText(
-						notFollowingEvent.getText(),
-						getSimpleAttributes(getPreferences()
-								.getChatPreferences()
-								.getDefaultTextProperties()));
-
-			}
-		}
-
-		public void inform(FollowingEvent followingEvent) {
-			if (!followingEvent.isHideFromUser()) {
-				getMainTab().appendText(
-						followingEvent.getText(),
-						getSimpleAttributes(getPreferences()
-								.getChatPreferences()
-								.getDefaultTextProperties()));
-
-			}
-		}
-	}
-
-	private class BugOpenActionListener implements ActionListener {
-
-		public void actionPerformed(ActionEvent actionevent) {
-			EventService.getInstance().publish(
-					new BugOpenRequestEvent(!isBugOpen, true));
-		}
-
-		private BugOpenActionListener() {
-		}
-
-	}
-
-	private class OpenActionListener implements ActionListener {
-
-		public void actionPerformed(ActionEvent actionevent) {
-			EventService.getInstance().publish(
-					new OpenRequestEvent(!isOpen, true));
-		}
-
-		private OpenActionListener() {
-		}
-
-	}
-
-	private class ShowBughActionListener implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			if (lastBugSeekFrame != null && lastBugSeekFrame.isVisible()) {
-				lastBugSeekFrame.toFront();
-			} else {
-				lastBugSeekFrame = new BugSeekFrame();
-				GUIManager.getInstance().addKeyForwarder(lastBugSeekFrame);
-				lastBugSeekFrame.setVisible(true);
-			}
-		}
-
-	}
-
-	private class ShowSeekGraphActionListener implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			if (lastSeekFrame != null && lastSeekFrame.isVisible()) {
-				lastSeekFrame.toFront();
-			} else {
-				lastSeekFrame = new SeekFrame();
-				GUIManager.getInstance().addKeyForwarder(lastSeekFrame);
-				lastSeekFrame.setVisible(true);
-			}
-		}
-
-	}
-
-	/**
-	 * Handles up and down input history. Also handles setting focus to text
-	 * pane if a page up or page down is pressed.
-	 */
-	private class InputFieldKeyHistoryListener extends KeyAdapter {
-
-		public void keyPressed(KeyEvent keyEvent) {
-			inputFieldKeyTyped(keyEvent);
-
-		}
-	}
-
-	private boolean isPageUpOrDown(int keyCode) {
-		return keyCode == KeyEvent.VK_PAGE_DOWN
-				|| keyCode == KeyEvent.VK_PAGE_UP;
-	}
-
-	private boolean isEndOrHome(int keyCode) {
-		return keyCode == KeyEvent.VK_HOME || keyCode == KeyEvent.VK_END;
-	}
-
-	private void inputFieldKeyTyped(KeyEvent keyEvent) {
-		int keyCode = keyEvent.getKeyCode();
-		if (!keyMapper.process(keyEvent)) {
-			if (keyEvent.getKeyCode() == 38 && lastPreviousInputIndex > 0) {
-				lastPreviousInputIndex--;
-				inputField.setText(""
-						+ previousInput.get(lastPreviousInputIndex));
-			} else if (keyEvent.getKeyCode() == 40) {
-				if (lastPreviousInputIndex < previousInput.size() - 1) {
-					lastPreviousInputIndex++;
-					inputField.setText(""
-							+ previousInput.get(lastPreviousInputIndex));
-				} else {
-					lastPreviousInputIndex = previousInput.size();
-					inputField.setText("");
-				}
-			} else if (keyCode == KeyEvent.VK_ESCAPE) {
-				if (inputField.getText().equals("")) {
-					prependInputText();
-				} else {
-					inputField.setText("");
-				}
-				GUIManager.getInstance().clearPremove();
-			} else if (keyCode == KeyEvent.VK_SCROLL_LOCK) {
-				setAutoScrolling(!isAutoScrolling());
-			}
-		}
-	}
-
-	public JTextField getInputField() {
-		return inputField;
-	}
-
-	public void setInputField(ExposedJTextField inputField) {
-		this.inputField = inputField;
-	}
-
-	public void forwardKeyEvent(KeyEvent keyEvent) {
-		inputField.setText(inputField.getText() + keyEvent.getKeyChar());
-
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				// For OSX Jaguar (unselect all text for some reason it selects
-				// it.)
-				inputField.select(inputField.getDocument().getLength(),
-						inputField.getDocument().getLength());
-			}
-		});
-	}
-
-	public String tellEventToSpeechString(TellEvent tellEvent) {
-		String result = tellEvent.getMessage();
-		if (!preferences.getSpeechPreferences().isSpeakingName()) {
-			int spaceIndex = result.indexOf(" ");
-			result = result.substring(spaceIndex, result.length());
-		}
-		result = result.replace('\\', ' ');
-		result = result.replace('\n', ' ');
-		result = result.replace('\r', ' ');
-		result = result.replaceFirst("tells you:", preferences
-				.getSpeechPreferences().isSpeakingName() ? " says " : "");
-		result = result.replaceAll("\\:\\)", " smile ");
-		result = result.replaceAll("\\=\\)", " smile ");
-		result = result.replaceAll("\\;\\)", " wink  ");
-		result = result.replaceAll("\\:b", " sticks tung out ");
-		result = result.replaceAll("\\:\\(", " frown ");
-		return result;
+	private void subscribe() {
+		subscriber = new TextReceivedEventSubscriber();
 	}
 
 	public String tellEventToSpeechString(PartnerTellEvent tellEvent) {
@@ -1518,9 +1484,40 @@ public class ChatPanel extends JPanel implements ActionListener,
 		return result;
 	}
 
-	public void lostOwnership(Clipboard arg0, Transferable arg1) {
-		// TODO Auto-generated method stub
+	public String tellEventToSpeechString(TellEvent tellEvent) {
+		String result = tellEvent.getMessage();
+		if (!preferences.getSpeechPreferences().isSpeakingName()) {
+			int spaceIndex = result.indexOf(" ");
+			result = result.substring(spaceIndex, result.length());
+		}
+		result = result.replace('\\', ' ');
+		result = result.replace('\n', ' ');
+		result = result.replace('\r', ' ');
+		result = result.replaceFirst("tells you:", preferences
+				.getSpeechPreferences().isSpeakingName() ? " says " : "");
+		result = result.replaceAll("\\:\\)", " smile ");
+		result = result.replaceAll("\\=\\)", " smile ");
+		result = result.replaceAll("\\;\\)", " wink  ");
+		result = result.replaceAll("\\:b", " sticks tung out ");
+		result = result.replaceAll("\\:\\(", " frown ");
+		return result;
+	}
 
+	public void tellLast() {
+		if (!lastTells.isEmpty()) {
+			String lastTell = lastTells.get(lastTellsIndex);
+			if (lastTell != null) {
+				inputField.setText("tell " + lastTell + " ");
+
+				synchronized (this) {
+					if (lastTellsIndex != 0) {
+						lastTellsIndex--;
+					} else {
+						lastTellsIndex = lastTells.size() - 1;
+					}
+				}
+			}
+		}
 	}
 
 }

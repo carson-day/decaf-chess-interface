@@ -37,12 +37,27 @@ public class MoveListModel {
 		this.startingPosition = startingPosition;
 	}
 
-	public Position getStartingPosition() {
-		return startingPosition;
+	public void append(MoveListModelMove moveListModelMove) {
+		if (isInProgress) {
+			moves.add(moveListModelMove);
+		} else {
+			throw new IllegalStateException("Game is not in progress");
+		}
 	}
 
-	public int getSize() {
-		return moves.size();
+	public void end(String resultString) {
+		this.isInProgress = false;
+		this.resultString = resultString;
+	}
+
+	public long getBlackElapsedTime(int halfMoveIndex, int inc) {
+		long result = 0;
+		for (int i = 1; i <= halfMoveIndex; i += 2) {
+			if (moves.size() > halfMoveIndex) {
+				result += moves.get(i).getTimeTakenMillis() - inc * 1000;
+			}
+		}
+		return result;
 	}
 
 	public MoveListModelMove getMove(int index) {
@@ -57,21 +72,12 @@ public class MoveListModel {
 		}
 	}
 
-	public boolean isInProgress() {
-		return isInProgress;
+	public int getSize() {
+		return moves.size();
 	}
 
-	public void end(String resultString) {
-		this.isInProgress = false;
-		this.resultString = resultString;
-	}
-
-	public void append(MoveListModelMove moveListModelMove) {
-		if (isInProgress) {
-			moves.add(moveListModelMove);
-		} else {
-			throw new IllegalStateException("Game is not in progress");
-		}
+	public Position getStartingPosition() {
+		return startingPosition;
 	}
 
 	public long getWhiteElapsedTime(int halfMoveIndex, int inc) {
@@ -84,14 +90,8 @@ public class MoveListModel {
 		return result;
 	}
 
-	public long getBlackElapsedTime(int halfMoveIndex, int inc) {
-		long result = 0;
-		for (int i = 1; i <= halfMoveIndex; i += 2) {
-			if (moves.size() > halfMoveIndex) {
-				result += moves.get(i).getTimeTakenMillis() - inc * 1000;
-			}
-		}
-		return result;
+	public boolean isInProgress() {
+		return isInProgress;
 	}
 
 }

@@ -25,6 +25,64 @@ import javax.swing.event.MenuKeyListener;
 
 public class SwingUtils {
 
+	public static void dispose(Component component) {
+		if (component instanceof JComponent) {
+			disposeComponent((JComponent) component);
+		}
+	}
+
+	public static void dispose(Container container) {
+		disposeContainer(container);
+	}
+
+	public static void dispose(JButton component) {
+		if (component == null) {
+			return;
+		}
+		disposeContainer(component);
+		ActionListener[] actionListeners = component.getActionListeners();
+		for (int i = 0; i < actionListeners.length; i++) {
+			component.removeActionListener(actionListeners[i]);
+		}
+	}
+
+	public static void dispose(JComponent component) {
+		disposeComponent(component);
+	}
+
+	public static void dispose(JMenu component) {
+		if (component == null) {
+			return;
+		}
+		disposeContainer(component);
+		ActionListener[] actionListeners = component.getActionListeners();
+		for (int i = 0; i < actionListeners.length; i++) {
+			component.removeActionListener(actionListeners[i]);
+		}
+		MenuKeyListener[] menuKeyListeners = component.getMenuKeyListeners();
+		for (int i = 0; i < menuKeyListeners.length; i++) {
+			component.removeMenuKeyListener(menuKeyListeners[i]);
+		}
+	}
+
+	public static void dispose(JTable component) {
+		if (component == null) {
+			return;
+		}
+		disposeContainer(component);
+	}
+
+	public static void dispose(JTextField component) {
+		if (component == null) {
+			return;
+		}
+		disposeContainer(component);
+		ActionListener[] actionListeners = component.getActionListeners();
+		for (int i = 0; i < actionListeners.length; i++) {
+			component.removeActionListener(actionListeners[i]);
+		}
+	}
+
 	private static void disposeComponent(JComponent component) {
 		if (component == null) {
 			return;
@@ -99,63 +157,5 @@ public class SwingUtils {
 			disposeComponent((JComponent) container);
 		}
 		container.removeAll();
-	}
-
-	public static void dispose(Container container) {
-		disposeContainer(container);
-	}
-
-	public static void dispose(Component component) {
-		if (component instanceof JComponent) {
-			disposeComponent((JComponent) component);
-		}
-	}
-
-	public static void dispose(JComponent component) {
-		disposeComponent(component);
-	}
-
-	public static void dispose(JButton component) {
-		if (component == null) {
-			return;
-		}
-		disposeContainer(component);
-		ActionListener[] actionListeners = component.getActionListeners();
-		for (int i = 0; i < actionListeners.length; i++) {
-			component.removeActionListener(actionListeners[i]);
-		}
-	}
-
-	public static void dispose(JMenu component) {
-		if (component == null) {
-			return;
-		}
-		disposeContainer(component);
-		ActionListener[] actionListeners = component.getActionListeners();
-		for (int i = 0; i < actionListeners.length; i++) {
-			component.removeActionListener(actionListeners[i]);
-		}
-		MenuKeyListener[] menuKeyListeners = component.getMenuKeyListeners();
-		for (int i = 0; i < menuKeyListeners.length; i++) {
-			component.removeMenuKeyListener(menuKeyListeners[i]);
-		}
-	}
-
-	public static void dispose(JTable component) {
-		if (component == null) {
-			return;
-		}
-		disposeContainer(component);
-	}
-
-	public static void dispose(JTextField component) {
-		if (component == null) {
-			return;
-		}
-		disposeContainer(component);
-		ActionListener[] actionListeners = component.getActionListeners();
-		for (int i = 0; i < actionListeners.length; i++) {
-			component.removeActionListener(actionListeners[i]);
-		}
 	}
 }

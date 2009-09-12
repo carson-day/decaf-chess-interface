@@ -36,6 +36,17 @@ public class User implements Subscriber {
 
 	private static final Logger LOGGER = Logger.getLogger(User.class);
 
+	public static User getInstance() {
+		if (singletonInstance == null) {
+			singletonInstance = new User();
+		}
+		return singletonInstance;
+	}
+
+	public static void reset() {
+		singletonInstance = null;
+	}
+
 	private boolean isGuest;
 
 	private static User singletonInstance;
@@ -77,22 +88,16 @@ public class User implements Subscriber {
 
 	}
 
-	public void inform(UserNameChangedEvent event) {
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Receibved UserNameChangedEVent userName is now: "
-					+ event.getUserName());
-		}
-		handle = event.getUserName();
-		this.isGuest = event.isGuest();
+	public String getBughousePartner() {
+		return bughousePartner;
 	}
 
-	public void inform(PartnershipCreatedEvent partnershipcreatedevent) {
-		bughousePartner = partnershipcreatedevent.getPartnersName();
+	public String getFollowing() {
+		return following;
 	}
 
-	public void inform(PartnershipEndedEvent partnershipendedevent) {
-		bughousePartner = null;
+	public String getHandle() {
+		return handle;
 	}
 
 	public void inform(FollowingEvent followingEvent) {
@@ -103,40 +108,35 @@ public class User implements Subscriber {
 		following = null;
 	}
 
-	public static User getInstance() {
-		if (singletonInstance == null) {
-			singletonInstance = new User();
+	public void inform(PartnershipCreatedEvent partnershipcreatedevent) {
+		bughousePartner = partnershipcreatedevent.getPartnersName();
+	}
+
+	public void inform(PartnershipEndedEvent partnershipendedevent) {
+		bughousePartner = null;
+	}
+
+	public void inform(UserNameChangedEvent event) {
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Receibved UserNameChangedEVent userName is now: "
+					+ event.getUserName());
 		}
-		return singletonInstance;
-	}
-
-	public static void reset() {
-		singletonInstance = null;
-	}
-
-	public String getHandle() {
-		return handle;
-	}
-
-	public String getBughousePartner() {
-		return bughousePartner;
+		handle = event.getUserName();
+		this.isGuest = event.isGuest();
 	}
 
 	public boolean isConnected() {
 		return isConnected;
 	}
-	
-	public String getFollowing() {
-		return following;
+
+	public boolean isGuest() {
+		return isGuest;
 	}
 
 	public boolean isPlaying(GameStartEvent gameStartEvent) {
 		return gameStartEvent.getWhiteName().equalsIgnoreCase(getHandle())
 				|| gameStartEvent.getBlackName().equalsIgnoreCase(getHandle());
-	}
-
-	public boolean isGuest() {
-		return isGuest;
 	}
 
 	public void setGuest(boolean isGuest) {

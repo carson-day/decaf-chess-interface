@@ -24,6 +24,12 @@ package decaf.messaging.inboundevent.chat;
  */
 public class ChannelTellEvent extends IcsNonGameEvent {
 
+	private int channel;
+
+	private String user;
+
+	private String message;
+
 	public ChannelTellEvent(int icsId, String text, int channel, String user,
 			String message) {
 		super(icsId, text.trim());
@@ -32,27 +38,22 @@ public class ChannelTellEvent extends IcsNonGameEvent {
 		this.message = message;
 	}
 
-	public String getMessage() {
-		return message;
-	}
-
 	public int getChannel() {
 		return channel;
+	}
+
+	public String getMessage() {
+		return message;
 	}
 
 	public String getUser() {
 		return user;
 	}
 
+	@Override
 	public String toString() {
 		return "<ChannelTellEvent>" + super.toString() + "<user>" + user
 				+ "</user>" + "<channel>" + channel + "</channel>"
 				+ "<message>" + message + "</message>" + "</ChannelTellEvent>";
 	}
-
-	private int channel;
-
-	private String user;
-
-	private String message;
 }

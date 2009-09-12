@@ -22,9 +22,14 @@ package decaf.gui.pref;
 import java.io.Serializable;
 
 public class SpeechPreferences implements Cloneable, Serializable {
-	
+
 	private static final long serialVersionUID = 11;
-	
+
+	public static SpeechPreferences getDefault() {
+		SpeechPreferences result = new SpeechPreferences();
+		return result;
+	}
+
 	private boolean isSpeechEnabled = true;
 
 	private boolean isSpeakingNotifications = true;
@@ -36,84 +41,78 @@ public class SpeechPreferences implements Cloneable, Serializable {
 	private boolean isSpeakingName = true;
 
 	private boolean isSpeaking10SecondCountdown = true;
-	
+
 	private boolean isAnnouncingCheck = true;
 
 	private int spokenWordsPerMinuite = 175;
 
+	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
-	}
-
-	public static SpeechPreferences getDefault() {
-		SpeechPreferences result = new SpeechPreferences();
-		return result;
-	}
-
-	public boolean isSpeaking10SecondCountdown() {
-		return isSpeaking10SecondCountdown;
-	}
-
-	public void setSpeaking10SecondCountdown(boolean isSpeaking10SecondCountdown) {
-		this.isSpeaking10SecondCountdown = isSpeaking10SecondCountdown;
-	}
-
-	public boolean isSpeakingName() {
-		return isSpeakingName;
-	}
-
-	public void setSpeakingName(boolean isSpeakingName) {
-		this.isSpeakingName = isSpeakingName;
-	}
-
-	public boolean isSpeakingNotifications() {
-		return isSpeakingNotifications;
-	}
-
-	public void setSpeakingNotifications(boolean isSpeakingNotifications) {
-		this.isSpeakingNotifications = isSpeakingNotifications;
-	}
-
-	public boolean isSpeakingPtells() {
-		return isSpeakingPtells;
-	}
-
-	public void setSpeakingPtells(boolean isSpeakingPtells) {
-		this.isSpeakingPtells = isSpeakingPtells;
-	}
-
-	public boolean isSpeakingTells() {
-		return isSpeakingTells;
-	}
-
-	public void setSpeakingTells(boolean isSpeakingTells) {
-		this.isSpeakingTells = isSpeakingTells;
-	}
-
-	public boolean isSpeechEnabled() {
-		return isSpeechEnabled;
-	}
-
-	public void setSpeechEnabled(boolean isSpeechEnabled) {
-		this.isSpeechEnabled = isSpeechEnabled;
 	}
 
 	public int getSpokenWordsPerMinuite() {
 		return spokenWordsPerMinuite;
 	}
 
-	public void setSpokenWordsPerMinuite(int spokenWordsPerMinuite) {
-		this.spokenWordsPerMinuite = spokenWordsPerMinuite;
-	}
-
 	public boolean isAnnouncingCheck() {
 		return isAnnouncingCheck;
+	}
+
+	public boolean isSpeaking10SecondCountdown() {
+		return isSpeaking10SecondCountdown;
+	}
+
+	public boolean isSpeakingName() {
+		return isSpeakingName;
+	}
+
+	public boolean isSpeakingNotifications() {
+		return isSpeakingNotifications;
+	}
+
+	public boolean isSpeakingPtells() {
+		return isSpeakingPtells;
+	}
+
+	public boolean isSpeakingTells() {
+		return isSpeakingTells;
+	}
+
+	public boolean isSpeechEnabled() {
+		return isSpeechEnabled;
 	}
 
 	public void setAnnouncingCheck(boolean isAnnouncingCheck) {
 		this.isAnnouncingCheck = isAnnouncingCheck;
 	}
-	
-	
+
+	public void setSpeaking10SecondCountdown(boolean isSpeaking10SecondCountdown) {
+		this.isSpeaking10SecondCountdown = isSpeaking10SecondCountdown;
+	}
+
+	public void setSpeakingName(boolean isSpeakingName) {
+		this.isSpeakingName = isSpeakingName;
+	}
+
+	public void setSpeakingNotifications(boolean isSpeakingNotifications) {
+		this.isSpeakingNotifications = isSpeakingNotifications;
+	}
+
+	public void setSpeakingPtells(boolean isSpeakingPtells) {
+		this.isSpeakingPtells = isSpeakingPtells;
+	}
+
+	public void setSpeakingTells(boolean isSpeakingTells) {
+		this.isSpeakingTells = isSpeakingTells;
+	}
+
+	public void setSpeechEnabled(boolean isSpeechEnabled) {
+		this.isSpeechEnabled = isSpeechEnabled;
+	}
+
+	public void setSpokenWordsPerMinuite(int spokenWordsPerMinuite) {
+		this.spokenWordsPerMinuite = spokenWordsPerMinuite;
+	}
 
 }

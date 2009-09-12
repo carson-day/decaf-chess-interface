@@ -29,7 +29,7 @@ public class GameOutboundEvent extends OutboundEvent {
 	}
 
 	public GameOutboundEvent(int gameId, Class hideResponseEventType) {
-		super(null,hideResponseEventType);
+		super(null, hideResponseEventType);
 		this.gameId = gameId;
 	}
 

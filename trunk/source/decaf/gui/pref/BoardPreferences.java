@@ -66,7 +66,7 @@ public class BoardPreferences implements Cloneable, Serializable {
 	public static final int BORDER_SQUARE_SELECTION_MODE = 2;
 
 	public static final int FILL_BACKGROUND_SQUARE_SELECTION_MODE = 3;
-	
+
 	public static final int DIAGONAL_LINE_BACKGROUND_SQUARE_SELECTION_MODE = 4;
 
 	public static final int DROP_PIECES_ON_TOP_BOTTOM = 1;
@@ -86,6 +86,29 @@ public class BoardPreferences implements Cloneable, Serializable {
 	public static final int INVISIBLE_MOVE = 1;
 
 	public static final int CLICK_CLICK_DRAG_AND_DROP = 2;
+
+	public static BoardPreferences getDefault() {
+		BoardPreferences result = new BoardPreferences();
+
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(
+				GraphicsEnvironment.getLocalGraphicsEnvironment()
+						.getDefaultScreenDevice().getDefaultConfiguration());
+
+		int totalWidth = screenSize.width - insets.left - insets.right;
+		int totalHeight = screenSize.height - insets.top - insets.bottom;
+
+		result.gameWindowPoint = new Point(insets.left, insets.top);
+		result.gameWindowSize = new Dimension(totalWidth,
+				(int) (totalHeight * .7));
+
+		result.chatWindowPoint = new Point(insets.left, insets.top
+				+ (int) (totalHeight * .7) + 1);
+		result.chatWindowDimension = new Dimension(totalWidth,
+				(int) (totalHeight * .3));
+
+		return result;
+	}
 
 	/**
 	 * This should always be an even number. Its the piece size is reduced from
@@ -135,7 +158,7 @@ public class BoardPreferences implements Cloneable, Serializable {
 
 	private Color darkSquareBackgroundColor = new Color(128, 128, 128);
 
-	private Color moveHighlightColor = new Color(255,0,153);
+	private Color moveHighlightColor = new Color(255, 0, 153);
 
 	private String layoutClassName = "decaf.gui.widgets.chessarealayout.ThiefChessAreaLayout";
 
@@ -189,9 +212,9 @@ public class BoardPreferences implements Cloneable, Serializable {
 	private boolean isShowingSideUpTime = false;
 
 	private boolean isShowingPieceJail = false;
-	
+
 	private boolean isShowingMyMovesAsSelected = false;
-	
+
 	private boolean isSelectingHoverOverSquares = true;
 
 	private SquareImageBackground squareImageBackground = new SquareImageBackground(
@@ -199,84 +222,225 @@ public class BoardPreferences implements Cloneable, Serializable {
 
 	private int gamesToFrontMode = ONLY_GAMES_I_PLAY_TO_FRONT;
 
+	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}
 
-	public static BoardPreferences getDefault() {
-		BoardPreferences result = new BoardPreferences();
-
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(
-				GraphicsEnvironment.getLocalGraphicsEnvironment()
-						.getDefaultScreenDevice().getDefaultConfiguration());
-
-		int totalWidth = screenSize.width - insets.left - insets.right;
-		int totalHeight = screenSize.height - insets.top - insets.bottom;
-
-		result.gameWindowPoint = new Point(insets.left, insets.top);
-		result.gameWindowSize = new Dimension(totalWidth,
-				(int) (totalHeight * .7));
-
-		result.chatWindowPoint = new Point(insets.left, insets.top
-				+ (int) (totalHeight * .7) + 1);
-		result.chatWindowDimension = new Dimension(totalWidth,
-				(int) (totalHeight * .3));
-
-		return result;
+	public String getAutoFirstWhiteMove() {
+		return autoFirstWhiteMove;
 	}
 
 	public int getAutoPromotionMode() {
 		return autoPromotionMode;
 	}
 
-	public SquareImageBackground getSquareImageBackground() {
-		return squareImageBackground;
-	}
-
-	public void setSquareImageBackground(
-			SquareImageBackground imageSquareBackground) {
-		this.squareImageBackground = imageSquareBackground;
-	}
-
-	public void setAutoPromotionMode(int autoPromotionMode) {
-		this.autoPromotionMode = autoPromotionMode;
-	}
-
 	public Color getBackgroundControlsColor() {
 		return backgroundControlsColor;
-	}
-
-	public void setBackgroundControlsColor(Color backgroundControlsColor) {
-		this.backgroundControlsColor = backgroundControlsColor;
 	}
 
 	public Dimension getChatWindowDimension() {
 		return chatWindowDimension;
 	}
 
-	public void setChatWindowDimension(Dimension chatWindowDimension) {
-		this.chatWindowDimension = chatWindowDimension;
-	}
-
 	public Point getChatWindowPoint() {
 		return chatWindowPoint;
-	}
-
-	public void setChatWindowPoint(Point chatWindowPoint) {
-		this.chatWindowPoint = chatWindowPoint;
 	}
 
 	public int getChessBoardBorder() {
 		return chessBoardBorder;
 	}
 
-	public void setChessBoardBorder(int chessBoardBorder) {
-		this.chessBoardBorder = chessBoardBorder;
-	}
-
 	public TextProperties getClockActiveTextProperties() {
 		return clockActiveTextProperties;
+	}
+
+	public TextProperties getClockInactiveTextProperties() {
+		return clockInactiveTextProperties;
+	}
+
+	public TextProperties getControlLabelTextProperties() {
+		return controlLabelTextProperties;
+	}
+
+	public Color getDarkSquareBackgroundColor() {
+		return darkSquareBackgroundColor;
+	}
+
+	public int getDragAndDropMode() {
+		return dragAndDropMode;
+	}
+
+	public int getDropPiecesLocation() {
+		return dropPiecesLocation;
+	}
+
+	public int getDropSquareBorder() {
+		return dropSquareBorder;
+	}
+
+	public Color getDropSquareColor() {
+		return dropSquareColor;
+	}
+
+	public TextProperties getDropSquareLabelTextProperties() {
+		return dropSquareLabelTextProperties;
+	}
+
+	public int getGamesToFrontMode() {
+		return gamesToFrontMode;
+	}
+
+	public Point getGameWindowPoint() {
+		return gameWindowPoint;
+	}
+
+	public Dimension getGameWindowSize() {
+		return gameWindowSize;
+	}
+
+	public String getLayoutClassName() {
+		return layoutClassName;
+	}
+
+	public Color getLightSquareBackgroundColor() {
+		return lightSquareBackgroundColor;
+	}
+
+	public TextProperties getMarkTextProperties() {
+		return markTextProperties;
+	}
+
+	public Color getMoveHighlightColor() {
+		return moveHighlightColor;
+	}
+
+	public int getPieceSizeDelta() {
+		return pieceSizeDelta;
+	}
+
+	public int getPremoveType() {
+		return premoveType;
+	}
+
+	public ChessSet getSet() {
+		return set;
+	}
+
+	public int getShowTenthsWhenTimeIsLessThanSeconds() {
+		return showTenthsWhenTimeIsLessThanSeconds;
+	}
+
+	public int getSquareBorder() {
+		return squareBorder;
+	}
+
+	public SquareImageBackground getSquareImageBackground() {
+		return squareImageBackground;
+	}
+
+	public int getSquareSelectionMode() {
+		return squareSelectionMode;
+	}
+
+	public TextProperties getStatusBarTextProperties() {
+		return statusBarTextProperties;
+	}
+
+	public boolean isClosingAllWindowsOnGameStart() {
+		return isClosingAllWindowsOnGameStart;
+	}
+
+	public boolean isCLosingInactiveGamesOnNewObservedGame() {
+		return isCLosingInactiveGamesOnNewObservedGame;
+	}
+
+	public boolean isPlayingMoveSoundOnObserving() {
+		return isPlayingMoveSoundOnObserving;
+	}
+
+	public boolean isSelectingHoverOverSquares() {
+		return isSelectingHoverOverSquares;
+	}
+
+	public boolean isShowingCoordinates() {
+		return isShowingCoordinates;
+	}
+
+	public boolean isShowingGameCaptions() {
+		return isShowingGameCaptions;
+	}
+
+	public boolean isShowingLag() {
+		return isShowingLag;
+	}
+
+	public boolean isShowingMoveListOnExaminedGames() {
+		return isShowingMoveListOnExaminedGames;
+	}
+
+	public boolean isShowingMoveListOnObsGames() {
+		return isShowingMoveListOnObsGames;
+	}
+
+	public boolean isShowingMoveListOnPlayingGames() {
+		return isShowingMoveListOnPlayingGames;
+	}
+
+	public boolean isShowingMyMovesAsSelected() {
+		return isShowingMyMovesAsSelected;
+	}
+
+	public boolean isShowingPieceJail() {
+		return isShowingPieceJail;
+	}
+
+	public boolean isShowingSideUpTime() {
+		return isShowingSideUpTime;
+	}
+
+	public boolean isShowingStatusBar() {
+		return isShowingStatusBar;
+	}
+
+	public boolean isShowingToolbar() {
+		return isShowingToolbar;
+	}
+
+	public boolean isSmartMoveEnabled() {
+		return isSmartMoveEnabled;
+	}
+
+	public boolean isSnapToChatIfNoGames() {
+		return snapToChatIfNoGames;
+	}
+
+	public boolean isUnfollowingOnPlayingGame() {
+		return isUnfollowingOnPlayingGame;
+	}
+
+	public void setAutoFirstWhiteMove(String autoFirstWhiteMove) {
+		this.autoFirstWhiteMove = autoFirstWhiteMove;
+	}
+
+	public void setAutoPromotionMode(int autoPromotionMode) {
+		this.autoPromotionMode = autoPromotionMode;
+	}
+
+	public void setBackgroundControlsColor(Color backgroundControlsColor) {
+		this.backgroundControlsColor = backgroundControlsColor;
+	}
+
+	public void setChatWindowDimension(Dimension chatWindowDimension) {
+		this.chatWindowDimension = chatWindowDimension;
+	}
+
+	public void setChatWindowPoint(Point chatWindowPoint) {
+		this.chatWindowPoint = chatWindowPoint;
+	}
+
+	public void setChessBoardBorder(int chessBoardBorder) {
+		this.chessBoardBorder = chessBoardBorder;
 	}
 
 	public void setClockActiveTextProperties(
@@ -284,75 +448,9 @@ public class BoardPreferences implements Cloneable, Serializable {
 		this.clockActiveTextProperties = clockActiveTextProperties;
 	}
 
-	public TextProperties getClockInactiveTextProperties() {
-		return clockInactiveTextProperties;
-	}
-
 	public void setClockInactiveTextProperties(
 			TextProperties clockInactiveTextProperties) {
 		this.clockInactiveTextProperties = clockInactiveTextProperties;
-	}
-
-	public TextProperties getControlLabelTextProperties() {
-		return controlLabelTextProperties;
-	}
-
-	public void setControlLabelTextProperties(
-			TextProperties controlLabelTextProperties) {
-		this.controlLabelTextProperties = controlLabelTextProperties;
-	}
-
-	public Color getDarkSquareBackgroundColor() {
-		return darkSquareBackgroundColor;
-	}
-
-	public void setDarkSquareBackgroundColor(Color darkSquareBackgroundColor) {
-		this.darkSquareBackgroundColor = darkSquareBackgroundColor;
-	}
-
-	public int getDropSquareBorder() {
-		return dropSquareBorder;
-	}
-
-	public void setDropSquareBorder(int dropSquareBorder) {
-		this.dropSquareBorder = dropSquareBorder;
-	}
-
-	public Color getDropSquareColor() {
-		return dropSquareColor;
-	}
-
-	public void setDropSquareColor(Color dropSquareColor) {
-		this.dropSquareColor = dropSquareColor;
-	}
-
-	public TextProperties getDropSquareLabelTextProperties() {
-		return dropSquareLabelTextProperties;
-	}
-
-	public void setDropSquareLabelTextProperties(
-			TextProperties dropSquareLabelTextProperties) {
-		this.dropSquareLabelTextProperties = dropSquareLabelTextProperties;
-	}
-
-	public Dimension getGameWindowSize() {
-		return gameWindowSize;
-	}
-
-	public void setGameWindowDimension(Dimension gameWindowSize) {
-		this.gameWindowSize = gameWindowSize;
-	}
-
-	public Point getGameWindowPoint() {
-		return gameWindowPoint;
-	}
-
-	public void setGameWindowPoint(Point gameWindowPoint) {
-		this.gameWindowPoint = gameWindowPoint;
-	}
-
-	public boolean isClosingAllWindowsOnGameStart() {
-		return isClosingAllWindowsOnGameStart;
 	}
 
 	public void setClosingAllWindowsOnGameStart(
@@ -360,83 +458,71 @@ public class BoardPreferences implements Cloneable, Serializable {
 		this.isClosingAllWindowsOnGameStart = isClosingAllWindowsOnGameStart;
 	}
 
-	public boolean isCLosingInactiveGamesOnNewObservedGame() {
-		return isCLosingInactiveGamesOnNewObservedGame;
-	}
-
 	public void setClosingInactiveGamesOnNewObservedGame(
 			boolean isCLosingInactiveGamesOnNewObservedGame) {
 		this.isCLosingInactiveGamesOnNewObservedGame = isCLosingInactiveGamesOnNewObservedGame;
 	}
 
-	public boolean isShowingLag() {
-		return isShowingLag;
+	public void setControlLabelTextProperties(
+			TextProperties controlLabelTextProperties) {
+		this.controlLabelTextProperties = controlLabelTextProperties;
 	}
 
-	public void setShowingLag(boolean isShowingLag) {
-		this.isShowingLag = isShowingLag;
+	public void setDarkSquareBackgroundColor(Color darkSquareBackgroundColor) {
+		this.darkSquareBackgroundColor = darkSquareBackgroundColor;
 	}
 
-	public Color getLightSquareBackgroundColor() {
-		return lightSquareBackgroundColor;
+	public void setDragAndDropMode(int dragAndDropMode) {
+		this.dragAndDropMode = dragAndDropMode;
+	}
+
+	public void setDropPiecesLocation(int dropPiecesMode) {
+		this.dropPiecesLocation = dropPiecesMode;
+	}
+
+	public void setDropSquareBorder(int dropSquareBorder) {
+		this.dropSquareBorder = dropSquareBorder;
+	}
+
+	public void setDropSquareColor(Color dropSquareColor) {
+		this.dropSquareColor = dropSquareColor;
+	}
+
+	public void setDropSquareLabelTextProperties(
+			TextProperties dropSquareLabelTextProperties) {
+		this.dropSquareLabelTextProperties = dropSquareLabelTextProperties;
+	}
+
+	public void setGamesToFrontMode(int gamesToFrontMode) {
+		this.gamesToFrontMode = gamesToFrontMode;
+	}
+
+	public void setGameWindowDimension(Dimension gameWindowSize) {
+		this.gameWindowSize = gameWindowSize;
+	}
+
+	public void setGameWindowPoint(Point gameWindowPoint) {
+		this.gameWindowPoint = gameWindowPoint;
+	}
+
+	public void setLayoutClassName(String layoutClassName) {
+		this.layoutClassName = layoutClassName;
 	}
 
 	public void setLightSquareBackgroundColor(Color lightSquareBackgroundColor) {
 		this.lightSquareBackgroundColor = lightSquareBackgroundColor;
 	}
 
-	public Color getMoveHighlightColor() {
-		return moveHighlightColor;
+	public void setMarkTextProperties(TextProperties markTextProperties) {
+		this.markTextProperties = markTextProperties;
 	}
 
 	public void setMoveHighlightColor(Color moveHighlightColor) {
 		this.moveHighlightColor = moveHighlightColor;
 	}
 
-	public int getPremoveType() {
-		return premoveType;
-	}
-
-	public void setPremoveType(int premoveType) {
-		this.premoveType = premoveType;
-	}
-
-	public ChessSet getSet() {
-		return set;
-	}
-
-	public void setSet(ChessSet set) {
-		this.set = set;
-	}
-
-	public int getShowTenthsWhenTimeIsLessThanSeconds() {
-		return showTenthsWhenTimeIsLessThanSeconds;
-	}
-
-	public void setShowTenthsWhenTimeIsLessThanSeconds(
-			int showTenthsWhenTimeIsLessThanSeconds) {
-		this.showTenthsWhenTimeIsLessThanSeconds = showTenthsWhenTimeIsLessThanSeconds;
-	}
-
-	public int getSquareBorder() {
-		return squareBorder;
-	}
-
-	public void setSquareBorder(int squareBorder) {
-		this.squareBorder = squareBorder;
-	}
-
-	public TextProperties getStatusBarTextProperties() {
-		return statusBarTextProperties;
-	}
-
-	public void setStatusBarTextProperties(
-			TextProperties statusBarTextProperties) {
-		this.statusBarTextProperties = statusBarTextProperties;
-	}
-
-	public boolean isPlayingMoveSoundOnObserving() {
-		return isPlayingMoveSoundOnObserving;
+	public void setPieceSizeDelta(int pieceSizeDelta) {
+		this.pieceSizeDelta = pieceSizeDelta;
 	}
 
 	public void setPlayingMoveSoundOnObserving(
@@ -444,88 +530,28 @@ public class BoardPreferences implements Cloneable, Serializable {
 		this.isPlayingMoveSoundOnObserving = isPlayingMoveSoundOnObserving;
 	}
 
-	public boolean isSnapToChatIfNoGames() {
-		return snapToChatIfNoGames;
+	public void setPremoveType(int premoveType) {
+		this.premoveType = premoveType;
 	}
 
-	public void setSnapToChatIfNoGames(boolean snapToChatIfNoGames) {
-		this.snapToChatIfNoGames = snapToChatIfNoGames;
+	public void setSelectingHoverOverSquares(boolean isSelectingHoverOverSquares) {
+		this.isSelectingHoverOverSquares = isSelectingHoverOverSquares;
 	}
 
-	public String getAutoFirstWhiteMove() {
-		return autoFirstWhiteMove;
-	}
-
-	public void setAutoFirstWhiteMove(String autoFirstWhiteMove) {
-		this.autoFirstWhiteMove = autoFirstWhiteMove;
-	}
-
-	public int getSquareSelectionMode() {
-		return squareSelectionMode;
-	}
-
-	public void setSquareSelectionMode(int highlightMode) {
-		this.squareSelectionMode = highlightMode;
-	}
-
-	public boolean isShowingToolbar() {
-		return isShowingToolbar;
-	}
-
-	public void setShowingToolbar(boolean isShowingToolbar) {
-		this.isShowingToolbar = isShowingToolbar;
-	}
-
-	public int getDropPiecesLocation() {
-		return dropPiecesLocation;
-	}
-
-	public void setDropPiecesLocation(int dropPiecesMode) {
-		this.dropPiecesLocation = dropPiecesMode;
-	}
-
-	public boolean isShowingStatusBar() {
-		return isShowingStatusBar;
-	}
-
-	public void setShowingStatusBar(boolean isShowingStatusBar) {
-		this.isShowingStatusBar = isShowingStatusBar;
-	}
-
-	public boolean isShowingCoordinates() {
-		return isShowingCoordinates;
+	public void setSet(ChessSet set) {
+		this.set = set;
 	}
 
 	public void setShowingCoordinates(boolean isShowingCoordinates) {
 		this.isShowingCoordinates = isShowingCoordinates;
 	}
 
-	public boolean isShowingGameCaptions() {
-		return isShowingGameCaptions;
-	}
-
 	public void setShowingGameCaptions(boolean isShowingGameCaptions) {
 		this.isShowingGameCaptions = isShowingGameCaptions;
 	}
 
-	public int getGamesToFrontMode() {
-		return gamesToFrontMode;
-	}
-
-	public void setGamesToFrontMode(int gamesToFrontMode) {
-		this.gamesToFrontMode = gamesToFrontMode;
-	}
-
-	public int getDragAndDropMode() {
-		return dragAndDropMode;
-	}
-
-	public void setDragAndDropMode(int dragAndDropMode) {
-		this.dragAndDropMode = dragAndDropMode;
-	}
-
-	public boolean isShowingMoveListOnExaminedGames() {
-		return isShowingMoveListOnExaminedGames;
+	public void setShowingLag(boolean isShowingLag) {
+		this.isShowingLag = isShowingLag;
 	}
 
 	public void setShowingMoveListOnExaminedGames(
@@ -533,16 +559,8 @@ public class BoardPreferences implements Cloneable, Serializable {
 		this.isShowingMoveListOnExaminedGames = isShowingMoveListOnExaminedGames;
 	}
 
-	public boolean isShowingMoveListOnObsGames() {
-		return isShowingMoveListOnObsGames;
-	}
-
 	public void setShowingMoveListOnObsGames(boolean isShowingMoveListOnObsGames) {
 		this.isShowingMoveListOnObsGames = isShowingMoveListOnObsGames;
-	}
-
-	public boolean isShowingMoveListOnPlayingGames() {
-		return isShowingMoveListOnPlayingGames;
 	}
 
 	public void setShowingMoveListOnPlayingGames(
@@ -550,75 +568,58 @@ public class BoardPreferences implements Cloneable, Serializable {
 		this.isShowingMoveListOnPlayingGames = isShowingMoveListOnPlayingGames;
 	}
 
-	public int getPieceSizeDelta() {
-		return pieceSizeDelta;
-	}
-
-	public void setPieceSizeDelta(int pieceSizeDelta) {
-		this.pieceSizeDelta = pieceSizeDelta;
-	}
-
-	public boolean isUnfollowingOnPlayingGame() {
-		return isUnfollowingOnPlayingGame;
-	}
-
-	public void setUnfollowingOnPlayingGame(boolean isUnfollowingOnPlayingGame) {
-		this.isUnfollowingOnPlayingGame = isUnfollowingOnPlayingGame;
-	}
-
-	public boolean isSmartMoveEnabled() {
-		return isSmartMoveEnabled;
-	}
-
-	public void setSmartMoveEnabled(boolean isSmartMoveEnabled) {
-		this.isSmartMoveEnabled = isSmartMoveEnabled;
-	}
-
-	public boolean isShowingSideUpTime() {
-		return isShowingSideUpTime;
-	}
-
-	public void setShowingSideUpTime(boolean isShowingSideUpTime) {
-		this.isShowingSideUpTime = isShowingSideUpTime;
-	}
-
-	public boolean isShowingPieceJail() {
-		return isShowingPieceJail;
+	public void setShowingMyMovesAsSelected(boolean isShowingMyMovesAsSelected) {
+		this.isShowingMyMovesAsSelected = isShowingMyMovesAsSelected;
 	}
 
 	public void setShowingPieceJail(boolean isShowingPieceJail) {
 		this.isShowingPieceJail = isShowingPieceJail;
 	}
 
-	public String getLayoutClassName() {
-		return layoutClassName;
+	public void setShowingSideUpTime(boolean isShowingSideUpTime) {
+		this.isShowingSideUpTime = isShowingSideUpTime;
 	}
 
-	public void setLayoutClassName(String layoutClassName) {
-		this.layoutClassName = layoutClassName;
+	public void setShowingStatusBar(boolean isShowingStatusBar) {
+		this.isShowingStatusBar = isShowingStatusBar;
 	}
 
-	public TextProperties getMarkTextProperties() {
-		return markTextProperties;
+	public void setShowingToolbar(boolean isShowingToolbar) {
+		this.isShowingToolbar = isShowingToolbar;
 	}
 
-	public void setMarkTextProperties(TextProperties markTextProperties) {
-		this.markTextProperties = markTextProperties;
+	public void setShowTenthsWhenTimeIsLessThanSeconds(
+			int showTenthsWhenTimeIsLessThanSeconds) {
+		this.showTenthsWhenTimeIsLessThanSeconds = showTenthsWhenTimeIsLessThanSeconds;
 	}
 
-	public boolean isShowingMyMovesAsSelected() {
-		return isShowingMyMovesAsSelected;
+	public void setSmartMoveEnabled(boolean isSmartMoveEnabled) {
+		this.isSmartMoveEnabled = isSmartMoveEnabled;
 	}
 
-	public void setShowingMyMovesAsSelected(boolean isShowingMyMovesAsSelected) {
-		this.isShowingMyMovesAsSelected = isShowingMyMovesAsSelected;
+	public void setSnapToChatIfNoGames(boolean snapToChatIfNoGames) {
+		this.snapToChatIfNoGames = snapToChatIfNoGames;
 	}
 
-	public boolean isSelectingHoverOverSquares() {
-		return isSelectingHoverOverSquares;
+	public void setSquareBorder(int squareBorder) {
+		this.squareBorder = squareBorder;
 	}
 
-	public void setSelectingHoverOverSquares(boolean isSelectingHoverOverSquares) {
-		this.isSelectingHoverOverSquares = isSelectingHoverOverSquares;
+	public void setSquareImageBackground(
+			SquareImageBackground imageSquareBackground) {
+		this.squareImageBackground = imageSquareBackground;
+	}
+
+	public void setSquareSelectionMode(int highlightMode) {
+		this.squareSelectionMode = highlightMode;
+	}
+
+	public void setStatusBarTextProperties(
+			TextProperties statusBarTextProperties) {
+		this.statusBarTextProperties = statusBarTextProperties;
+	}
+
+	public void setUnfollowingOnPlayingGame(boolean isUnfollowingOnPlayingGame) {
+		this.isUnfollowingOnPlayingGame = isUnfollowingOnPlayingGame;
 	}
 }

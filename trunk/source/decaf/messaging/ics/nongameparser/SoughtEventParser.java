@@ -33,6 +33,10 @@ public class SoughtEventParser extends NonGameEventParser {
 	private static final Logger logger = Logger
 			.getLogger(SoughtEventParser.class);
 
+	private static final String AD_DISPLAYED = "ad displayed.";
+
+	private static final String ADS_DISPLAYED = "ads displayed.";
+
 	public SoughtEventParser(int icsId) {
 		super(icsId);
 	}
@@ -40,24 +44,20 @@ public class SoughtEventParser extends NonGameEventParser {
 	@Override
 	public IcsNonGameEvent parse(String text) {
 		if (text.endsWith(ADS_DISPLAYED) || text.endsWith(AD_DISPLAYED)) {
-			
-			//Make sure the first word is an integer this
-			//is to make sure events are not running together.
-			//Since its rare if it happens just return null.
+
+			// Make sure the first word is an integer this
+			// is to make sure events are not running together.
+			// Since its rare if it happens just return null.
 			int firstSpace = text.indexOf(" ");
-			try
-			{
-				if (firstSpace == -1)
-				{
+			try {
+				if (firstSpace == -1) {
 					return null;
 				}
-				Integer.parseInt(text.substring(0,firstSpace));
-			}
-			catch (Throwable t)
-			{
+				Integer.parseInt(text.substring(0, firstSpace));
+			} catch (Throwable t) {
 				return null;
 			}
-			
+
 			String[] lines = text.split("\n\\s*");
 
 			List<Seek> seeks = new LinkedList<Seek>();
@@ -95,8 +95,5 @@ public class SoughtEventParser extends NonGameEventParser {
 			return null;
 		}
 	}
-
-	private static final String AD_DISPLAYED = "ad displayed.";
-	private static final String ADS_DISPLAYED = "ads displayed.";
 
 }

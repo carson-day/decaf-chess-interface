@@ -27,6 +27,7 @@ public class PartnershipEndedEvent extends IcsNonGameEvent {
 		super(icsId, text);
 	}
 
+	@Override
 	public String toString() {
 		return "<PartnershipEndedEvent>" + super.toString()
 				+ "</PartnershipEndedEvent>";

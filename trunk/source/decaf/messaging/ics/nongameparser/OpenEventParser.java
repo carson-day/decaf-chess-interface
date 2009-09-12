@@ -24,6 +24,8 @@ import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 import decaf.messaging.inboundevent.inform.OpenEvent;
 
 public class OpenEventParser extends NonGameEventParser {
+	private static final String IDENTIFIER = "You are now open to receive match requests.";
+
 	public OpenEventParser(int icsId) {
 		super(icsId);
 	}
@@ -31,6 +33,7 @@ public class OpenEventParser extends NonGameEventParser {
 	/**
 	 * Returns null if text does not match the event this class produces.
 	 */
+	@Override
 	public IcsNonGameEvent parse(String text) {
 		if (text.length() < 100) {
 			if (text.indexOf(IDENTIFIER) != -1)
@@ -40,6 +43,4 @@ public class OpenEventParser extends NonGameEventParser {
 		}
 		return null;
 	}
-
-	private static final String IDENTIFIER = "You are now open to receive match requests.";
 }

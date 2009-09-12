@@ -21,7 +21,6 @@ package decaf.messaging.inboundevent.inform;
 
 import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 
-
 public class ChallengeEvent extends IcsNonGameEvent {
 	// TO DO: add more information.
 
@@ -29,6 +28,7 @@ public class ChallengeEvent extends IcsNonGameEvent {
 		super(icsId, text);
 	}
 
+	@Override
 	public String toString() {
 		return "<ChallengeEvent>" + super.toString() + "</ChallengeEvent>";
 	}

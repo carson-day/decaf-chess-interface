@@ -8,8 +8,8 @@ public class NotFollowingEvent extends IcsNonGameEvent {
 
 	}
 
+	@Override
 	public String toString() {
-		return "<NotFollowingEvent>" + getText()
-				+ "</NotFollowingEvent>";
+		return "<NotFollowingEvent>" + getText() + "</NotFollowingEvent>";
 	}
 }

@@ -27,6 +27,7 @@ public class NotificationEvent extends IcsNonGameEvent {
 		super(icsId, text);
 	}
 
+	@Override
 	public String toString() {
 		return "<NotificationEvent>" + super.toString()
 				+ "</NotificationEvent>";

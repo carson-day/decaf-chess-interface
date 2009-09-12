@@ -30,52 +30,6 @@ import decaf.moveengine.MoveEncoder;
 public class CoordinatesUtil implements Coordinates {
 	private static final MoveEncoder DEFAULT_MOVE_ENCODER = new LongAlgebraicEncoder();
 
-	private CoordinatesUtil() {
-	}
-
-	public static int algebraicRankToCoordinatesRank(char rankChar) {
-		int rank = -1;
-
-		switch (rankChar) {
-		case '1': {
-			rank = 7;
-			break;
-		}
-		case '2': {
-			rank = 6;
-			break;
-		}
-		case '3': {
-			rank = 5;
-			break;
-		}
-		case '4': {
-			rank = 4;
-			break;
-		}
-		case '5': {
-			rank = 3;
-			break;
-		}
-		case '6': {
-			rank = 2;
-			break;
-		}
-		case '7': {
-			rank = 1;
-			break;
-		}
-		case '8': {
-			rank = 0;
-			break;
-		}
-		default: {
-			throw new IllegalArgumentException("Invalid rank char " + rankChar);
-		}
-		}
-		return rank;
-	}
-
 	public static int algebraicFileToCoordinatesFile(char fileChar) {
 		int file = -1;
 
@@ -126,6 +80,49 @@ public class CoordinatesUtil implements Coordinates {
 		}
 
 		return file;
+	}
+
+	public static int algebraicRankToCoordinatesRank(char rankChar) {
+		int rank = -1;
+
+		switch (rankChar) {
+		case '1': {
+			rank = 7;
+			break;
+		}
+		case '2': {
+			rank = 6;
+			break;
+		}
+		case '3': {
+			rank = 5;
+			break;
+		}
+		case '4': {
+			rank = 4;
+			break;
+		}
+		case '5': {
+			rank = 3;
+			break;
+		}
+		case '6': {
+			rank = 2;
+			break;
+		}
+		case '7': {
+			rank = 1;
+			break;
+		}
+		case '8': {
+			rank = 0;
+			break;
+		}
+		default: {
+			throw new IllegalArgumentException("Invalid rank char " + rankChar);
+		}
+		}
+		return rank;
 	}
 
 	public static int[] algebraicToCoordinates(String square) {
@@ -219,11 +216,19 @@ public class CoordinatesUtil implements Coordinates {
 		return null;
 	}
 
-	public static boolean equals(int[] coordinates1, int[] coordinates2) {
-		assertInBounds(coordinates1);
-		assertInBounds(coordinates2);
-		return coordinates1[0] == coordinates2[0]
-				&& coordinates1[1] == coordinates2[1];
+	public static void assertInBounds(int rank, int file) {
+		assertValidRank(rank);
+		assertValidFile(file);
+	}
+
+	public static void assertInBounds(int[] coordinates) {
+		assertWithoutBounds(coordinates);
+		assertInBounds(coordinates[0], coordinates[1]);
+	}
+
+	public static void assertValid(int[] coordinates) {
+		assertInBounds(coordinates);
+
 	}
 
 	public static void assertValidFile(int file) {
@@ -239,11 +244,6 @@ public class CoordinatesUtil implements Coordinates {
 
 	}
 
-	public static void assertValid(int[] coordinates) {
-		assertInBounds(coordinates);
-
-	}
-
 	public static void assertWithoutBounds(int[] coordinates) {
 		if (coordinates == null) {
 			throw new IllegalArgumentException("coordiantes cant be null");
@@ -253,24 +253,31 @@ public class CoordinatesUtil implements Coordinates {
 		}
 	}
 
-	public static void assertInBounds(int rank, int file) {
-		assertValidRank(rank);
-		assertValidFile(file);
+	public static boolean equals(int[] coordinates1, int[] coordinates2) {
+		assertInBounds(coordinates1);
+		assertInBounds(coordinates2);
+		return coordinates1[0] == coordinates2[0]
+				&& coordinates1[1] == coordinates2[1];
 	}
 
-	public static void assertInBounds(int[] coordinates) {
+	public static String getDefaultCoordinates(int rank, int file) {
+		if (isInBounds(rank, file))
+			return DEFAULT_MOVE_ENCODER.encode(rank, file);
+		else
+			return rank + "/" + file;
+
+	}
+
+	public static String getDefaultCoordinates(int[] coordinates) {
 		assertWithoutBounds(coordinates);
-		assertInBounds(coordinates[0], coordinates[1]);
+		if (isInBounds(coordinates))
+			return DEFAULT_MOVE_ENCODER.encode(coordinates);
+		else
+			return coordinates[0] + "/" + coordinates[1];
 	}
 
-	public static boolean isInBounds(int startRank, int startFile) {
-		return startRank > -1 && startRank < 8 && startFile > -1
-				&& startFile < 8;
-	}
-
-	public static boolean isInBounds(int[] coordinates) {
-		assertWithoutBounds(coordinates);
-		return isInBounds(coordinates[0], coordinates[1]);
+	public static String getDefaultMove(Move move) {
+		return DEFAULT_MOVE_ENCODER.encode(move, null);
 	}
 
 	/**
@@ -288,38 +295,31 @@ public class CoordinatesUtil implements Coordinates {
 		return getOpposite(coordinates[0], coordinates[1]);
 	}
 
-	public static int getOppositeRank(int rank) {
-		assertValidRank(rank);
-		return Math.abs(7 - rank);
-	}
-
 	public static int getOppositeFile(int file) {
 		assertValidFile(file);
 		return Math.abs(7 - file);
 	}
 
-	public static String getDefaultCoordinates(int[] coordinates) {
+	public static int getOppositeRank(int rank) {
+		assertValidRank(rank);
+		return Math.abs(7 - rank);
+	}
+
+	public static boolean isInBounds(int startRank, int startFile) {
+		return startRank > -1 && startRank < 8 && startFile > -1
+				&& startFile < 8;
+	}
+
+	public static boolean isInBounds(int[] coordinates) {
 		assertWithoutBounds(coordinates);
-		if (isInBounds(coordinates))
-			return DEFAULT_MOVE_ENCODER.encode(coordinates);
-		else
-			return coordinates[0] + "/" + coordinates[1];
-	}
-
-	public static String getDefaultCoordinates(int rank, int file) {
-		if (isInBounds(rank, file))
-			return DEFAULT_MOVE_ENCODER.encode(rank, file);
-		else
-			return rank + "/" + file;
-
-	}
-
-	public static String getDefaultMove(Move move) {
-		return DEFAULT_MOVE_ENCODER.encode(move, null);
+		return isInBounds(coordinates[0], coordinates[1]);
 	}
 
 	public static boolean isWhiteSquare(int[] coordinates) {
 		boolean result = coordinates[0] % 2 == 0;
 		return coordinates[1] % 2 == 0 ? result : !result;
+	}
+
+	private CoordinatesUtil() {
 	}
 }

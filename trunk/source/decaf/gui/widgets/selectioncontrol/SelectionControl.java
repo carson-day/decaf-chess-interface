@@ -38,6 +38,13 @@ import decaf.gui.widgets.Disposable;
  */
 public abstract class SelectionControl extends JPanel implements Disposable {
 
+	private class ShowHelpMouseListener extends MouseAdapter {
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			fireShowHelp();
+		}
+	}
+
 	private String label;
 
 	private String helpText;
@@ -50,6 +57,16 @@ public abstract class SelectionControl extends JPanel implements Disposable {
 
 	private ShowHelpMouseListener showHelpMouseListener;
 
+	public SelectionControl() {
+		selectionControlListeners = new LinkedList<SelectionControlListener>();
+		showHelpMouseListener = new ShowHelpMouseListener();
+		setToolTipText(helpText);
+	}
+
+	public void addSelectionControlListener(SelectionControlListener listener) {
+		selectionControlListeners.add(listener);
+	}
+
 	public void dispose() {
 
 		label = null;
@@ -61,16 +78,53 @@ public abstract class SelectionControl extends JPanel implements Disposable {
 		showHelpMouseListener = null;
 	}
 
-	private class ShowHelpMouseListener extends MouseAdapter {
-		public void mouseEntered(MouseEvent e) {
-			fireShowHelp();
+	protected void fireShowHelp() {
+		/*
+		 * for (int i = 0; i < selectionControlListeners.size(); i++) {
+		 * ((SelectionControlListener) selectionControlListeners.get(i))
+		 * .showHelp(this, getHelpText()); }
+		 */
+	}
+
+	protected void fireValueChanged() {
+		for (int i = 0; i < selectionControlListeners.size(); i++) {
+			(selectionControlListeners.get(i)).valueChanged(this, getValue());
 		}
 	}
 
-	public SelectionControl() {
-		selectionControlListeners = new LinkedList<SelectionControlListener>();
-		showHelpMouseListener = new ShowHelpMouseListener();
-		setToolTipText(helpText);
+	public String getHelpText() {
+		return helpText;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public Object getValue() {
+		return value;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return isEnabled;
+	}
+
+	public void removeSelectionControlListener(SelectionControlListener listener) {
+		selectionControlListeners.remove(listener);
+	}
+
+	@Override
+	public void setEnabled(boolean isEnabled) {
+		this.isEnabled = isEnabled;
+	}
+
+	public void setHelpText(String helpText) {
+		this.helpText = helpText;
+		this.setToolTipText(helpText);
+	}
+
+	public void setLabel(String text) {
+		label = text;
 	}
 
 	/**
@@ -85,62 +139,11 @@ public abstract class SelectionControl extends JPanel implements Disposable {
 		}
 	}
 
-	protected void fireValueChanged() {
-		for (int i = 0; i < selectionControlListeners.size(); i++) {
-			((SelectionControlListener) selectionControlListeners.get(i))
-					.valueChanged(this, getValue());
-		}
-	}
-
-	protected void fireShowHelp() {
-		/*
-		 * for (int i = 0; i < selectionControlListeners.size(); i++) {
-		 * ((SelectionControlListener) selectionControlListeners.get(i))
-		 * .showHelp(this, getHelpText()); }
-		 */
-	}
-
-	public void addSelectionControlListener(SelectionControlListener listener) {
-		selectionControlListeners.add(listener);
-	}
-
-	public void removeSelectionControlListener(SelectionControlListener listener) {
-		selectionControlListeners.remove(listener);
-	}
-
-	public void setLabel(String text) {
-		label = text;
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public Object getValue() {
-		return value;
-	}
-
 	public void setValue(Object value) {
 		this.value = value;
 	}
 
-	public void setEnabled(boolean isEnabled) {
-		this.isEnabled = isEnabled;
-	}
-
-	public boolean isEnabled() {
-		return isEnabled;
-	}
-
-	public String getHelpText() {
-		return helpText;
-	}
-
-	public void setHelpText(String helpText) {
-		this.helpText = helpText;
-		this.setToolTipText(helpText);
-	}
-
+	@Override
 	public String toString() {
 		return "value={" + getValue() + "},helpText={" + getHelpText() + "}";
 	}

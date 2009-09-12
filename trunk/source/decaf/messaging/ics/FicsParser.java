@@ -40,7 +40,6 @@ import decaf.messaging.ics.nongameparser.MoveListParser;
 import decaf.messaging.ics.nongameparser.NonGameEventParser;
 import decaf.messaging.ics.nongameparser.NotificationEventParser;
 import decaf.messaging.ics.nongameparser.OpenEventParser;
-import decaf.messaging.ics.nongameparser.ParserUtil;
 import decaf.messaging.ics.nongameparser.PartnerTellEventParser;
 import decaf.messaging.ics.nongameparser.PartnershipCreatedEventParser;
 import decaf.messaging.ics.nongameparser.PartnershipEndedEventParser;
@@ -171,8 +170,142 @@ public class FicsParser {
 
 	}
 
+	/**
+	 * Returns the char after the next line termination sequence, or if there is
+	 * not one message.length(). Line terminator is /r/n/r in winblows ,/n/r in
+	 * osx, /r in linux.
+	 * 
+	 * @param message
+	 *            The string buffer to search on
+	 * @param startIndex
+	 *            The index to start the search at
+	 * @return The index
+	 */
+	private int charAfterNextLT(StringBuffer message, int startIndex) {
+		int nextLT = message.indexOf(CR, startIndex);
+
+		if (nextLT == -1) {
+			nextLT = message.indexOf(LF, startIndex);
+		}
+
+		if (nextLT != -1) {
+			while (nextLT + 1 != message.length()
+					&& (message.charAt(nextLT + 1) == '\r' || message
+							.charAt(nextLT + 1) == '\n')) {
+				nextLT++;
+			}
+			return nextLT + 1;
+		} else {
+			return message.length();
+		}
+	}
+
+	/**
+	 * Returns the char before the next Line termination character sequence, or
+	 * if there is not one message.length().
+	 * 
+	 * @param message
+	 *            The string buffer to search on
+	 * @param startIndex
+	 *            The index to start the search at
+	 * @return The index
+	 */
+	private int charBeforeNextLT(StringBuffer message, int startIndex) {
+		int nextLT = message.indexOf(CR, startIndex);
+
+		if (nextLT == -1) {
+			nextLT = message.indexOf(LF, startIndex);
+		}
+
+		if (nextLT != -1 && nextLT != 0) {
+			return nextLT - 1;
+
+		} else if (nextLT == 0) {
+			return 0;
+		} else {
+			return message.length();
+		}
+	}
+
+	private GameStartEvent findOrpahnedGameStart(MoveEvent moveEvent) {
+		GameStartEvent result = null;
+		if (!orhpanedG1s.isEmpty()) {
+			for (int i = 0; result == null && i < orhpanedG1s.size(); i++) {
+				GameStartEvent current = orhpanedG1s.get(i);
+				if (current.getGameId() == moveEvent.getGameId()) {
+					result = current;
+					orhpanedG1s.remove(i);
+				}
+			}
+		}
+
+		if (result != null) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Found orphaned G1 events style 12.");
+			}
+			result.setFirstEvent(moveEvent);
+		}
+		return result;
+	}
+
 	public void hideNextClassFromUser(Class clazz) {
 		classesHidingFromUser.add(clazz);
+	}
+
+	/**
+	 * Returns the index of search in message where search is preceeded by a LT
+	 * or its at the begining of the string. LT is /r/n/r in windows, /n/r in
+	 * OSX,/r in linux.
+	 * 
+	 * @param message
+	 *            The string buffer to search on
+	 * @param search
+	 *            The string to search for
+	 * @return The index
+	 */
+	private int indexOf(StringBuffer message, String search) {
+		int indexWithoutLT = message.indexOf(search);
+
+		if (indexWithoutLT == 0) {
+			return 0;
+		} else if (indexWithoutLT != -1) {
+			if (message.charAt(indexWithoutLT - 1) == '\r'
+					|| message.charAt(indexWithoutLT - 1) == '\n') {
+				return indexWithoutLT;
+			} else {
+				return -1;
+			}
+		} else {
+			return -1;
+		}
+	}
+
+	private int leastIndex(int style12Index, int gameEndIndex, int b1Index,
+			int g1Index, int illegalIndex) {
+		int modStyle12Index = style12Index == -1 ? Integer.MAX_VALUE
+				: style12Index;
+		int modGameEndIndex = gameEndIndex == -1 ? Integer.MAX_VALUE
+				: gameEndIndex;
+		int modB1Index = b1Index == -1 ? Integer.MAX_VALUE : b1Index;
+		int modG1Index = g1Index == -1 ? Integer.MAX_VALUE : g1Index;
+		int modIllegal = illegalIndex == -1 ? Integer.MAX_VALUE : illegalIndex;
+
+		if (modStyle12Index < modGameEndIndex && modStyle12Index < modB1Index
+				&& modStyle12Index < modG1Index && modStyle12Index < modIllegal) {
+			return STYLE_12_INDEX;
+		} else if (modGameEndIndex < modStyle12Index
+				&& modGameEndIndex < modB1Index && modGameEndIndex < modG1Index
+				&& modGameEndIndex < modIllegal) {
+			return GAME_END_INDEX;
+		} else if (modB1Index < modStyle12Index && modB1Index < modGameEndIndex
+				&& modB1Index < modG1Index && modB1Index < modIllegal) {
+			return B1_INDEX;
+		} else if (modG1Index < modB1Index && modG1Index < modStyle12Index
+				&& modG1Index < modGameEndIndex && modG1Index < modIllegal) {
+			return G1_INDEX;
+		} else {
+			return ILLEGAL_INDEX;
+		}
 	}
 
 	public IcsInboundEvent[] parse(StringBuffer message) {
@@ -268,7 +401,6 @@ public class FicsParser {
 							result.add(moveEvent);
 						}
 
-					
 						message = message
 								.delete(style12Index, charAfterNextLT2);
 					} else {
@@ -381,112 +513,6 @@ public class FicsParser {
 		return result.toArray(new IcsInboundEvent[0]);
 	}
 
-	private GameStartEvent findOrpahnedGameStart(MoveEvent moveEvent) {
-		GameStartEvent result = null;
-		if (!orhpanedG1s.isEmpty()) {
-			for (int i = 0; result == null && i < orhpanedG1s.size(); i++) {
-				GameStartEvent current = orhpanedG1s.get(i);
-				if (current.getGameId() == moveEvent.getGameId()) {
-					result = current;
-					orhpanedG1s.remove(i);
-				}
-			}
-		}
-
-		if (result != null) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Found orphaned G1 events style 12.");
-			}
-			result.setFirstEvent(moveEvent);
-		}
-		return result;
-	}
-
-	/**
-	 * Returns the char after the next line termination sequence, or if there is
-	 * not one message.length(). Line terminator is /r/n/r in winblows ,/n/r in
-	 * osx, /r in linux.
-	 * 
-	 * @param message
-	 *            The string buffer to search on
-	 * @param startIndex
-	 *            The index to start the search at
-	 * @return The index
-	 */
-	private int charAfterNextLT(StringBuffer message, int startIndex) {
-		int nextLT = message.indexOf(CR, startIndex);
-
-		if (nextLT == -1) {
-			nextLT = message.indexOf(LF, startIndex);
-		}
-
-		if (nextLT != -1) {
-			while (nextLT + 1 != message.length()
-					&& (message.charAt(nextLT + 1) == '\r' || message
-							.charAt(nextLT + 1) == '\n')) {
-				nextLT++;
-			}
-			return nextLT + 1;
-		} else {
-			return message.length();
-		}
-	}
-
-	/**
-	 * Returns the char before the next Line termination character sequence, or
-	 * if there is not one message.length().
-	 * 
-	 * @param message
-	 *            The string buffer to search on
-	 * @param startIndex
-	 *            The index to start the search at
-	 * @return The index
-	 */
-	private int charBeforeNextLT(StringBuffer message, int startIndex) {
-		int nextLT = message.indexOf(CR, startIndex);
-
-		if (nextLT == -1) {
-			nextLT = message.indexOf(LF, startIndex);
-		}
-
-		if (nextLT != -1 && nextLT != 0) {
-			return nextLT - 1;
-
-		} else if (nextLT == 0) {
-			return 0;
-		} else {
-			return message.length();
-		}
-	}
-
-	/**
-	 * Returns the index of search in message where search is preceeded by a LT
-	 * or its at the begining of the string. LT is /r/n/r in windows, /n/r in
-	 * OSX,/r in linux.
-	 * 
-	 * @param message
-	 *            The string buffer to search on
-	 * @param search
-	 *            The string to search for
-	 * @return The index
-	 */
-	private int indexOf(StringBuffer message, String search) {
-		int indexWithoutLT = message.indexOf(search);
-
-		if (indexWithoutLT == 0) {
-			return 0;
-		} else if (indexWithoutLT != -1) {
-			if (message.charAt(indexWithoutLT - 1) == '\r'
-					|| message.charAt(indexWithoutLT - 1) == '\n') {
-				return indexWithoutLT;
-			} else {
-				return -1;
-			}
-		} else {
-			return -1;
-		}
-	}
-
 	private void parseNonGameMessages(List<IcsInboundEvent> events,
 			String message) {
 		boolean parsedEvent = false;
@@ -511,34 +537,6 @@ public class FicsParser {
 
 		if (!parsedEvent) {
 			events.add(new IcsNonGameEvent(icsId, message));
-		}
-	}
-
-	private int leastIndex(int style12Index, int gameEndIndex, int b1Index,
-			int g1Index, int illegalIndex) {
-		int modStyle12Index = style12Index == -1 ? Integer.MAX_VALUE
-				: style12Index;
-		int modGameEndIndex = gameEndIndex == -1 ? Integer.MAX_VALUE
-				: gameEndIndex;
-		int modB1Index = b1Index == -1 ? Integer.MAX_VALUE : b1Index;
-		int modG1Index = g1Index == -1 ? Integer.MAX_VALUE : g1Index;
-		int modIllegal = illegalIndex == -1 ? Integer.MAX_VALUE : illegalIndex;
-
-		if (modStyle12Index < modGameEndIndex && modStyle12Index < modB1Index
-				&& modStyle12Index < modG1Index && modStyle12Index < modIllegal) {
-			return STYLE_12_INDEX;
-		} else if (modGameEndIndex < modStyle12Index
-				&& modGameEndIndex < modB1Index && modGameEndIndex < modG1Index
-				&& modGameEndIndex < modIllegal) {
-			return GAME_END_INDEX;
-		} else if (modB1Index < modStyle12Index && modB1Index < modGameEndIndex
-				&& modB1Index < modG1Index && modB1Index < modIllegal) {
-			return B1_INDEX;
-		} else if (modG1Index < modB1Index && modG1Index < modStyle12Index
-				&& modG1Index < modGameEndIndex && modG1Index < modIllegal) {
-			return G1_INDEX;
-		} else {
-			return ILLEGAL_INDEX;
 		}
 	}
 

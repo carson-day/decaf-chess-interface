@@ -16,11 +16,9 @@ public class ExecutorServiceThreadManagementStrategy implements
 	public void execute(Runnable runnable) {
 		service.execute(runnable);
 	}
-	
-	public void shutdown()
-	{
-		if (service != null)
-		{
+
+	public void shutdown() {
+		if (service != null) {
 			service.shutdownNow();
 		}
 	}

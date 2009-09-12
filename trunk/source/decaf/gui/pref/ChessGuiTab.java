@@ -77,8 +77,8 @@ public class ChessGuiTab extends PreferencesTab implements
 			new ComboBoxItem[] {
 					new ComboBoxItem("Thief Layout",
 							"decaf.gui.widgets.chessarealayout.ThiefChessAreaLayout"),
-				//	new ComboBoxItem("Winboard Layout",
-				//			"decaf.gui.widgets.chessarealayout.WinboardChessAreaLayout"),
+					// new ComboBoxItem("Winboard Layout",
+					// "decaf.gui.widgets.chessarealayout.WinboardChessAreaLayout"),
 					new ComboBoxItem("Right Oriented Layout",
 							"decaf.gui.widgets.chessarealayout.RightOrientedChessAreaLayout") });
 
@@ -100,7 +100,7 @@ public class ChessGuiTab extends PreferencesTab implements
 					new ComboBoxItem("6", new Integer(6)),
 					new ComboBoxItem("8", new Integer(8)),
 					new ComboBoxItem("10", new Integer(10)) });
-	
+
 	private static final ComboBoxItems HIGHLIGHT_MODE = new ComboBoxItems(
 			new ComboBoxItem[] {
 					new ComboBoxItem("None", new Integer(
@@ -109,10 +109,14 @@ public class ChessGuiTab extends PreferencesTab implements
 							BoardPreferences.FADE_SQUARE_SELECTION_MODE)),
 					new ComboBoxItem("Border Solid", new Integer(
 							BoardPreferences.BORDER_SQUARE_SELECTION_MODE)),
-					new ComboBoxItem("Fill Square", new Integer(
-							BoardPreferences.FILL_BACKGROUND_SQUARE_SELECTION_MODE)),
-					new ComboBoxItem("Diagonal Line Square", new Integer(
-							BoardPreferences.DIAGONAL_LINE_BACKGROUND_SQUARE_SELECTION_MODE))});
+					new ComboBoxItem(
+							"Fill Square",
+							new Integer(
+									BoardPreferences.FILL_BACKGROUND_SQUARE_SELECTION_MODE)),
+					new ComboBoxItem(
+							"Diagonal Line Square",
+							new Integer(
+									BoardPreferences.DIAGONAL_LINE_BACKGROUND_SQUARE_SELECTION_MODE)) });
 
 	private static ComboBoxItems CHESS_SETS = null;
 
@@ -155,7 +159,7 @@ public class ChessGuiTab extends PreferencesTab implements
 
 	private JComboBox pieceSizeDelta = new JComboBox(PIECE_SIZE_DELTA
 			.getItems());
-	
+
 	private JComboBox highlightMode = new JComboBox(HIGHLIGHT_MODE.getItems());
 
 	private JCheckBox isShowingCoordinates = new JCheckBox("");
@@ -196,48 +200,16 @@ public class ChessGuiTab extends PreferencesTab implements
 	private ChessArea chessArea = null;
 
 	private Preferences preferences;
-	
-    private JPanel boxPanel = null;
-    
-    private JPanel leftTopPanel = null;
-    
-    JSplitPane topButtomSplit;
-    
-    JSplitPane splitPane;
-    
+
+	private JPanel boxPanel = null;
+
+	private JPanel leftTopPanel = null;
+
+	JSplitPane topButtomSplit;
+
+	JSplitPane splitPane;
+
 	private boolean ignoreRequest = false;
-	
-	public void dispose()
-	{
-		boxPanel.removeAll();
-		leftTopPanel.removeAll();
-		splitPane.removeAll();
-		topButtomSplit.removeAll();
-		chessArea.dispose();
-		removeAll();
-		
-		layouts.removeItemListener(this);
-		chessSets.removeItemListener(this);
-		squareBackgrounds.removeItemListener(this);
-		dropSquareBorder.removeItemListener(this);
-		squareBorder.removeItemListener(this);
-		holdingsLocation.removeItemListener(this);
-		pieceSizeDelta.removeItemListener(this);
-		isShowingCoordinates.removeItemListener(this);
-		highlightMode.removeItemListener(this);
-
-		clockActiveTextProperties.removeSelectionControlListener(this);
-		clockInactiveTextProperties.removeSelectionControlListener(this);
-		statusBarTextProperties.removeSelectionControlListener(this);
-		controlLabelTextProperties.removeSelectionControlListener(this);
-		timeUpTextProperties.removeSelectionControlListener(this);
-
-		dropSquareColor.removeSelectionControlListener(this);
-		backgroundControlsColor.removeSelectionControlListener(this);
-		lightSquareBackgroundColor.removeSelectionControlListener(this);
-		darkSquareBackgroundColor.removeSelectionControlListener(this);
-		moveHighlightColor.removeSelectionControlListener(this);
-	}
 
 	public ChessGuiTab(Preferences preferences) {
 		super("Chess Gui");
@@ -249,13 +221,13 @@ public class ChessGuiTab extends PreferencesTab implements
 		boxPanel.add(new LabeledComponent("Square Backgrounds",
 				squareBackgrounds));
 		boxPanel.add(lightSquareBackgroundColor);
-		boxPanel.add(darkSquareBackgroundColor);		
+		boxPanel.add(darkSquareBackgroundColor);
 		boxPanel.add(new LabeledComponent("Layout", layouts));
 		boxPanel
 				.add(new LabeledComponent("Holdings Location", holdingsLocation));
 		boxPanel.add(new LabeledComponent("Holdings Square Border",
 				dropSquareBorder));
-		boxPanel.add(dropSquareColor);		
+		boxPanel.add(dropSquareColor);
 		boxPanel.add(new LabeledComponent("Chess Square Border", squareBorder));
 		boxPanel.add(new LabeledComponent("Square Size - Piece Size Delta",
 				pieceSizeDelta));
@@ -279,15 +251,15 @@ public class ChessGuiTab extends PreferencesTab implements
 		chessArea = new ChessArea();
 		chessArea.setPreferences(preferences);
 		Position position = new Position();
-		position = position.set(Coordinates.E2,Piece.EMPTY);
-		position = position.set(Coordinates.E4,Piece.WP);
+		position = position.set(Coordinates.E2, Piece.EMPTY);
+		position = position.set(Coordinates.E4, Piece.WP);
 		chessArea.setup("empty", "Player1", "1456", "Player2", "1567", true,
 				false, 300, 0, position, true);
 		chessArea.getBoard().selectSquare(Coordinates.E4);
 		chessArea.getBoard().selectSquare(Coordinates.E2);
 
 		chessArea.setPreferredSize(new Dimension(350, 400));
-		
+
 		chessArea.setBlackMarkText("(2)");
 
 		chessArea.setWhiteDropPieces(new int[] { Piece.WR, Piece.WB, Piece.WN,
@@ -296,8 +268,8 @@ public class ChessGuiTab extends PreferencesTab implements
 				Piece.BQ, Piece.BP });
 		chessArea.setMinimumSize(new Dimension(400, 200));
 		chessArea.setStatusText("Sample status text");
-		chessArea.setWhiteTime(58*1000*2);
-		chessArea.setBlackTime(60*1000*2);
+		chessArea.setWhiteTime(58 * 1000 * 2);
+		chessArea.setBlackTime(60 * 1000 * 2);
 
 		chessBoardPanel.add(Box.createVerticalGlue());
 		chessBoardPanel.add(chessArea);
@@ -341,6 +313,52 @@ public class ChessGuiTab extends PreferencesTab implements
 
 	}
 
+	@Override
+	public void dispose() {
+		boxPanel.removeAll();
+		leftTopPanel.removeAll();
+		splitPane.removeAll();
+		topButtomSplit.removeAll();
+		chessArea.dispose();
+		removeAll();
+
+		layouts.removeItemListener(this);
+		chessSets.removeItemListener(this);
+		squareBackgrounds.removeItemListener(this);
+		dropSquareBorder.removeItemListener(this);
+		squareBorder.removeItemListener(this);
+		holdingsLocation.removeItemListener(this);
+		pieceSizeDelta.removeItemListener(this);
+		isShowingCoordinates.removeItemListener(this);
+		highlightMode.removeItemListener(this);
+
+		clockActiveTextProperties.removeSelectionControlListener(this);
+		clockInactiveTextProperties.removeSelectionControlListener(this);
+		statusBarTextProperties.removeSelectionControlListener(this);
+		controlLabelTextProperties.removeSelectionControlListener(this);
+		timeUpTextProperties.removeSelectionControlListener(this);
+
+		dropSquareColor.removeSelectionControlListener(this);
+		backgroundControlsColor.removeSelectionControlListener(this);
+		lightSquareBackgroundColor.removeSelectionControlListener(this);
+		darkSquareBackgroundColor.removeSelectionControlListener(this);
+		moveHighlightColor.removeSelectionControlListener(this);
+	}
+
+	public void itemStateChanged(ItemEvent arg0) {
+		if (!ignoreRequest) {
+			save(preferences);
+			chessArea.setPreferences(preferences);
+			chessArea.getBoard().unselectAllSquares();
+			chessArea.getBoard().selectSquare(Coordinates.E4);
+			chessArea.getBoard().selectSquare(Coordinates.E2);
+			chessArea.getLayout().layoutContainer(chessArea);
+			updateHoldingsState();
+			chessArea.repaint();
+		}
+	}
+
+	@Override
 	public void load(Preferences preferences) {
 		if (!ignoreRequest) {
 			ignoreRequest = true;
@@ -395,7 +413,7 @@ public class ChessGuiTab extends PreferencesTab implements
 					.getBoardPreferences().getDarkSquareBackgroundColor());
 			moveHighlightColor.setValue(preferences.getBoardPreferences()
 					.getMoveHighlightColor());
-			
+
 			updateHoldingsState();
 
 			chessArea.setPreferences(preferences);
@@ -403,6 +421,7 @@ public class ChessGuiTab extends PreferencesTab implements
 		}
 	}
 
+	@Override
 	public void save(Preferences preferences) {
 		if (!ignoreRequest) {
 			ignoreRequest = true;
@@ -430,7 +449,7 @@ public class ChessGuiTab extends PreferencesTab implements
 									.toInt());
 			preferences.getBoardPreferences().setPieceSizeDelta(
 					((ComboBoxItem) pieceSizeDelta.getSelectedItem()).toInt());
-			
+
 			preferences.getBoardPreferences().setSquareSelectionMode(
 					((ComboBoxItem) highlightMode.getSelectedItem()).toInt());
 
@@ -462,6 +481,16 @@ public class ChessGuiTab extends PreferencesTab implements
 		}
 	}
 
+	private void updateHoldingsState() {
+		if (layouts.getSelectedIndex() == 0) {
+			holdingsLocation.setEnabled(true);
+			holdingsLocation.repaint();
+		} else {
+			holdingsLocation.setEnabled(false);
+			holdingsLocation.repaint();
+		}
+	}
+
 	public void valueChanged(SelectionControl source, Object newValue) {
 		if (!ignoreRequest) {
 			save(preferences);
@@ -473,33 +502,6 @@ public class ChessGuiTab extends PreferencesTab implements
 
 		}
 
-	}
-
-	public void itemStateChanged(ItemEvent arg0) {
-		if (!ignoreRequest) {
-			save(preferences);
-			chessArea.setPreferences(preferences);
-			chessArea.getBoard().unselectAllSquares();
-			chessArea.getBoard().selectSquare(Coordinates.E4);
-			chessArea.getBoard().selectSquare(Coordinates.E2);
-			chessArea.getLayout().layoutContainer(chessArea);
-			updateHoldingsState();
-			chessArea.repaint();
-		}
-	}
-	
-	private void updateHoldingsState()
-	{
-		if (layouts.getSelectedIndex() == 0)
-		{
-			holdingsLocation.setEnabled(true);
-			holdingsLocation.repaint();
-		}
-		else
-		{
-			holdingsLocation.setEnabled(false);
-			holdingsLocation.repaint();
-		}
 	}
 
 }

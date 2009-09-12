@@ -25,10 +25,15 @@ import decaf.messaging.inboundevent.chat.IcsNonGameEvent;
 import decaf.messaging.inboundevent.inform.PartnershipCreatedEvent;
 
 public class PartnershipCreatedEventParser extends NonGameEventParser {
+	private static final String IDENTIFIER = "You agree to be";
+
+	private static final String IDENTIFIER_2 = "agrees to be your partner.";
+
 	public PartnershipCreatedEventParser(int icsId) {
 		super(icsId);
 	}
 
+	@Override
 	public IcsNonGameEvent parse(String text) {
 		if (text.length() < 100) {
 			int i = text.indexOf(IDENTIFIER);
@@ -53,8 +58,4 @@ public class PartnershipCreatedEventParser extends NonGameEventParser {
 		return null;
 
 	}
-
-	private static final String IDENTIFIER = "You agree to be";
-
-	private static final String IDENTIFIER_2 = "agrees to be your partner.";
 }

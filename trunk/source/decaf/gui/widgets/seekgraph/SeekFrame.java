@@ -28,6 +28,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 
 import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 
 import decaf.gui.GUIManager;
 import decaf.gui.pref.Preferences;
@@ -36,64 +37,12 @@ import decaf.resources.ResourceManagerFactory;
 
 public class SeekFrame extends JFrame {
 
-	private SeekGraph seekGraph;
-
-	private SeekGraphEventAdapter eventAdapter;
-	
-	private SeekFrame thisFrame = this;
-
-	public SeekFrame() {
-		setTitle("Seek Graph");
-		setSize(GUIManager.getInstance().getPreferences().getRememberSeekDimension());
-		setLocation(GUIManager.getInstance().getPreferences().getRememberSeekLocation());
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setLayout(new GridLayout(1, 1));
-
-		seekGraph = new SeekGraph();
-		eventAdapter = new SeekGraphEventAdapter(seekGraph);
-		add(seekGraph);
-		
-		setSeekGraphPreferences(GUIManager.getInstance().getPreferences().getSeekGraphPreferences());
-		
-		addWindowFocusListener(new WindowFocusListener() {
-			public void windowLostFocus(WindowEvent e) {
-				seekGraph.hideSelectMenu();
-			}
-
-			public void windowGainedFocus(WindowEvent e) {
-				// don't care
-			}
-		});
-		addComponentListener(new RememberPositionFrameListener());
-
-		eventAdapter.start();
-	}
-	
-	public void setPreferences(Preferences preferences) {
-		setSeekGraphPreferences(preferences.getSeekGraphPreferences());
-	}
-	
-	private void setSeekGraphPreferences(SeekGraphPreferences sgp) {
-		seekGraph.setVStart(sgp.getVstart());
-		seekGraph.setVScale(sgp.getVscale());
-		
-		seekGraph.setHStart(sgp.getHstart());
-		seekGraph.setHScale(sgp.getHscale());
-		
-		seekGraph.setComputerColor(sgp.getComputerColor());
-		seekGraph.setRatedColor(sgp.getRatedColor());
-		seekGraph.setUnratedColor(sgp.getUnratedColor());
-		seekGraph.setManyColor(sgp.getManyColor());
-		
-		seekGraph.setShowComputerSeeks(sgp.isShowComputer());
-		seekGraph.setShowUnratedSeeks(sgp.isShowUnrated());
-		
-		seekGraph.redoLegend();
-		
-		seekGraph.repaint();
-	}
-
 	private class RememberPositionFrameListener extends ComponentAdapter {
+
+		@Override
+		public void componentMoved(ComponentEvent arg0) {
+			saveSettings();
+		}
 
 		@Override
 		public void componentResized(ComponentEvent arg0) {
@@ -101,17 +50,14 @@ public class SeekFrame extends JFrame {
 			saveSettings();
 		}
 
-		@Override
-		public void componentMoved(ComponentEvent arg0) {
-			saveSettings();
-		}
-
 		private void saveSettings() {
 			Point location = thisFrame.getLocation();
 			Dimension dimension = thisFrame.getSize();
 
-			GUIManager.getInstance().getPreferences().setRememberSeekDimension(dimension);
-			GUIManager.getInstance().getPreferences().setRememberSeekLocation(location);
+			GUIManager.getInstance().getPreferences().setRememberSeekDimension(
+					dimension);
+			GUIManager.getInstance().getPreferences().setRememberSeekLocation(
+					location);
 
 			ResourceManagerFactory.getManager().savePerferences(
 					GUIManager.getInstance().getPreferences());
@@ -119,9 +65,69 @@ public class SeekFrame extends JFrame {
 
 	}
 
+	private SeekGraph seekGraph;
+
+	private SeekGraphEventAdapter eventAdapter;
+
+	private SeekFrame thisFrame = this;
+
+	public SeekFrame() {
+		setTitle("Seek Graph");
+		setSize(GUIManager.getInstance().getPreferences()
+				.getRememberSeekDimension());
+		setLocation(GUIManager.getInstance().getPreferences()
+				.getRememberSeekLocation());
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		setLayout(new GridLayout(1, 1));
+
+		seekGraph = new SeekGraph();
+		eventAdapter = new SeekGraphEventAdapter(seekGraph);
+		add(seekGraph);
+
+		setSeekGraphPreferences(GUIManager.getInstance().getPreferences()
+				.getSeekGraphPreferences());
+
+		addWindowFocusListener(new WindowFocusListener() {
+			public void windowGainedFocus(WindowEvent e) {
+				// don't care
+			}
+
+			public void windowLostFocus(WindowEvent e) {
+				seekGraph.hideSelectMenu();
+			}
+		});
+		addComponentListener(new RememberPositionFrameListener());
+
+		eventAdapter.start();
+	}
+
 	@Override
 	public void dispose() {
 		eventAdapter.dispose();
 		super.dispose();
+	}
+
+	public void setPreferences(Preferences preferences) {
+		setSeekGraphPreferences(preferences.getSeekGraphPreferences());
+	}
+
+	private void setSeekGraphPreferences(SeekGraphPreferences sgp) {
+		seekGraph.setVStart(sgp.getVstart());
+		seekGraph.setVScale(sgp.getVscale());
+
+		seekGraph.setHStart(sgp.getHstart());
+		seekGraph.setHScale(sgp.getHscale());
+
+		seekGraph.setComputerColor(sgp.getComputerColor());
+		seekGraph.setRatedColor(sgp.getRatedColor());
+		seekGraph.setUnratedColor(sgp.getUnratedColor());
+		seekGraph.setManyColor(sgp.getManyColor());
+
+		seekGraph.setShowComputerSeeks(sgp.isShowComputer());
+		seekGraph.setShowUnratedSeeks(sgp.isShowUnrated());
+
+		seekGraph.redoLegend();
+
+		seekGraph.repaint();
 	}
 }

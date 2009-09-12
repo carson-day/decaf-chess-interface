@@ -23,6 +23,14 @@ package decaf.messaging.outboundevent;
 import decaf.messaging.inboundevent.game.GameTypes;
 
 public class MatchRequestEvent extends OutboundEvent implements GameTypes {
+	private int time;
+
+	private int increment;
+
+	private int gameType;
+
+	private String playerToMatch;
+
 	public MatchRequestEvent(int time, int increment, int gameType,
 			String playerToMatch, boolean isHidingFromUser) {
 		super(isHidingFromUser);
@@ -32,27 +40,19 @@ public class MatchRequestEvent extends OutboundEvent implements GameTypes {
 		this.playerToMatch = playerToMatch;
 	}
 
-	public int getTime() {
-		return time;
+	public int getGameType() {
+		return gameType;
 	}
 
 	public int getIncrement() {
 		return increment;
 	}
 
-	public int getGameType() {
-		return gameType;
-	}
-
 	public String getPlayerToMatch() {
 		return playerToMatch;
 	}
 
-	private int time;
-
-	private int increment;
-
-	private int gameType;
-
-	private String playerToMatch;
+	public int getTime() {
+		return time;
+	}
 }

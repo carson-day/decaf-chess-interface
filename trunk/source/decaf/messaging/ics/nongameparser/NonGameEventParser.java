@@ -29,14 +29,14 @@ public abstract class NonGameEventParser {
 		this.icsId = icsId;
 	}
 
+	public int getIcsId() {
+		return icsId;
+	}
+
 	/**
 	 * Returns null if text does not match the event this class produces.
 	 */
 	public abstract IcsNonGameEvent parse(String text);
-
-	public int getIcsId() {
-		return icsId;
-	}
 
 	public void setIcsId(int icsId) {
 		this.icsId = icsId;

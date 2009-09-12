@@ -21,8 +21,6 @@ package decaf.thread;
 
 import org.apache.log4j.Logger;
 
-import decaf.resources.ResourceManagerFactory;
-
 /**
  * Uses a strategy pattern to handle multi-threading. In applets there are
  * issues closing down an ExecutorService in 1.6 so that is why this is used.
@@ -32,28 +30,28 @@ public class ThreadManager {
 
 	private static ThreadManagementStrategy strategy = null;
 
-	private static void initializeManagementStrategy() {
-		synchronized (ThreadManager.class) {
-			if (strategy == null) {
-//				if (ResourceManagerFactory.getManager().getString("os", "os")
-//						.equals("applet")) {
-					strategy = new NewThreadManagementStrategy();
-					LOGGER
-							.debug("Initialized NewThreadManagementStrategy for handling threads");
-//				} else {
-//					strategy = new ExecutorServiceThreadManagementStrategy();
-//					LOGGER
-//							.debug("Initialized ExecutorServiceThreadManagementStrategy for handling threads");
-//				}
-			}
-		}
-	}
-
 	public static void execute(Runnable runnable) {
 		initializeManagementStrategy();
 		strategy.execute(runnable);
 	}
-	
+
+	private static void initializeManagementStrategy() {
+		synchronized (ThreadManager.class) {
+			if (strategy == null) {
+				// if (ResourceManagerFactory.getManager().getString("os", "os")
+				// .equals("applet")) {
+				strategy = new NewThreadManagementStrategy();
+				LOGGER
+						.debug("Initialized NewThreadManagementStrategy for handling threads");
+				// } else {
+				// strategy = new ExecutorServiceThreadManagementStrategy();
+				// LOGGER
+				// .debug("Initialized ExecutorServiceThreadManagementStrategy for handling threads");
+				// }
+			}
+		}
+	}
+
 	public static void shutdown() {
 		strategy.shutdown();
 	}

@@ -187,6 +187,10 @@ public class DecafMenu extends JMenuBar {
 		}
 	};
 
+	private static PreferencesDialog dialog;
+
+	private static AboutDialog aboutDialog;
+
 	public DecafMenu() {
 		super();
 		boolean isApplet = GUIManager.getInstance().isApplet();
@@ -241,8 +245,4 @@ public class DecafMenu extends JMenuBar {
 			saveChessLayoutAction.setEnabled(false);
 		}
 	}
-
-	private static PreferencesDialog dialog;
-
-	private static AboutDialog aboutDialog;
 }

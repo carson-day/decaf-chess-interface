@@ -29,13 +29,13 @@ public abstract class PreferencesTab extends JPanel {
 		this.title = title;
 	}
 
+	public abstract void dispose();
+
 	public String getTitle() {
 		return title;
 	}
 
-	public abstract void save(Preferences preferences);
-
 	public abstract void load(Preferences preferences);
-	
-	public abstract void dispose();
+
+	public abstract void save(Preferences preferences);
 }

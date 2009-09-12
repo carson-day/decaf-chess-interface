@@ -20,8 +20,8 @@
 package decaf.gui.pref;
 
 public interface Preferenceable {
-	public void setPreferences(Preferences preferences);
-
 	public Preferences getPreferences();
+
+	public void setPreferences(Preferences preferences);
 
 }

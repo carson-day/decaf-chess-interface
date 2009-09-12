@@ -29,21 +29,16 @@ import org.apache.log4j.Logger;
 import decaf.event.EventService;
 import decaf.event.Subscriber;
 import decaf.event.Subscription;
-import decaf.gui.BugChessAreaController;
-import decaf.gui.ChessAreaController;
-import decaf.gui.GUIManager;
-import decaf.gui.GameNotificationListener;
 import decaf.gui.widgets.Disposable;
 import decaf.messaging.ics.nongameparser.ParserUtil;
-import decaf.messaging.inboundevent.inform.BugWhoPEvent;
 import decaf.messaging.inboundevent.inform.BugWhoUEvent;
 import decaf.messaging.outboundevent.OutboundEvent;
 
-public class BugWhoUEventAdapter  implements Subscriber,Disposable {
+public class BugWhoUEventAdapter implements Subscriber, Disposable {
 
 	private static final Logger LOGGER = Logger
-	.getLogger(BugWhoUEventAdapter.class);
-	
+			.getLogger(BugWhoUEventAdapter.class);
+
 	private AvailablePartnersPanel panel;
 
 	private Subscription subscription;
@@ -60,28 +55,33 @@ public class BugWhoUEventAdapter  implements Subscriber,Disposable {
 		});
 		refresher.setInitialDelay(10);
 	}
-	
-	
-	
+
+	public void dispose() {
+		stop();
+	}
+
 	public AvailablePartnersPanel getPanel() {
 		return panel;
 	}
 
-
-
-	public void setPanel(AvailablePartnersPanel panel) {
-		this.panel = panel;
+	public void inform(BugWhoUEvent event) {
+		panel.setAvailablePartners(event.getBuggers());
 	}
 
-
-
-	public void dispose()
-	{
-		stop();
+	public void partnerPlayer(String handle) {
+		EventService.getInstance()
+				.publish(
+						new OutboundEvent("partner "
+								+ ParserUtil.removeTitles(handle)));
 	}
 
 	protected void refresh() {
-		EventService.getInstance().publish(new OutboundEvent("bugwho u",true,BugWhoUEvent.class));
+		EventService.getInstance().publish(
+				new OutboundEvent("bugwho u", true, BugWhoUEvent.class));
+	}
+
+	public void setPanel(AvailablePartnersPanel panel) {
+		this.panel = panel;
 	}
 
 	public void start() {
@@ -101,15 +101,5 @@ public class BugWhoUEventAdapter  implements Subscriber,Disposable {
 			running = false;
 		}
 	}
-
-	public void inform(BugWhoUEvent event) {
-		panel.setAvailablePartners(event.getBuggers());
-	}
-
-	public void partnerPlayer(String handle) {
-		EventService.getInstance().publish(
-				new OutboundEvent("partner " + ParserUtil.removeTitles(handle)));
-	}
-
 
 }

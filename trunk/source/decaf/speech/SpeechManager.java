@@ -30,6 +30,10 @@ public class SpeechManager implements Preferenceable {
 
 	private static SpeechManager singletonInstance = new SpeechManager();
 
+	public static SpeechManager getInstance() {
+		return singletonInstance;
+	}
+
 	private DecafSpeech decafSpeech;
 
 	private Preferences preferences;
@@ -37,8 +41,12 @@ public class SpeechManager implements Preferenceable {
 	private SpeechManager() {
 	}
 
-	public static SpeechManager getInstance() {
-		return singletonInstance;
+	public Preferences getPreferences() {
+		return preferences;
+	}
+
+	public DecafSpeech getSpeech() {
+		return decafSpeech;
 	}
 
 	public void init(Preferences preferences) {
@@ -72,19 +80,11 @@ public class SpeechManager implements Preferenceable {
 		LOGGER.info("Decaf Speech=" + decafSpeech);
 	}
 
-	public DecafSpeech getSpeech() {
-		return decafSpeech;
-	}
-
 	public void setPreferences(Preferences preferences) {
 		this.preferences = preferences;
 		if (decafSpeech != null) {
 			decafSpeech.setPreferences(preferences.getSpeechPreferences());
 		}
-	}
-
-	public Preferences getPreferences() {
-		return preferences;
 	}
 
 }

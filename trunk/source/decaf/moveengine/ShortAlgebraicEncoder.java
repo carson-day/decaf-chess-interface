@@ -65,35 +65,37 @@ public class ShortAlgebraicEncoder extends LongAlgebraicEncoder {
 	 * find start coordinates d5 position= [java] --- --- --- --- --- --- ---
 	 * --- [java] : : : k : r : : b : : r : Blacks move. [java] --- --- --- ---
 	 * --- --- --- --- [java] : p : p : p : : : : : p : White can castle
-	 * Kingside Queenside [java] --- --- --- --- --- --- --- --- [java] : : : b : :
-	 * q : p : : p : Black can castle Kingside Queenside [java] --- --- --- ---
-	 * --- --- --- --- [java] : : : : : p : : : : [java] --- --- --- --- --- ---
-	 * --- --- [java] : : : : : P : : : : White holdings [java] --- --- --- ---
-	 * --- --- --- --- [java] : : : N : : Q : P : : N : Black holdings [java]
-	 * --- --- --- --- --- --- --- --- [java] : P : P : P : : : : P : P : [java]
-	 * --- --- --- --- --- --- --- --- [java] : : : K : R : : : : R : [java] ---
-	 * --- --- --- --- --- --- ---
+	 * Kingside Queenside [java] --- --- --- --- --- --- --- --- [java] : : : b
+	 * : : q : p : : p : Black can castle Kingside Queenside [java] --- --- ---
+	 * --- --- --- --- --- [java] : : : : : p : : : : [java] --- --- --- --- ---
+	 * --- --- --- [java] : : : : : P : : : : White holdings [java] --- --- ---
+	 * --- --- --- --- --- [java] : : : N : : Q : P : : N : Black holdings
+	 * [java] --- --- --- --- --- --- --- --- [java] : P : P : P : : : : P : P :
+	 * [java] --- --- --- --- --- --- --- --- [java] : : : K : R : : : : R :
+	 * [java] --- --- --- --- --- --- --- ---
 	 * 
-	 * [java] at
-	 * decaf.moveengine.ShortAlgebraicEncoder.getStartCoordinates(ShortAlgebraicEncoder.java:196)
-	 * [java] at
-	 * decaf.moveengine.ShortAlgebraicEncoder.decode(ShortAlgebraicEncoder.java:57)
-	 * [java] at
-	 * decaf.messaging.ics.nongameparser.MoveListParser.appendMove(MoveListParser.java:123)
-	 * [java] at
-	 * decaf.messaging.ics.nongameparser.MoveListParser.parse(MoveListParser.java:100)
-	 * [java] at
+	 * [java] at decaf.moveengine.ShortAlgebraicEncoder.getStartCoordinates(
+	 * ShortAlgebraicEncoder.java:196) [java] at
+	 * decaf.moveengine.ShortAlgebraicEncoder
+	 * .decode(ShortAlgebraicEncoder.java:57) [java] at
+	 * decaf.messaging.ics.nongameparser
+	 * .MoveListParser.appendMove(MoveListParser.java:123) [java] at
+	 * decaf.messaging
+	 * .ics.nongameparser.MoveListParser.parse(MoveListParser.java:100) [java]
+	 * at
 	 * decaf.messaging.ics.FicsParser.parseNonGameMessages(FicsParser.java:476)
 	 * [java] at decaf.messaging.ics.FicsParser.parse(FicsParser.java:355)
 	 * [java] at
-	 * decaf.messaging.ics.ICSCommunicationsDriver.publishInboundEvents(ICSCommunicationsDriver.java:481)
+	 * decaf.messaging.ics.ICSCommunicationsDriver.publishInboundEvents
+	 * (ICSCommunicationsDriver.java:481) [java] at
+	 * decaf.messaging.ics.ICSCommunicationsDriver
+	 * .messageArrived(ICSCommunicationsDriver.java:477) [java] at
+	 * decaf.messaging
+	 * .ics.ICSCommunicationsDriver.access$900(ICSCommunicationsDriver.java:51)
 	 * [java] at
-	 * decaf.messaging.ics.ICSCommunicationsDriver.messageArrived(ICSCommunicationsDriver.java:477)
-	 * [java] at
-	 * decaf.messaging.ics.ICSCommunicationsDriver.access$900(ICSCommunicationsDriver.java:51)
-	 * [java] at
-	 * decaf.messaging.ics.ICSCommunicationsDriver$InboundMessageHandler.run(ICSCommunicationsDriver.java:728)
-	 * [java] at java.lang.Thread.run(Thread.java:613)
+	 * decaf.messaging.ics.ICSCommunicationsDriver$InboundMessageHandler
+	 * .run(ICSCommunicationsDriver.java:728) [java] at
+	 * java.lang.Thread.run(Thread.java:613)
 	 */
 	private static final Logger LOGGER = Logger
 			.getLogger(ShortAlgebraicEncoder.class);
@@ -108,6 +110,39 @@ public class ShortAlgebraicEncoder extends LongAlgebraicEncoder {
 
 	private static final String VALID_RANKS = "12345678";
 
+	private int charToPiece(char character, boolean isWhitesMove) {
+		switch (character) {
+		case 'p':
+		case 'P': {
+			return isWhitesMove ? Piece.WP : Piece.BP;
+		}
+		case 'n':
+		case 'N': {
+			return isWhitesMove ? Piece.WN : Piece.BN;
+		}
+		case 'b':
+		case 'B': {
+			return isWhitesMove ? Piece.WB : Piece.BB;
+		}
+		case 'r':
+		case 'R': {
+			return isWhitesMove ? Piece.WR : Piece.BR;
+		}
+		case 'q':
+		case 'Q': {
+			return isWhitesMove ? Piece.WQ : Piece.BQ;
+		}
+		case 'k':
+		case 'K': {
+			return isWhitesMove ? Piece.WK : Piece.BK;
+		}
+		default: {
+			throw new IllegalArgumentException("Unknown piece: " + character);
+		}
+		}
+	}
+
+	@Override
 	public Move decode(String moveString, Position position)
 			throws IllegalArgumentException {
 
@@ -182,17 +217,21 @@ public class ShortAlgebraicEncoder extends LongAlgebraicEncoder {
 		if (result == null) {
 			/*
 			 * LOGGER.error("All legal moves on failure: " +
-			 * position.getBoardState()); for (int i = 0; i < moves.length; i++) {
-			 * Move move = moves[i]; LOGGER.error("Testing move: " + move + "
+			 * position.getBoardState()); for (int i = 0; i < moves.length; i++)
+			 * { Move move = moves[i]; LOGGER.error("Testing move: " + move + "
 			 * pieceMoving=" + pieceMoving + " endCoordinates=" +
-			 * CoordinatesUtil.getDefaultCoordinates(move .getEndCoordinates()) + "
-			 * startCoordinates=" + CoordinatesUtil.getDefaultCoordinates(move
+			 * CoordinatesUtil.getDefaultCoordinates(move .getEndCoordinates())
+			 * + " startCoordinates=" +
+			 * CoordinatesUtil.getDefaultCoordinates(move
 			 * .getStartCoordinates()) + " expectedEndCoordinates=" +
 			 * CoordinatesUtil.getDefaultCoordinates(endCoordinates) + "
 			 * expectedStartCoordinates=" + CoordinatesUtil
 			 * .getDefaultCoordinates(startCoordinates)); } Move[] debugMoves =
 			 * new Move[5];
-			 * PositionUtil.getPsuedoKingCastlingMoves(debugMoves,0,position.getBoard(),position.getBoardState(),startCoordinates[0],startCoordinates[1]);
+			 * PositionUtil.getPsuedoKingCastlingMoves(debugMoves,0,
+			 * position.getBoard
+			 * (),position.getBoardState(),startCoordinates[0],startCoordinates
+			 * [1]);
 			 * 
 			 * LOGGER.error("Debug moves after failure:"); for (int i = 0; i <
 			 * debugMoves.length; i++) { Move debugMove = debugMoves[i]; if
@@ -207,9 +246,119 @@ public class ShortAlgebraicEncoder extends LongAlgebraicEncoder {
 		return result;
 	}
 
+	@Override
 	public String encode(Move move, Position position) {
 
 		throw new UnsupportedOperationException();
+	}
+
+	private int[] getEndCoordinates(String moveString, Position position) {
+		if (moveString.length() >= 2) {
+
+			if (moveString.equalsIgnoreCase("o-o")) {
+				return position.isWhitesMove() ? Coordinates.H1
+						: Coordinates.H8;
+			} else if (moveString.equalsIgnoreCase("o-o-o")) {
+				return position.isWhitesMove() ? Coordinates.A1
+						: Coordinates.A8;
+			} else if (moveString.endsWith("ep")) {
+				throw new IllegalArgumentException("Cant handle ep yet "
+						+ moveString);
+			} else if (moveString.charAt(1) == ('@')) {
+				char file = moveString.charAt(moveString.length() - 2);
+				char rank = moveString.charAt(moveString.length() - 1);
+				return new int[] { rankFromChar(rank), fileFromChar(file) };
+			} else if (moveString.indexOf('=') != -1) {
+				// bxa8=Q
+				int xIndex = moveString.indexOf('x');
+
+				char file = 0;
+				char rank = 0;
+
+				if (xIndex == -1) {
+
+					file = moveString.charAt(0);
+					rank = moveString.charAt(1);
+				} else {
+					file = moveString.charAt(xIndex + 1);
+					rank = moveString.charAt(xIndex + 2);
+				}
+				return new int[] { rankFromChar(rank), fileFromChar(file) };
+			} else if (Character.isDigit(moveString
+					.charAt(moveString.length() - 1))
+					&& VALID_FILES.indexOf(moveString.charAt(moveString
+							.length() - 2)) != -1) {
+				char file = moveString.charAt(moveString.length() - 2);
+				char rank = moveString.charAt(moveString.length() - 1);
+
+				return new int[] { rankFromChar(rank), fileFromChar(file) };
+			} else {
+				throw new IllegalArgumentException(
+						"Cant determine end coordinates " + moveString);
+			}
+		} else {
+			throw new IllegalArgumentException("Invalid short algebraic move "
+					+ moveString);
+		}
+	}
+
+	private int getPieceMoving(String moveString, Position position) {
+		int result = Piece.EMPTY;
+		if (moveString.length() < 2) {
+			throw new IllegalArgumentException("Invalid short algebraic move "
+					+ moveString);
+		} else if (moveString.length() == 2) {
+			result = position.isWhitesMove() ? Piece.WP : Piece.BP;
+		} else if (moveString.indexOf('=') != -1) {
+			result = position.isWhitesMove() ? Piece.WP : Piece.BP;
+		} else if (moveString.charAt(1) == ('@')) {
+			result = charToPiece(moveString.charAt(0), position.isWhitesMove());
+		} else if (moveString.equalsIgnoreCase("o-o")
+				|| moveString.equalsIgnoreCase("o-o-o")) {
+			result = position.isWhitesMove() ? Piece.WK : Piece.BK;
+		} else if (moveString.length() == 3) {
+			result = charToPiece(moveString.charAt(0), position.isWhitesMove());
+		} else if (moveString.endsWith("ep")) {
+			result = position.isWhitesMove() ? Piece.WP : Piece.BP;
+		} else {
+			char pieceMoving = moveString.charAt(0);
+			if (VALID_FILES.indexOf(pieceMoving) == -1) {
+				result = charToPiece(pieceMoving, position.isWhitesMove());
+			} else {
+				result = position.isWhitesMove() ? Piece.WP : Piece.BP;
+			}
+
+		}
+		return result;
+	}
+
+	private int getPromotedPiece(String moveString, Position position) {
+		int result = -1;
+
+		if (moveString.indexOf('=') != -1) {
+			result = charToPiece(moveString.charAt(moveString.length() - 1),
+					position.isWhitesMove());
+		}
+		return result;
+	}
+
+	private Move[] getPseudoLegalMoves(Position position) {
+		Move[] moves = new Move[420];
+		int lastMovesIndex = -1;
+
+		// This will still choke on fischer random when castling occurs.
+
+		// get psudo legal moves.
+		lastMovesIndex = PositionUtil.getPsuedoLegalMoves(moves,
+				lastMovesIndex, position.getBoard(), position.getBoardState());
+
+		lastMovesIndex = PositionUtil.getPseudoDropMoves(moves, lastMovesIndex,
+				position.getBoard(), position.getBoardState(), position
+						.isWhitesMove() ? WHITE_DROP_HOLDINGS
+						: BLACK_DROP_HOLDINGS);
+
+		return moves;
+
 	}
 
 	private int[] getStartCoordinates(String moveString, Position position,
@@ -331,152 +480,11 @@ public class ShortAlgebraicEncoder extends LongAlgebraicEncoder {
 		return result;
 	}
 
-	private int getPromotedPiece(String moveString, Position position) {
-		int result = -1;
-
-		if (moveString.indexOf('=') != -1) {
-			result = charToPiece(moveString.charAt(moveString.length() - 1),
-					position.isWhitesMove());
-		}
-		return result;
-	}
-
-	private int getPieceMoving(String moveString, Position position) {
-		int result = Piece.EMPTY;
-		if (moveString.length() < 2) {
-			throw new IllegalArgumentException("Invalid short algebraic move "
-					+ moveString);
-		} else if (moveString.length() == 2) {
-			result = position.isWhitesMove() ? Piece.WP : Piece.BP;
-		} else if (moveString.indexOf('=') != -1) {
-			result = position.isWhitesMove() ? Piece.WP : Piece.BP;
-		} else if (moveString.charAt(1) == ('@')) {
-			result = charToPiece(moveString.charAt(0), position.isWhitesMove());
-		} else if (moveString.equalsIgnoreCase("o-o")
-				|| moveString.equalsIgnoreCase("o-o-o")) {
-			result = position.isWhitesMove() ? Piece.WK : Piece.BK;
-		} else if (moveString.length() == 3) {
-			result = charToPiece(moveString.charAt(0), position.isWhitesMove());
-		} else if (moveString.endsWith("ep")) {
-			result = position.isWhitesMove() ? Piece.WP : Piece.BP;
-		} else {
-			char pieceMoving = moveString.charAt(0);
-			if (VALID_FILES.indexOf(pieceMoving) == -1) {
-				result = charToPiece(pieceMoving, position.isWhitesMove());
-			} else {
-				result = position.isWhitesMove() ? Piece.WP : Piece.BP;
-			}
-
-		}
-		return result;
-	}
-
-	private int[] getEndCoordinates(String moveString, Position position) {
-		if (moveString.length() >= 2) {
-
-			if (moveString.equalsIgnoreCase("o-o")) {
-				return position.isWhitesMove() ? Coordinates.H1
-						: Coordinates.H8;
-			} else if (moveString.equalsIgnoreCase("o-o-o")) {
-				return position.isWhitesMove() ? Coordinates.A1
-						: Coordinates.A8;
-			} else if (moveString.endsWith("ep")) {
-				throw new IllegalArgumentException("Cant handle ep yet "
-						+ moveString);
-			} else if (moveString.charAt(1) == ('@')) {
-				char file = moveString.charAt(moveString.length() - 2);
-				char rank = moveString.charAt(moveString.length() - 1);
-				return new int[] { rankFromChar(rank), fileFromChar(file) };
-			} else if (moveString.indexOf('=') != -1) {
-				// bxa8=Q
-				int xIndex = moveString.indexOf('x');
-
-				char file = 0;
-				char rank = 0;
-
-				if (xIndex == -1) {
-
-					file = moveString.charAt(0);
-					rank = moveString.charAt(1);
-				} else {
-					file = moveString.charAt(xIndex + 1);
-					rank = moveString.charAt(xIndex + 2);
-				}
-				return new int[] { rankFromChar(rank), fileFromChar(file) };
-			} else if (Character.isDigit(moveString
-					.charAt(moveString.length() - 1))
-					&& VALID_FILES.indexOf(moveString.charAt(moveString
-							.length() - 2)) != -1) {
-				char file = moveString.charAt(moveString.length() - 2);
-				char rank = moveString.charAt(moveString.length() - 1);
-
-				return new int[] { rankFromChar(rank), fileFromChar(file) };
-			} else {
-				throw new IllegalArgumentException(
-						"Cant determine end coordinates " + moveString);
-			}
-		} else {
-			throw new IllegalArgumentException("Invalid short algebraic move "
-					+ moveString);
-		}
-	}
-
-	private int charToPiece(char character, boolean isWhitesMove) {
-		switch (character) {
-		case 'p':
-		case 'P': {
-			return isWhitesMove ? Piece.WP : Piece.BP;
-		}
-		case 'n':
-		case 'N': {
-			return isWhitesMove ? Piece.WN : Piece.BN;
-		}
-		case 'b':
-		case 'B': {
-			return isWhitesMove ? Piece.WB : Piece.BB;
-		}
-		case 'r':
-		case 'R': {
-			return isWhitesMove ? Piece.WR : Piece.BR;
-		}
-		case 'q':
-		case 'Q': {
-			return isWhitesMove ? Piece.WQ : Piece.BQ;
-		}
-		case 'k':
-		case 'K': {
-			return isWhitesMove ? Piece.WK : Piece.BK;
-		}
-		default: {
-			throw new IllegalArgumentException("Unknown piece: " + character);
-		}
-		}
-	}
-
 	private String stripCheck(String moveString) {
 		if (moveString.endsWith("+")) {
 			return moveString.substring(0, moveString.length() - 1);
 		} else {
 			return moveString;
 		}
-	}
-
-	private Move[] getPseudoLegalMoves(Position position) {
-		Move[] moves = new Move[420];
-		int lastMovesIndex = -1;
-
-		// This will still choke on fischer random when castling occurs.
-
-		// get psudo legal moves.
-		lastMovesIndex = PositionUtil.getPsuedoLegalMoves(moves,
-				lastMovesIndex, position.getBoard(), position.getBoardState());
-
-		lastMovesIndex = PositionUtil.getPseudoDropMoves(moves, lastMovesIndex,
-				position.getBoard(), position.getBoardState(), position
-						.isWhitesMove() ? WHITE_DROP_HOLDINGS
-						: BLACK_DROP_HOLDINGS);
-
-		return moves;
-
 	}
 }

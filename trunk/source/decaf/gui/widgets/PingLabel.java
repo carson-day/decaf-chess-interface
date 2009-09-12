@@ -33,18 +33,6 @@ import decaf.util.StringUtility;
 
 public class PingLabel extends JLabel implements Preferenceable {
 
-	private PingHandler pingHandler;
-
-	private Preferences preferences;
-
-	public PingLabel(Preferences preferences) {
-		pingHandler = new PingHandler();
-		setPreferences(preferences);
-		EventService.getInstance().subscribe(
-				new Subscription(ResponseTimeEvent.class, null, pingHandler));
-		setText("           ");
-	}
-
 	public class PingHandler implements Subscriber {
 		public PingHandler() {
 		}
@@ -62,6 +50,18 @@ public class PingLabel extends JLabel implements Preferenceable {
 			setToolTipText("<html>A rough estimation of ping time <br/>based on the difference <br/>between the last  <br/>message sent and the  <br/>last message received.</html>");
 			repaint();
 		}
+	}
+
+	private PingHandler pingHandler;
+
+	private Preferences preferences;
+
+	public PingLabel(Preferences preferences) {
+		pingHandler = new PingHandler();
+		setPreferences(preferences);
+		EventService.getInstance().subscribe(
+				new Subscription(ResponseTimeEvent.class, null, pingHandler));
+		setText("           ");
 	}
 
 	public Preferences getPreferences() {

@@ -46,6 +46,34 @@ public class MoveListParser extends NonGameEventParser {
 		super(icsId);
 	}
 
+	private Position appendMove(String time, String shortAlg,
+			MoveListModel moveList, Position currentPosition) {
+
+		try {
+			Position afterMovePosition = currentPosition.makeMove(encoder
+					.decode(shortAlg, currentPosition), false);
+
+			// There is a bug in the PositionUtil that does not reset castling
+			// positions.
+			// For now this is being dealt with by enabling it in the cloned
+			// position.
+			afterMovePosition = new Position(afterMovePosition.getBoard(),
+					true, true, true, true, afterMovePosition
+							.getLastMoveDoublePawnPushFile(), afterMovePosition
+							.isWhitesMove());
+
+			MoveListModelMove move = new MoveListModelMove(shortAlg,
+					afterMovePosition, timeToLong(time));
+			moveList.append(move);
+
+			return afterMovePosition;
+		} catch (IllegalMoveException ime) {
+			LOGGER.error(ime);
+			throw new RuntimeException(ime);
+		}
+	}
+
+	@Override
 	public IcsNonGameEvent parse(String string) {
 		if (string.startsWith(EVENT_START)) {
 			int lastDash = string.lastIndexOf("--");
@@ -114,33 +142,6 @@ public class MoveListParser extends NonGameEventParser {
 			}
 		}
 		return null;
-	}
-
-	private Position appendMove(String time, String shortAlg,
-			MoveListModel moveList, Position currentPosition) {
-
-		try {
-			Position afterMovePosition = currentPosition.makeMove(encoder
-					.decode(shortAlg, currentPosition), false);
-
-			// There is a bug in the PositionUtil that does not reset castling
-			// positions.
-			// For now this is being dealt with by enabling it in the cloned
-			// position.
-			afterMovePosition = new Position(afterMovePosition.getBoard(),
-					true, true, true, true, afterMovePosition
-							.getLastMoveDoublePawnPushFile(), afterMovePosition
-							.isWhitesMove());
-
-			MoveListModelMove move = new MoveListModelMove(shortAlg,
-					afterMovePosition, timeToLong(time));
-			moveList.append(move);
-
-			return (Position) afterMovePosition;
-		} catch (IllegalMoveException ime) {
-			LOGGER.error(ime);
-			throw new RuntimeException(ime);
-		}
 	}
 
 	private int timeToLong(String timeString) {

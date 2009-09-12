@@ -32,54 +32,6 @@ public class LongAlgebraicEncoder implements MoveEncoder {
 
 	private static final String EN_PASSANT = "ep";
 
-	/**
-	 * coordinates[0] == rank coordinates[1] == file.
-	 */
-	public String encode(int[] coordinates) {
-		return encode(coordinates[0], coordinates[1]);
-	}
-
-	public String encode(int rank, int file) {
-		return "" + getAlgebraicFile(file) + getAlgebraicRank(rank);
-	}
-
-	public static int getAlgebraicRank(int rank) {
-		// assert rank > -1 && rank < 8 : rank;
-		return Math.abs(8 - rank);
-	}
-
-	public static int[] stringToCoordinates(String algebraicCoordinates) {
-		// assert algebraicCoordinates != null : "algebraicCoordinates cant be
-		// null";
-		// assert algebraicCoordinates.length() == 2 : "algebraicCoordinates
-		// must be 2 in length " + algebraicCoordinates;
-		return new int[] { rankFromChar(algebraicCoordinates.charAt(1)),
-				fileFromChar(algebraicCoordinates.charAt(0)) };
-	}
-
-	public static int rankFromChar(char rankCharacter) {
-		switch (rankCharacter) {
-		case '8':
-			return 0;
-		case '7':
-			return 1;
-		case '6':
-			return 2;
-		case '5':
-			return 3;
-		case '4':
-			return 4;
-		case '3':
-			return 5;
-		case '2':
-			return 6;
-		case '1':
-			return 7;
-		}
-		throw new IllegalArgumentException("Invalid rank char: "
-				+ rankCharacter);
-	}
-
 	public static int fileFromChar(char fileCharacter) {
 		switch (fileCharacter) {
 		case 'A':
@@ -150,23 +102,41 @@ public class LongAlgebraicEncoder implements MoveEncoder {
 		throw new IllegalArgumentException("Invalid file: " + file);
 	}
 
-	/**
-	 * Completely ignores position.
-	 */
-	public String encode(Move move, Position position) {
-		return move.isCastleKingside() ? CASTLE_KINGSIDE : move
-				.isCastleQueenside() ? CASTLE_QUEENSIDE
-				: move.isDropMove() ? pieceToString(move.getDroppedPiece())
-						+ "@" + getAlgebraicFile(move.getEndCoordinates()[1])
-						+ getAlgebraicRank(move.getEndCoordinates()[0]) : ""
-						+ getAlgebraicFile(move.getStartFile())
-						+ getAlgebraicRank(move.getStartRank())
-						+ (move.isCapture() ? MOVE : MOVE)
-						+ ""
-						+ getAlgebraicFile(move.getEndFile())
-						+ getAlgebraicRank(move.getEndRank())
-						+ (move.getPromotedPiece() != Piece.EMPTY ? "="
-								+ pieceToString(move.getPromotedPiece()) : "");
+	public static int getAlgebraicRank(int rank) {
+		// assert rank > -1 && rank < 8 : rank;
+		return Math.abs(8 - rank);
+	}
+
+	public static int rankFromChar(char rankCharacter) {
+		switch (rankCharacter) {
+		case '8':
+			return 0;
+		case '7':
+			return 1;
+		case '6':
+			return 2;
+		case '5':
+			return 3;
+		case '4':
+			return 4;
+		case '3':
+			return 5;
+		case '2':
+			return 6;
+		case '1':
+			return 7;
+		}
+		throw new IllegalArgumentException("Invalid rank char: "
+				+ rankCharacter);
+	}
+
+	public static int[] stringToCoordinates(String algebraicCoordinates) {
+		// assert algebraicCoordinates != null : "algebraicCoordinates cant be
+		// null";
+		// assert algebraicCoordinates.length() == 2 : "algebraicCoordinates
+		// must be 2 in length " + algebraicCoordinates;
+		return new int[] { rankFromChar(algebraicCoordinates.charAt(1)),
+				fileFromChar(algebraicCoordinates.charAt(0)) };
 	}
 
 	public Move decode(String moveString, Position position) {
@@ -194,6 +164,36 @@ public class LongAlgebraicEncoder implements MoveEncoder {
 					.createMove(startCoordinates, endCoordinates, position);
 		}
 		return result;
+	}
+
+	public String encode(int rank, int file) {
+		return "" + getAlgebraicFile(file) + getAlgebraicRank(rank);
+	}
+
+	/**
+	 * coordinates[0] == rank coordinates[1] == file.
+	 */
+	public String encode(int[] coordinates) {
+		return encode(coordinates[0], coordinates[1]);
+	}
+
+	/**
+	 * Completely ignores position.
+	 */
+	public String encode(Move move, Position position) {
+		return move.isCastleKingside() ? CASTLE_KINGSIDE : move
+				.isCastleQueenside() ? CASTLE_QUEENSIDE
+				: move.isDropMove() ? pieceToString(move.getDroppedPiece())
+						+ "@" + getAlgebraicFile(move.getEndCoordinates()[1])
+						+ getAlgebraicRank(move.getEndCoordinates()[0]) : ""
+						+ getAlgebraicFile(move.getStartFile())
+						+ getAlgebraicRank(move.getStartRank())
+						+ (move.isCapture() ? MOVE : MOVE)
+						+ ""
+						+ getAlgebraicFile(move.getEndFile())
+						+ getAlgebraicRank(move.getEndRank())
+						+ (move.getPromotedPiece() != Piece.EMPTY ? "="
+								+ pieceToString(move.getPromotedPiece()) : "");
 	}
 
 	public String pieceToString(int piece) {

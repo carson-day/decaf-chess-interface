@@ -21,16 +21,18 @@ package decaf.messaging.inboundevent.chat;
 
 public class WhisperEvent extends IcsNonGameEvent {
 
+	private String message;
+
+	private String whisperer;
+
+	private int gameNumber;
+
 	public WhisperEvent(int icsId, String text, String message,
 			String whisperer, int gameId) {
 		super(icsId, text.trim());
 		this.message = message;
 		this.whisperer = whisperer;
 		this.gameNumber = gameId;
-	}
-
-	public String getWhisperer() {
-		return whisperer;
 	}
 
 	public int getGameId() {
@@ -41,15 +43,14 @@ public class WhisperEvent extends IcsNonGameEvent {
 		return message;
 	}
 
+	public String getWhisperer() {
+		return whisperer;
+	}
+
+	@Override
 	public String toString() {
 		return "<WhisperEvent>" + super.toString() + "<whisperer>" + whisperer
 				+ "</whisperer>" + "<message>" + message + "</message>"
 				+ "<gameId>" + gameNumber + "</gameId>" + "</WhisperEvent>";
 	}
-
-	private String message;
-
-	private String whisperer;
-
-	private int gameNumber;
 }

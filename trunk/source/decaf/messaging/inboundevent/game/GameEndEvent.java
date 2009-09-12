@@ -24,9 +24,25 @@ package decaf.messaging.inboundevent.game;
 
 public class GameEndEvent extends GameEvent {
 
-	public String toString() {
-		return "GameEndEvent: icsId=" + getIcsId() + " gameId=" + getGameId();
-	}
+	public static final int WHITE_WON = 0;
+
+	public static final int BLACK_WON = 1;
+
+	public static final int DRAW = 2;
+
+	public static final int ADJOURNED = 3;
+
+	public static final int ABORTED = 4;
+
+	public static final int UNDETERMINED = 5;
+
+	private String lightName;
+
+	private String darkName;
+
+	private String description;
+
+	private int score;
 
 	public GameEndEvent(int icsId, int gameId, String whiteName,
 			String blackName, String description, int score) {
@@ -36,10 +52,6 @@ public class GameEndEvent extends GameEvent {
 		this.description = description;
 		this.score = score;
 
-	}
-
-	public String getWhiteName() {
-		return lightName;
 	}
 
 	public String getBlackName() {
@@ -74,23 +86,12 @@ public class GameEndEvent extends GameEvent {
 		return score;
 	}
 
-	public static final int WHITE_WON = 0;
+	public String getWhiteName() {
+		return lightName;
+	}
 
-	public static final int BLACK_WON = 1;
-
-	public static final int DRAW = 2;
-
-	public static final int ADJOURNED = 3;
-
-	public static final int ABORTED = 4;
-
-	public static final int UNDETERMINED = 5;
-
-	private String lightName;
-
-	private String darkName;
-
-	private String description;
-
-	private int score;
+	@Override
+	public String toString() {
+		return "GameEndEvent: icsId=" + getIcsId() + " gameId=" + getGameId();
+	}
 }

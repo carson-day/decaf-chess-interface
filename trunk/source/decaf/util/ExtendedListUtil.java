@@ -28,6 +28,43 @@ public class ExtendedListUtil {
 
 	private static List<String> extendedNoplayList = loadFile(EXTENDED_NOPLAY_FILE);
 
+	public static void add(ExtendedList list, String name) {
+		switch (list) {
+		case CENSOR: {
+			if (!extendedCensorList.contains(name)) {
+				extendedCensorList.add(name);
+				updateFile(extendedCensorList, EXTENDED_CENSOR_FILE);
+			}
+			break;
+		}
+		case NOPLAY: {
+			if (!extendedNoplayList.contains(name)) {
+				extendedNoplayList.add(name);
+				updateFile(extendedNoplayList, EXTENDED_NOPLAY_FILE);
+			}
+			break;
+		}
+		default: {
+			throw new IllegalArgumentException("Unknown list " + list);
+		}
+
+		}
+	}
+
+	public static boolean contains(ExtendedList list, String name) {
+		switch (list) {
+		case CENSOR: {
+			return extendedCensorList.contains(name);
+		}
+		case NOPLAY: {
+			return extendedNoplayList.contains(name);
+		}
+		default: {
+			throw new IllegalArgumentException("Unknown list " + list);
+		}
+		}
+	}
+
 	public static String getContents(ExtendedList list) {
 		String result = null;
 		List<String> listToUse = null;
@@ -54,41 +91,24 @@ public class ExtendedListUtil {
 		return result;
 	}
 
-	public static boolean contains(ExtendedList list, String name) {
-		switch (list) {
-		case CENSOR: {
-			return extendedCensorList.contains(name);
-		}
-		case NOPLAY: {
-			return extendedNoplayList.contains(name);
-		}
-		default: {
-			throw new IllegalArgumentException("Unknown list " + list);
-		}
-		}
-	}
+	public static List<String> loadFile(File file) {
+		List<String> result = new LinkedList<String>();
+		try {
+			if (file.exists()) {
+				BufferedReader reader = new BufferedReader(new FileReader(file));
+				String line = reader.readLine();
+				while (line != null) {
+					result.add(line.trim());
+					line = reader.readLine();
+				}
+				reader.close();
+			}
+			return result;
 
-	public static void add(ExtendedList list, String name) {
-		switch (list) {
-		case CENSOR: {
-			if (!extendedCensorList.contains(name)) {
-				extendedCensorList.add(name);
-				updateFile(extendedCensorList, EXTENDED_CENSOR_FILE);
-			}
-			break;
-		}
-		case NOPLAY: {
-			if (!extendedNoplayList.contains(name)) {
-				extendedNoplayList.add(name);
-				updateFile(extendedNoplayList, EXTENDED_NOPLAY_FILE);
-			}
-			break;
-		}
-		default: {
-			throw new IllegalArgumentException("Unknown list " + list);
+		} catch (IOException ioe) {
+			throw new RuntimeException(ioe);
 		}
 
-		}
 	}
 
 	public static void remove(ExtendedList list, String name) {
@@ -108,26 +128,6 @@ public class ExtendedListUtil {
 		}
 
 		}
-	}
-
-	public static List<String> loadFile(File file) {
-		List<String> result = new LinkedList<String>();
-		try {
-			if (file.exists()) {
-				BufferedReader reader = new BufferedReader(new FileReader(file));
-				String line = reader.readLine();
-				while (line != null) {
-					result.add(line.trim());
-					line = reader.readLine();
-				}
-				reader.close();
-			}
-			return result;
-
-		} catch (IOException ioe) {
-			throw new RuntimeException(ioe);
-		}
-
 	}
 
 	private static void updateFile(List<String> list, File file) {

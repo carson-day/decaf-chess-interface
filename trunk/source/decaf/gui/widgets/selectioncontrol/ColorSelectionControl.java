@@ -39,22 +39,27 @@ import decaf.gui.widgets.Disposable;
  */
 public class ColorSelectionControl extends SelectionControl implements
 		Disposable {
+	private class ChangeButtonActionListener implements ActionListener {
+		Component parent;
+
+		public ChangeButtonActionListener(Component parent) {
+			this.parent = parent;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			Color newColor = JColorChooser.showDialog(parent, getLabel(),
+					(Color) getValue());
+			if (newColor != null) {
+				setValue(newColor);
+			}
+		}
+	}
+
 	private JPanel swatch;
 
 	private JLabel label;
 
 	private JButton changeButton;
-
-	public void dispose() {
-		super.dispose();
-		removeAll();
-		label = null;
-		if (swatch != null) {
-			swatch.removeAll();
-			swatch = null;
-		}
-		changeButton = null;
-	}
 
 	public ColorSelectionControl(String labelText, String helpText, Color value) {
 		super();
@@ -82,6 +87,19 @@ public class ColorSelectionControl extends SelectionControl implements
 		label.setToolTipText(helpText);
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+		removeAll();
+		label = null;
+		if (swatch != null) {
+			swatch.removeAll();
+			swatch = null;
+		}
+		changeButton = null;
+	}
+
+	@Override
 	public void setEnabled(boolean isEnabled) {
 		changeButton.setEnabled(isEnabled);
 		super.setEnabled(isEnabled);
@@ -90,6 +108,7 @@ public class ColorSelectionControl extends SelectionControl implements
 	/**
 	 * Value will always be of type Boolean
 	 */
+	@Override
 	public void setValue(Object value) {
 		if (value != null && !(value instanceof Color)) {
 			throw new IllegalArgumentException("value must be of type Color");
@@ -103,22 +122,6 @@ public class ColorSelectionControl extends SelectionControl implements
 			swatch.setBackground(color);
 			super.setValue(color);
 			fireValueChanged();
-		}
-	}
-
-	private class ChangeButtonActionListener implements ActionListener {
-		Component parent;
-
-		public ChangeButtonActionListener(Component parent) {
-			this.parent = parent;
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			Color newColor = JColorChooser.showDialog(parent, getLabel(),
-					(Color) getValue());
-			if (newColor != null) {
-				setValue(newColor);
-			}
 		}
 	}
 }
